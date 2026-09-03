@@ -25,6 +25,7 @@ on:
 
 permissions:
   contents: write   # 가격 이력을 저장소에 다시 저장하기 위해
+  issues: write     # 새 특가 후보를 이슈로 올려 휴대폰 알림을 받기 위해
   pages: write
   id-token: write
 
@@ -53,7 +54,25 @@ jobs:
           TRAVELPAYOUTS_TOKEN: ${{ secrets.TRAVELPAYOUTS_TOKEN }}
           TRAVELPAYOUTS_MARKER: ${{ secrets.TRAVELPAYOUTS_MARKER }}
           NOTIFY_WEBHOOK_URL: ${{ secrets.NOTIFY_WEBHOOK_URL }}
+          SITE_URL: https://hugh9848-afk.github.io/flight-deal-finder/
         run: node src/cli.js scan --provider=travelpayouts --regions="${{ inputs.regions }}"
+
+      # 새 후보가 있으면 이슈로 올립니다.
+      # 휴대폰 GitHub 앱이 이 순간 푸시 알림을 띄웁니다.
+      # 별도 계정·토큰이 필요 없고, 지난 알림이 목록으로 남습니다.
+      - name: 새 후보를 이슈로 알리기
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COUNT=$(node -e "try{console.log(JSON.parse(require('fs').readFileSync('web/data/alerts.json','utf8')).count)}catch{console.log(0)}")
+          echo "알릴 후보: $COUNT 건"
+          if [ "$COUNT" -gt 0 ]; then
+            node -e "console.log(JSON.parse(require('fs').readFileSync('web/data/alerts.json','utf8')).text)" > /tmp/alert.md
+            TITLE="✈️ 인천 출발 특가 후보 ${COUNT}건 ($(TZ=Asia/Seoul date +%m/%d))"
+            gh issue create --title "$TITLE" --body-file /tmp/alert.md
+          else
+            echo "새로 알릴 것이 없습니다"
+          fi
 
       - name: 결과를 실행 요약에 표시
         if: always()

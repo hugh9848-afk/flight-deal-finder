@@ -167,6 +167,73 @@ test("참고가 단계에서도 경유 제한이 지켜진다 (유럽 1회 / 아
   assert.equal(r.report.stages.indicative.droppedByStops, 2);
 });
 
+test("값이 실제로 떨어졌을 때만 알리고, 같은 후보를 두 번 알리지 않는다", async () => {
+  const { history, alertState } = tmp();
+  const codes = ["CDG", "FCO", "VIE", "PRG", "MAD", "BCN", "LIS", "ATH", "BUD", "WAW"];
+
+  /** 목적지마다 여러 날짜를 내놓는 공급자를 만듭니다. fcoPrice 로 로마 값만 조절합니다. */
+  const providerWith = (fcoPrice) => {
+    const byDest = {};
+    codes.forEach((d, i) => {
+      byDest[d] = Array.from({ length: 6 }, (_, k) => ({
+        origin: "ICN", destination: d,
+        depart_date: `2026-11-${String(10 + k).padStart(2, "0")}`,
+        return_date: `2026-11-${String(24 + k).padStart(2, "0")}`,
+        value: (d === "FCO" ? fcoPrice : 1200000 + i * 20000) + k * 5000,
+        number_of_changes: 1,
+      }));
+    });
+    return new TravelpayoutsProvider({ client: new FakeClient(byDest) });
+  };
+  const opts = { history, alertState, regions: ["europe"], today: new Date("2026-09-03"), log: () => {} };
+
+  // 1회차: 전부 평범한 값. 이력이 없어 신뢰도 '낮음' → 알리지 않는다
+  const first = await runScan({ provider: providerWith(1_150_000), ...opts });
+  assert.equal(first.alerts.length, 0, "확신 없는 판정으로 알림을 보내면 안 된다");
+  assert.ok(history.load().length >= 60, "이력이 쌓여야 한다");
+
+  // 2회차: 값이 그대로면 '이 노선은 원래 이 값' 이므로 특가가 아니다
+  const same = await runScan({ provider: providerWith(1_150_000), ...opts });
+  const unchanged = same.needsReview.find((i) => i.candidate.destIn === "FCO");
+  assert.match(unchanged.verdict.method, /^history/, "이력 기반으로 판정해야 한다");
+  assert.equal(unchanged.verdict.isDeal, false, "값이 안 변했으면 특가가 아니다");
+  assert.equal(same.alerts.length, 0);
+
+  // 3회차: 값이 크게 떨어지면 특가로 잡고 알린다
+  const dropped = await runScan({ provider: providerWith(380_000), ...opts });
+  const deal = dropped.needsReview.find((i) => i.candidate.destIn === "FCO");
+  assert.equal(deal.verdict.isDeal, true, "평소보다 크게 싸지면 특가여야 한다");
+  assert.ok(deal.verdict.discountPct > 50, `할인율이 커야 한다 (실제 ${deal.verdict.discountPct}%)`);
+  assert.notEqual(deal.verdict.confidence, "low");
+  assert.ok(dropped.alerts.length >= 1, "떨어졌으면 알려야 한다");
+  assert.equal(dropped.alerts[0].candidate.priceType, "indicative", "참고가임을 유지해야 한다");
+  alertState.save();
+
+  // 4회차: 같은 값이면 다시 알리지 않는다
+  const again = await runScan({ provider: providerWith(380_000), ...opts });
+  assert.equal(again.alerts.length, 0, "같은 값이면 다시 알리면 안 된다");
+});
+
+test("알림 문구에는 미확인이라는 사실이 반드시 들어간다", async () => {
+  const { renderAlertText } = await import("../src/notify/index.js");
+  const { makeCandidate, makeLeg } = await import("../src/core/model.js");
+  const c = makeCandidate({
+    source: "travelpayouts", priceType: "indicative", total: 576287,
+    originOut: "ICN", destIn: "IST", destOut: "IST", tripDays: 14,
+    outbound: makeLeg({ from: "ICN", to: "IST", departAt: "2026-10-28", segments: [] }),
+    links: [{ label: "확인", url: "https://www.aviasales.com/search/x?marker=1" }],
+  });
+  const text = renderAlertText([{
+    candidate: c, verdict: { discountPct: 30.9, confidence: "medium", sampleSize: 64 },
+    value: { score: 76 }, alertDecision: { kind: "new" },
+  }]);
+  assert.match(text, /참고가/);
+  assert.match(text, /확인되지 않았습니다/);
+  assert.match(text, /이스탄불/, "코드가 아니라 한글 도시 이름이어야 한다");
+  assert.match(text, /aviasales\.com/, "확인 링크가 있어야 한다");
+  assert.doesNotMatch(text, /확정 특가/, "확정이라고 부르면 안 된다");
+});
+
 test("가격 이력은 참고가라도 쌓인다", async () => {
   const { history, alertState } = tmp();
   const byDest = {};

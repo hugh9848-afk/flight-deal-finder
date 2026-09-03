@@ -316,7 +316,7 @@ export async function runScan({
  * 실제 조회를 못 했으므로 확정 특가는 하나도 만들지 않고,
  * 값이 싸 보이는 후보를 '확인 필요' 목록으로만 넘깁니다.
  */
-function finishIndicativeOnly({ report, ranked, shortlist, settings, log, t0, provider }) {
+function finishIndicativeOnly({ report, ranked, shortlist, settings, log, t0, provider, alertState }) {
   const merged = mergeSameFlight(ranked);
   const needsReview = [];
   for (const item of merged.slice(0, Math.max(settings.funnel.liveCheckTop, shortlist.length) * 3)) {
@@ -328,14 +328,33 @@ function finishIndicativeOnly({ report, ranked, shortlist, settings, log, t0, pr
     needsReview.push(item);
   }
 
+  // 알림 대상 고르기.
+  // 확정 특가가 아니므로 '확정' 이라고 부르지 않습니다. 문구에 미확인임을 명시합니다.
+  // 이렇게 하지 않으면 이 공급자에서는 알림이 영원히 울리지 않습니다.
+  const alerts = [];
+  if (alertState) {
+    for (const item of needsReview) {
+      if (!item.verdict.isDeal) continue;
+      // 신뢰도가 '낮음'(이력 없이 같은 스캔끼리만 비교)이면 알리지 않습니다.
+      // 첫 스캔부터 확신 없는 알림이 쏟아지는 걸 막습니다.
+      if (item.verdict.confidence === "low") continue;
+      const decision = shouldAlert(item, alertState.data, settings);
+      item.alertDecision = decision;
+      if (decision.alert) {
+        alerts.push(item);
+        alertState.record(item.signature, { price: item.candidate.total, score: item.value.score });
+      }
+    }
+  }
+
   report.stages.live = { skipped: true, reason: `${provider.name} 은 참고가 전용`, mergedFrom: ranked.length };
-  report.stages.final = { confirmedDeals: 0, needsReview: needsReview.length, alerts: 0 };
+  report.stages.final = { confirmedDeals: 0, needsReview: needsReview.length, alerts: alerts.length };
   report.providerStats = provider.stats ?? null;
   report.finishedAt = new Date().toISOString();
   report.elapsedSec = Math.round((Date.now() - t0) / 1000);
 
-  log(`[완료] 확정 특가 0건 / 확인 필요 ${needsReview.length}건 (참고가 전용, ${report.elapsedSec}초)`);
-  return { report, deals: [], needsReview, alerts: [] };
+  log(`[완료] 확정 특가 0건 / 확인 필요 ${needsReview.length}건 / 알릴 것 ${alerts.length}건 (참고가 전용, ${report.elapsedSec}초)`);
+  return { report, deals: [], needsReview, alerts };
 }
 
 /**

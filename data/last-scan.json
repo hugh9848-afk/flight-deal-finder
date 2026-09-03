@@ -1,540 +1,4396 @@
 {
   "report": {
-    "startedAt": "2026-09-03T04:28:05.777Z",
-    "provider": "mock",
+    "startedAt": "2026-09-03T04:38:28.209Z",
+    "provider": "travelpayouts",
     "window": {
       "departFrom": "2026-10-03",
       "departTo": "2027-06-30"
     },
     "regions": [
-      "mongolia"
+      "전체"
     ],
-    "destinationCount": 1,
+    "destinationCount": 95,
     "stages": {
       "indicative": {
-        "found": 1,
-        "droppedByStops": 0,
-        "historyRows": 1
+        "found": 62,
+        "droppedByStops": 22,
+        "coverage": {
+          "queried": 92,
+          "withData": 50,
+          "empty": [
+            "EDI",
+            "NCE",
+            "LYS",
+            "MRS",
+            "TLS",
+            "AMS",
+            "DUS",
+            "GVA",
+            "AGP",
+            "VLC",
+            "SVQ",
+            "LIS",
+            "NAP",
+            "BLQ",
+            "FLR",
+            "TRN",
+            "CTA",
+            "PMO",
+            "MLA",
+            "KRK",
+            "OTP",
+            "SPU",
+            "DBV",
+            "LJU",
+            "SKP",
+            "GOT",
+            "BGO",
+            "KEF",
+            "VNO",
+            "TLL",
+            "KUT",
+            "FEZ",
+            "TUN",
+            "ADD",
+            "NBO",
+            "JRO",
+            "ZNZ",
+            "DAR",
+            "JNB",
+            "VFA",
+            "ACC",
+            "DKR"
+          ]
+        },
+        "historyRows": 62
       },
       "shortlist": {
-        "count": 1,
-        "dealFlagged": 0,
-        "method": "none"
+        "count": 15,
+        "dealFlagged": 2,
+        "method": "history-route"
       },
       "live": {
-        "found": 3,
-        "openJaw": 0,
-        "maxStops": 1,
-        "maxStopsByRegion": {
-          "africa": 2
-        },
-        "droppedByStops": 0,
-        "coverage": [
-          {
-            "destination": "UBN",
-            "departureDate": "2026-11-06",
-            "found": 3,
-            "maxStops": 1
-          }
-        ],
-        "emptyDestinations": []
-      },
-      "deduped": {
-        "count": 3,
-        "from": 3
+        "skipped": true,
+        "reason": "travelpayouts 은 참고가 전용",
+        "mergedFrom": 62
       },
       "final": {
         "confirmedDeals": 0,
-        "needsReview": 3,
+        "needsReview": 43,
         "alerts": 0
       }
     },
-    "warnings": [],
+    "warnings": [
+      "travelpayouts 은(는) 실제 운임 조회를 지원하지 않습니다. 참고가까지만 표시되며 확정 특가는 만들어지지 않습니다."
+    ],
     "providerStats": {
-      "indicativeCalls": 1,
-      "liveCalls": 1,
-      "confirmCalls": 3,
+      "indicativeCalls": 92,
+      "liveCalls": 0,
+      "confirmCalls": 0,
       "errors": []
     },
-    "finishedAt": "2026-09-03T04:28:05.782Z",
-    "elapsedSec": 0
+    "finishedAt": "2026-09-03T04:39:04.092Z",
+    "elapsedSec": 36
   },
   "deals": [],
   "needsReview": [
     {
       "candidate": {
-        "id": "e4b3996848ef9aa1",
-        "source": "mock",
-        "priceType": "confirmed",
-        "fetchedAt": "2026-09-03T04:28:05.781Z",
-        "priceValidUntil": "2026-11-06",
+        "id": "003476a8b21023f3",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
         "currency": "KRW",
-        "total": 547018,
-        "base": 328211,
-        "taxes": 218807,
+        "total": 576287,
+        "base": null,
+        "taxes": null,
         "outbound": {
-          "from": "ICN",
-          "to": "UBN",
-          "departAt": "2026-11-06T16:20:00",
-          "arriveAt": "2026-11-07T13:30:00",
-          "durationMin": 1270,
+          "from": "SEL",
+          "to": "IST",
+          "departAt": "2026-10-28",
+          "arriveAt": null,
+          "durationMin": null,
           "stops": 1,
-          "segments": [
-            {
-              "carrier": "MU",
-              "operatingCarrier": "MU",
-              "number": "MU5034",
-              "from": "ICN",
-              "fromTerminal": "1",
-              "to": "PVG",
-              "toTerminal": null,
-              "departAt": "2026-11-06T16:20:00",
-              "arriveAt": "2026-11-06T18:30:00",
-              "durationMin": 130,
-              "cabin": "ECONOMY",
-              "layoverMin": 405,
-              "airportChange": false
-            },
-            {
-              "carrier": "MU",
-              "operatingCarrier": "MU",
-              "number": "MU553",
-              "from": "PVG",
-              "fromTerminal": null,
-              "to": "UBN",
-              "toTerminal": "2E",
-              "departAt": "2026-11-07T01:15:00",
-              "arriveAt": "2026-11-07T13:30:00",
-              "durationMin": 735,
-              "cabin": "ECONOMY",
-              "layoverMin": null,
-              "airportChange": false
-            }
-          ],
-          "layovers": [
-            405
-          ],
-          "problems": []
+          "segments": [],
+          "layovers": []
         },
         "inbound": {
-          "from": "UBN",
-          "to": "ICN",
-          "departAt": "2026-11-23T12:20:00",
-          "arriveAt": "2026-11-24T03:50:00",
-          "durationMin": 930,
-          "stops": 1,
-          "segments": [
-            {
-              "carrier": "MU",
-              "operatingCarrier": "MU",
-              "number": "MU554",
-              "from": "UBN",
-              "fromTerminal": "1",
-              "to": "PVG",
-              "toTerminal": null,
-              "departAt": "2026-11-23T12:20:00",
-              "arriveAt": "2026-11-23T23:55:00",
-              "durationMin": 695,
-              "cabin": "ECONOMY",
-              "layoverMin": 125,
-              "airportChange": false
-            },
-            {
-              "carrier": "MU",
-              "operatingCarrier": "MU",
-              "number": "MU5041",
-              "from": "PVG",
-              "fromTerminal": null,
-              "to": "ICN",
-              "toTerminal": "2E",
-              "departAt": "2026-11-24T02:00:00",
-              "arriveAt": "2026-11-24T03:50:00",
-              "durationMin": 110,
-              "cabin": "ECONOMY",
-              "layoverMin": null,
-              "airportChange": false
-            }
-          ],
-          "layovers": [
-            125
-          ],
-          "problems": []
+          "from": "IST",
+          "to": "SEL",
+          "departAt": "2026-11-11",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
         },
-        "originOut": "ICN",
-        "destIn": "UBN",
-        "destOut": "UBN",
-        "tripDays": 17,
+        "originOut": "SEL",
+        "destIn": "IST",
+        "destOut": "IST",
+        "tripDays": 14,
         "openJaw": false,
         "separateTickets": false,
-        "selfTransfer": false,
-        "airportChange": false,
-        "baggage": {
-          "checkedPieces": 2,
-          "checkedKg": null,
-          "cabinKg": 8
-        },
-        "fareRules": {
-          "refundable": false,
-          "changeFeeKRW": 120000,
-          "conflict": false
-        },
-        "seatsLeft": 3,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
         "ground": null,
-        "links": [],
-        "unknown": [],
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2810IST11111?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
         "notes": [
-          "연습용 가짜 데이터입니다. 실제 항공권이 아닙니다."
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
         ],
         "raw": {
-          "offerId": "mock-UBN-2026-11-06-0",
-          "validatingAirlines": [
-            "MU"
-          ]
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-28T13:29:59",
+          "distanceKm": 7937,
+          "actual": true
         }
       },
       "verdict": {
-        "isDeal": false,
-        "method": "none",
-        "confidence": "none",
-        "discountPct": null,
+        "isDeal": true,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 30.9,
         "zScore": null,
-        "baseline": null,
-        "sampleSize": 0,
-        "reason": "비교할 자료가 아직 없습니다 (이력·비교군 모두 부족)"
+        "baseline": 833663,
+        "sampleSize": 80,
+        "reason": "같은 노선 전체 80건의 평소값 833,663원 대비 (계절 구분 없음)"
       },
       "value": {
-        "score": 68,
+        "score": 76,
         "breakdown": {
-          "price": 40,
-          "time": 65,
-          "layover": 88,
-          "risk": 100,
-          "baggage": 100,
-          "stay": 100
-        },
-        "warnings": [],
-        "totalTripCostKRW": 547018,
-        "usableDays": 15.5
-      },
-      "signature": "ICN>UBN>UBN|2026W45|17d|MU|5",
-      "status": "watch"
-    },
-    {
-      "candidate": {
-        "id": "4987f9815d3ce4bb",
-        "source": "mock",
-        "priceType": "confirmed",
-        "fetchedAt": "2026-09-03T04:28:05.781Z",
-        "priceValidUntil": "2026-11-06",
-        "currency": "KRW",
-        "total": 600859,
-        "base": 360515,
-        "taxes": 240344,
-        "outbound": {
-          "from": "ICN",
-          "to": "UBN",
-          "departAt": "2026-11-06T16:20:00",
-          "arriveAt": "2026-11-07T13:30:00",
-          "durationMin": 1270,
-          "stops": 1,
-          "segments": [
-            {
-              "carrier": "CA",
-              "operatingCarrier": "CA",
-              "number": "CA5034",
-              "from": "ICN",
-              "fromTerminal": "1",
-              "to": "PEK",
-              "toTerminal": null,
-              "departAt": "2026-11-06T16:20:00",
-              "arriveAt": "2026-11-06T18:30:00",
-              "durationMin": 130,
-              "cabin": "ECONOMY",
-              "layoverMin": 405,
-              "airportChange": false
-            },
-            {
-              "carrier": "CA",
-              "operatingCarrier": "CA",
-              "number": "CA553",
-              "from": "PEK",
-              "fromTerminal": null,
-              "to": "UBN",
-              "toTerminal": "2E",
-              "departAt": "2026-11-07T01:15:00",
-              "arriveAt": "2026-11-07T13:30:00",
-              "durationMin": 735,
-              "cabin": "ECONOMY",
-              "layoverMin": null,
-              "airportChange": false
-            }
-          ],
-          "layovers": [
-            405
-          ],
-          "problems": []
-        },
-        "inbound": {
-          "from": "UBN",
-          "to": "ICN",
-          "departAt": "2026-11-23T12:20:00",
-          "arriveAt": "2026-11-24T03:50:00",
-          "durationMin": 930,
-          "stops": 1,
-          "segments": [
-            {
-              "carrier": "CA",
-              "operatingCarrier": "CA",
-              "number": "CA554",
-              "from": "UBN",
-              "fromTerminal": "1",
-              "to": "PEK",
-              "toTerminal": null,
-              "departAt": "2026-11-23T12:20:00",
-              "arriveAt": "2026-11-23T23:55:00",
-              "durationMin": 695,
-              "cabin": "ECONOMY",
-              "layoverMin": 125,
-              "airportChange": false
-            },
-            {
-              "carrier": "CA",
-              "operatingCarrier": "CA",
-              "number": "CA5041",
-              "from": "PEK",
-              "fromTerminal": null,
-              "to": "ICN",
-              "toTerminal": "2E",
-              "departAt": "2026-11-24T02:00:00",
-              "arriveAt": "2026-11-24T03:50:00",
-              "durationMin": 110,
-              "cabin": "ECONOMY",
-              "layoverMin": null,
-              "airportChange": false
-            }
-          ],
-          "layovers": [
-            125
-          ],
-          "problems": []
-        },
-        "originOut": "ICN",
-        "destIn": "UBN",
-        "destOut": "UBN",
-        "tripDays": 17,
-        "openJaw": false,
-        "separateTickets": false,
-        "selfTransfer": false,
-        "airportChange": false,
-        "baggage": {
-          "checkedPieces": 2,
-          "checkedKg": null,
-          "cabinKg": 8
-        },
-        "fareRules": {
-          "refundable": false,
-          "changeFeeKRW": 120000,
-          "conflict": false
-        },
-        "seatsLeft": 3,
-        "ground": null,
-        "links": [],
-        "unknown": [],
-        "notes": [
-          "연습용 가짜 데이터입니다. 실제 항공권이 아닙니다."
-        ],
-        "raw": {
-          "offerId": "mock-UBN-2026-11-06-1",
-          "validatingAirlines": [
-            "CA"
-          ]
-        }
-      },
-      "verdict": {
-        "isDeal": false,
-        "method": "none",
-        "confidence": "none",
-        "discountPct": null,
-        "zScore": null,
-        "baseline": null,
-        "sampleSize": 0,
-        "reason": "비교할 자료가 아직 없습니다 (이력·비교군 모두 부족)"
-      },
-      "value": {
-        "score": 68,
-        "breakdown": {
-          "price": 40,
-          "time": 65,
-          "layover": 88,
-          "risk": 100,
-          "baggage": 100,
-          "stay": 100
-        },
-        "warnings": [],
-        "totalTripCostKRW": 600859,
-        "usableDays": 15.5
-      },
-      "signature": "ICN>UBN>UBN|2026W45|17d|CA|6",
-      "status": "watch"
-    },
-    {
-      "candidate": {
-        "id": "9c2fd4e90fc56880",
-        "source": "mock",
-        "priceType": "confirmed",
-        "fetchedAt": "2026-09-03T04:28:05.782Z",
-        "priceValidUntil": "2026-11-06",
-        "currency": "KRW",
-        "total": 608215,
-        "base": 364929,
-        "taxes": 243286,
-        "outbound": {
-          "from": "ICN",
-          "to": "UBN",
-          "departAt": "2026-11-06T16:20:00",
-          "arriveAt": "2026-11-07T13:30:00",
-          "durationMin": 1270,
-          "stops": 1,
-          "segments": [
-            {
-              "carrier": "TK",
-              "operatingCarrier": "TK",
-              "number": "TK5034",
-              "from": "ICN",
-              "fromTerminal": "1",
-              "to": "IST",
-              "toTerminal": null,
-              "departAt": "2026-11-06T16:20:00",
-              "arriveAt": "2026-11-06T18:30:00",
-              "durationMin": 130,
-              "cabin": "ECONOMY",
-              "layoverMin": 405,
-              "airportChange": false
-            },
-            {
-              "carrier": "TK",
-              "operatingCarrier": "TK",
-              "number": "TK553",
-              "from": "IST",
-              "fromTerminal": null,
-              "to": "UBN",
-              "toTerminal": "2E",
-              "departAt": "2026-11-07T01:15:00",
-              "arriveAt": "2026-11-07T13:30:00",
-              "durationMin": 735,
-              "cabin": "ECONOMY",
-              "layoverMin": null,
-              "airportChange": false
-            }
-          ],
-          "layovers": [
-            405
-          ],
-          "problems": []
-        },
-        "inbound": {
-          "from": "UBN",
-          "to": "ICN",
-          "departAt": "2026-11-23T12:20:00",
-          "arriveAt": "2026-11-24T03:50:00",
-          "durationMin": 930,
-          "stops": 1,
-          "segments": [
-            {
-              "carrier": "TK",
-              "operatingCarrier": "TK",
-              "number": "TK554",
-              "from": "UBN",
-              "fromTerminal": "1",
-              "to": "IST",
-              "toTerminal": null,
-              "departAt": "2026-11-23T12:20:00",
-              "arriveAt": "2026-11-23T23:55:00",
-              "durationMin": 695,
-              "cabin": "ECONOMY",
-              "layoverMin": 125,
-              "airportChange": false
-            },
-            {
-              "carrier": "TK",
-              "operatingCarrier": "TK",
-              "number": "TK5041",
-              "from": "IST",
-              "fromTerminal": null,
-              "to": "ICN",
-              "toTerminal": "2E",
-              "departAt": "2026-11-24T02:00:00",
-              "arriveAt": "2026-11-24T03:50:00",
-              "durationMin": 110,
-              "cabin": "ECONOMY",
-              "layoverMin": null,
-              "airportChange": false
-            }
-          ],
-          "layovers": [
-            125
-          ],
-          "problems": []
-        },
-        "originOut": "ICN",
-        "destIn": "UBN",
-        "destOut": "UBN",
-        "tripDays": 17,
-        "openJaw": false,
-        "separateTickets": false,
-        "selfTransfer": false,
-        "airportChange": false,
-        "baggage": {
-          "checkedPieces": 2,
-          "checkedKg": null,
-          "cabinKg": 8
-        },
-        "fareRules": {
-          "refundable": false,
-          "changeFeeKRW": 120000,
-          "conflict": false
-        },
-        "seatsLeft": 2,
-        "ground": null,
-        "links": [],
-        "unknown": [],
-        "notes": [
-          "연습용 가짜 데이터입니다. 실제 항공권이 아닙니다."
-        ],
-        "raw": {
-          "offerId": "mock-UBN-2026-11-06-2",
-          "validatingAirlines": [
-            "TK"
-          ]
-        }
-      },
-      "verdict": {
-        "isDeal": false,
-        "method": "none",
-        "confidence": "none",
-        "discountPct": null,
-        "zScore": null,
-        "baseline": null,
-        "sampleSize": 0,
-        "reason": "비교할 자료가 아직 없습니다 (이력·비교군 모두 부족)"
-      },
-      "value": {
-        "score": 68,
-        "breakdown": {
-          "price": 40,
-          "time": 65,
-          "layover": 88,
-          "risk": 100,
-          "baggage": 100,
+          "price": 89,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
           "stay": 100
         },
         "warnings": [
-          "남은 좌석 2석 — 곧 사라질 수 있습니다"
+          "이동시간 미확인",
+          "수하물 조건 미확인"
         ],
-        "totalTripCostKRW": 608215,
-        "usableDays": 15.5
+        "totalTripCostKRW": 576287,
+        "usableDays": 14
       },
-      "signature": "ICN>UBN>UBN|2026W45|17d|TK|6",
+      "signature": "SEL>IST>IST|2026W44|14d|?|6",
+      "status": "needs_review",
+      "statusReason": "참고가입니다. 실제 구매 가능 여부와 총액을 아직 확인하지 못했습니다.",
+      "alertDecision": {
+        "alert": false,
+        "kind": "skip",
+        "reason": "0.0일 전에 이미 알렸습니다"
+      }
+    },
+    {
+      "candidate": {
+        "id": "92ee04dfa8187170",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 876248,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "EVN",
+          "departAt": "2027-01-04",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "EVN",
+          "to": "SEL",
+          "departAt": "2027-01-14",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "EVN",
+        "destOut": "EVN",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL0401EVN14011?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-02T03:11:42",
+          "distanceKm": 6846,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": true,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 29.1,
+        "zScore": null,
+        "baseline": 1236527,
+        "sampleSize": 30,
+        "reason": "같은 노선 전체 30건의 평소값 1,236,527원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 73,
+        "breakdown": {
+          "price": 86,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 876248,
+        "usableDays": 10
+      },
+      "signature": "SEL>EVN>EVN|2027W01|10d|?|9",
+      "status": "needs_review",
+      "statusReason": "참고가입니다. 실제 구매 가능 여부와 총액을 아직 확인하지 못했습니다.",
+      "alertDecision": {
+        "alert": false,
+        "kind": "skip",
+        "reason": "0.0일 전에 이미 알렸습니다"
+      }
+    },
+    {
+      "candidate": {
+        "id": "88b365fd146533d7",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 440370,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "UBN",
+          "departAt": "2026-10-06",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 0,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "UBN",
+          "to": "SEL",
+          "departAt": "2026-10-25",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "UBN",
+        "destOut": "UBN",
+        "tripDays": 19,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL0610UBN25101?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 0회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-29T11:17:37",
+          "distanceKm": 1958,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "medium",
+        "discountPct": 9.1,
+        "zScore": null,
+        "baseline": 484300,
+        "sampleSize": 15,
+        "reason": "같은 노선·10월·17-20일 일정 15건의 평소값 484,300원 대비"
+      },
+      "value": {
+        "score": 70,
+        "breakdown": {
+          "price": 61,
+          "time": 50,
+          "layover": 100,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 440370,
+        "usableDays": 19
+      },
+      "signature": "SEL>UBN>UBN|2026W41|19d|?|4",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "132dbc780987443b",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 454291,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "UBN",
+          "departAt": "2026-11-15",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 0,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "UBN",
+          "to": "SEL",
+          "departAt": "2026-12-05",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "UBN",
+        "destOut": "UBN",
+        "tripDays": 20,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1511UBN05121?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 0회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-30T10:19:21",
+          "distanceKm": 1958,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 6.2,
+        "zScore": null,
+        "baseline": 484300,
+        "sampleSize": 85,
+        "reason": "같은 노선 전체 85건의 평소값 484,300원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 68,
+        "breakdown": {
+          "price": 58,
+          "time": 50,
+          "layover": 100,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 454291,
+        "usableDays": 20
+      },
+      "signature": "SEL>UBN>UBN|2026W46|20d|?|5",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "43e8ac00d1225051",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 713296,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "IST",
+          "departAt": "2026-11-17",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "IST",
+          "to": "SEL",
+          "departAt": "2026-11-27",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "IST",
+        "destOut": "IST",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1711IST27111?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-02T06:35:57",
+          "distanceKm": 7937,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 14.4,
+        "zScore": null,
+        "baseline": 833663,
+        "sampleSize": 80,
+        "reason": "같은 노선 전체 80건의 평소값 833,663원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 66,
+        "breakdown": {
+          "price": 68,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 713296,
+        "usableDays": 10
+      },
+      "signature": "SEL>IST>IST|2026W47|10d|?|7",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "1d59a3136d347888",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1166812,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "EVN",
+          "departAt": "2026-12-24",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "EVN",
+          "to": "SEL",
+          "departAt": "2027-01-08",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "EVN",
+        "destOut": "EVN",
+        "tripDays": 15,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2412EVN08011?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-28T10:24:12",
+          "distanceKm": 6846,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "medium",
+        "discountPct": 12.1,
+        "zScore": null,
+        "baseline": 1326979,
+        "sampleSize": 15,
+        "reason": "같은 노선·12월·14-16일 일정 15건의 평소값 1,326,979원 대비"
+      },
+      "value": {
+        "score": 66,
+        "breakdown": {
+          "price": 65,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1166812,
+        "usableDays": 15
+      },
+      "signature": "SEL>EVN>EVN|2026W52|15d|?|12",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "fc7b0b78766af065",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 530333,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "UBN",
+          "departAt": "2026-12-20",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 0,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "UBN",
+          "to": "SEL",
+          "departAt": "2027-01-02",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "UBN",
+        "destOut": "UBN",
+        "tripDays": 13,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2012UBN02011?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 0회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-28T07:34:46",
+          "distanceKm": 1958,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "high",
+        "discountPct": 2.1,
+        "zScore": null,
+        "baseline": 541501,
+        "sampleSize": 30,
+        "reason": "같은 노선·12월·10-13일 일정 30건의 평소값 541,501원 대비"
+      },
+      "value": {
+        "score": 66,
+        "breakdown": {
+          "price": 53,
+          "time": 50,
+          "layover": 100,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 93
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 530333,
+        "usableDays": 13
+      },
+      "signature": "SEL>UBN>UBN|2026W51|13d|?|5",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "3e6e5249c3d9f570",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 845163,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "ZRH",
+          "departAt": "2026-10-29",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "ZRH",
+          "to": "SEL",
+          "departAt": "2026-11-08",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "ZRH",
+        "destOut": "ZRH",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2910ZRH08111?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-30T12:34:44",
+          "distanceKm": 8744,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 12.3,
+        "zScore": null,
+        "baseline": 963925,
+        "sampleSize": 10,
+        "reason": "같은 노선 전체 10건의 평소값 963,925원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 65,
+        "breakdown": {
+          "price": 65,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 845163,
+        "usableDays": 10
+      },
+      "signature": "SEL>ZRH>ZRH|2026W44|10d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "115f1aab4cfc0cd1",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 726078,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "IST",
+          "departAt": "2026-12-01",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "IST",
+          "to": "SEL",
+          "departAt": "2026-12-11",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "IST",
+        "destOut": "IST",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL0112IST11121?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-31T00:43:51",
+          "distanceKm": 7937,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 12.9,
+        "zScore": null,
+        "baseline": 833663,
+        "sampleSize": 80,
+        "reason": "같은 노선 전체 80건의 평소값 833,663원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 65,
+        "breakdown": {
+          "price": 66,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 726078,
+        "usableDays": 10
+      },
+      "signature": "SEL>IST>IST|2026W49|10d|?|7",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "c07e09d69b559b0d",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 833663,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "IST",
+          "departAt": "2027-01-21",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 0,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "IST",
+          "to": "SEL",
+          "departAt": "2027-02-10",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "IST",
+        "destOut": "IST",
+        "tripDays": 20,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2101IST10021?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 0회로 표시됨 (가는 편 기준, 오는 편은 미확인)",
+          "같은 가격으로 체류 13~20일 선택 가능 (8가지)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-03T00:00:00",
+          "distanceKm": 0,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "high",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 833663,
+        "sampleSize": 20,
+        "reason": "같은 노선·01월·17-20일 일정 20건의 평소값 833,663원 대비"
+      },
+      "value": {
+        "score": 65,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 100,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 833663,
+        "usableDays": 20
+      },
+      "tripDaysRange": [
+        13,
+        20
+      ],
+      "mergedCount": 8,
+      "signature": "SEL>IST>IST|2027W03|20d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "e7a59204b463a450",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 484300,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "UBN",
+          "departAt": "2026-10-06",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 0,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "UBN",
+          "to": "SEL",
+          "departAt": "2026-10-24",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "UBN",
+        "destOut": "UBN",
+        "tripDays": 18,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL0610UBN24101?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 0회로 표시됨 (가는 편 기준, 오는 편은 미확인)",
+          "같은 가격으로 체류 10~18일 선택 가능 (9가지)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-03T00:00:00",
+          "distanceKm": 0,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 484300,
+        "sampleSize": 15,
+        "reason": "같은 노선·10월·17-20일 일정 15건의 평소값 484,300원 대비"
+      },
+      "value": {
+        "score": 65,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 100,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 484300,
+        "usableDays": 18
+      },
+      "tripDaysRange": [
+        10,
+        18
+      ],
+      "mergedCount": 9,
+      "signature": "SEL>UBN>UBN|2026W41|18d|?|5",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "0d1cbd3f9560badf",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 783200,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "FRA",
+          "departAt": "2026-10-17",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 0,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "FRA",
+          "to": "SEL",
+          "departAt": "2026-10-28",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "FRA",
+        "destOut": "FRA",
+        "tripDays": 11,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1710FRA28101?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 0회로 표시됨 (가는 편 기준, 오는 편은 미확인)",
+          "같은 가격으로 체류 10~11일 선택 가능 (2가지)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-03T00:00:00",
+          "distanceKm": 0,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 783200,
+        "sampleSize": 15,
+        "reason": "같은 노선·10월·10-13일 일정 15건의 평소값 783,200원 대비"
+      },
+      "value": {
+        "score": 64,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 100,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 79
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 783200,
+        "usableDays": 11
+      },
+      "tripDaysRange": [
+        10,
+        11
+      ],
+      "mergedCount": 2,
+      "signature": "SEL>FRA>FRA|2026W42|11d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "e8018d2f39b25896",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 764629,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "IST",
+          "departAt": "2027-01-07",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "IST",
+          "to": "SEL",
+          "departAt": "2027-01-21",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "IST",
+        "destOut": "IST",
+        "tripDays": 14,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL0701IST21011?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-02T08:52:12",
+          "distanceKm": 7937,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "high",
+        "discountPct": 8.3,
+        "zScore": null,
+        "baseline": 833663,
+        "sampleSize": 20,
+        "reason": "같은 노선·01월·14-16일 일정 20건의 평소값 833,663원 대비"
+      },
+      "value": {
+        "score": 64,
+        "breakdown": {
+          "price": 60,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 764629,
+        "usableDays": 14
+      },
+      "signature": "SEL>IST>IST|2027W01|14d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "d115d9200e45d9f4",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 541501,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "UBN",
+          "departAt": "2026-12-20",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 0,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "UBN",
+          "to": "SEL",
+          "departAt": "2027-01-01",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "UBN",
+        "destOut": "UBN",
+        "tripDays": 12,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2012UBN01011?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 0회로 표시됨 (가는 편 기준, 오는 편은 미확인)",
+          "같은 가격으로 체류 10~12일 선택 가능 (3가지)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-03T00:00:00",
+          "distanceKm": 0,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "high",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 541501,
+        "sampleSize": 30,
+        "reason": "같은 노선·12월·10-13일 일정 30건의 평소값 541,501원 대비"
+      },
+      "value": {
+        "score": 64,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 100,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 86
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 541501,
+        "usableDays": 12
+      },
+      "tripDaysRange": [
+        10,
+        12
+      ],
+      "mergedCount": 3,
+      "signature": "SEL>UBN>UBN|2026W51|12d|?|5",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "c343fe20ef16cdf6",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 759503,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "FRA",
+          "departAt": "2026-10-20",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "FRA",
+          "to": "SEL",
+          "departAt": "2026-11-05",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "FRA",
+        "destOut": "FRA",
+        "tripDays": 16,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2010FRA05111?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-01T04:25:53",
+          "distanceKm": 8543,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 2.5,
+        "zScore": null,
+        "baseline": 778652,
+        "sampleSize": 20,
+        "reason": "같은 노선 전체 20건의 평소값 778,652원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 62,
+        "breakdown": {
+          "price": 53,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 759503,
+        "usableDays": 16
+      },
+      "signature": "SEL>FRA>FRA|2026W43|16d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "065f51ae7cccce4d",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 776730,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "BUD",
+          "departAt": "2026-12-20",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "BUD",
+          "to": "SEL",
+          "departAt": "2027-01-02",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "BUD",
+        "destOut": "BUD",
+        "tripDays": 13,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2012BUD02011?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-02T01:21:56",
+          "distanceKm": 8138,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 4.2,
+        "zScore": null,
+        "baseline": 810773,
+        "sampleSize": 10,
+        "reason": "같은 노선 전체 10건의 평소값 810,773원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 62,
+        "breakdown": {
+          "price": 55,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 93
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 776730,
+        "usableDays": 13
+      },
+      "signature": "SEL>BUD>BUD|2026W51|13d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "8bab6c978dd61fde",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 769390,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "IST",
+          "departAt": "2026-10-09",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "IST",
+          "to": "SEL",
+          "departAt": "2026-10-19",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "IST",
+        "destOut": "IST",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL0910IST19101?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-02T10:17:34",
+          "distanceKm": 7937,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 7.7,
+        "zScore": null,
+        "baseline": 833663,
+        "sampleSize": 80,
+        "reason": "같은 노선 전체 80건의 평소값 833,663원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 62,
+        "breakdown": {
+          "price": 60,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 769390,
+        "usableDays": 10
+      },
+      "signature": "SEL>IST>IST|2026W41|10d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "85ead2a94289cb0b",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1159535,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "EVN",
+          "departAt": "2026-11-11",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "EVN",
+          "to": "SEL",
+          "departAt": "2026-11-21",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "EVN",
+        "destOut": "EVN",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1111EVN21111?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-31T04:51:29",
+          "distanceKm": 6846,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 6.2,
+        "zScore": null,
+        "baseline": 1236527,
+        "sampleSize": 30,
+        "reason": "같은 노선 전체 30건의 평소값 1,236,527원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 62,
+        "breakdown": {
+          "price": 58,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1159535,
+        "usableDays": 10
+      },
+      "signature": "SEL>EVN>EVN|2026W46|10d|?|12",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "458163eca7e516b5",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1123910,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "SSH",
+          "departAt": "2026-12-03",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 2,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "SSH",
+          "to": "SEL",
+          "departAt": "2026-12-18",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "SSH",
+        "destOut": "SSH",
+        "tripDays": 15,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL0312SSH18121?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 2회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-31T06:51:32",
+          "distanceKm": 8331,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "medium",
+        "discountPct": 2.4,
+        "zScore": null,
+        "baseline": 1150961,
+        "sampleSize": 10,
+        "reason": "같은 노선·12월·14-16일 일정 10건의 평소값 1,150,961원 대비"
+      },
+      "value": {
+        "score": 62,
+        "breakdown": {
+          "price": 53,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1123910,
+        "usableDays": 15
+      },
+      "signature": "SEL>SSH>SSH|2026W49|15d|?|11",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "4ac0b028aac6259e",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 774104,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "FRA",
+          "departAt": "2026-10-17",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "FRA",
+          "to": "SEL",
+          "departAt": "2026-10-29",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "FRA",
+        "destOut": "FRA",
+        "tripDays": 12,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1710FRA29101?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-27T13:20:19",
+          "distanceKm": 8543,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "medium",
+        "discountPct": 1.2,
+        "zScore": null,
+        "baseline": 783200,
+        "sampleSize": 15,
+        "reason": "같은 노선·10월·10-13일 일정 15건의 평소값 783,200원 대비"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 52,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 86
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 774104,
+        "usableDays": 12
+      },
+      "signature": "SEL>FRA>FRA|2026W42|12d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "85d70cbbc063ea4e",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1033647,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "HAM",
+          "departAt": "2026-12-11",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "HAM",
+          "to": "SEL",
+          "departAt": "2026-12-25",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "HAM",
+        "destOut": "HAM",
+        "tripDays": 14,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1112HAM25121?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-01T16:00:16",
+          "distanceKm": 8199,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 1033647,
+        "sampleSize": 5,
+        "reason": "같은 노선 전체 5건의 평소값 1,033,647원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1033647,
+        "usableDays": 14
+      },
+      "signature": "SEL>HAM>HAM|2026W50|14d|?|10",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "ac5bb57ed9d65c25",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 786997,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "VIE",
+          "departAt": "2027-01-10",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "VIE",
+          "to": "SEL",
+          "departAt": "2027-01-20",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "VIE",
+        "destOut": "VIE",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1001VIE20011?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-02T14:54:24",
+          "distanceKm": 8249,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 3.5,
+        "zScore": null,
+        "baseline": 815764,
+        "sampleSize": 10,
+        "reason": "같은 노선 전체 10건의 평소값 815,764원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 54,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 786997,
+        "usableDays": 10
+      },
+      "signature": "SEL>VIE>VIE|2027W01|10d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "5003aef17e11929f",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 709230,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "BCN",
+          "departAt": "2026-10-30",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "BCN",
+          "to": "SEL",
+          "departAt": "2026-11-10",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "BCN",
+        "destOut": "BCN",
+        "tripDays": 11,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL3010BCN10111?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-27T10:00:29",
+          "distanceKm": 9595,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 2,
+        "zScore": null,
+        "baseline": 723649,
+        "sampleSize": 10,
+        "reason": "같은 노선 전체 10건의 평소값 723,649원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 53,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 79
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 709230,
+        "usableDays": 11
+      },
+      "signature": "SEL>BCN>BCN|2026W44|11d|?|7",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "012f0e8da933d91a",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 766179,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "ATH",
+          "departAt": "2026-10-27",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "ATH",
+          "to": "SEL",
+          "departAt": "2026-11-09",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "ATH",
+        "destOut": "ATH",
+        "tripDays": 13,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2710ATH09111?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-31T12:27:00",
+          "distanceKm": 8474,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 766179,
+        "sampleSize": 5,
+        "reason": "같은 노선 전체 5건의 평소값 766,179원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 93
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 766179,
+        "usableDays": 13
+      },
+      "signature": "SEL>ATH>ATH|2026W44|13d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "5a5d165cd7b282be",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 939872,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "BEG",
+          "departAt": "2027-06-14",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "BEG",
+          "to": "SEL",
+          "departAt": "2027-06-28",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "BEG",
+        "destOut": "BEG",
+        "tripDays": 14,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1406BEG28061?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-31T05:11:18",
+          "distanceKm": 8252,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 939872,
+        "sampleSize": 5,
+        "reason": "같은 노선 전체 5건의 평소값 939,872원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 939872,
+        "usableDays": 14
+      },
+      "signature": "SEL>BEG>BEG|2027W24|14d|?|9",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "6a7bf82684352a1d",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 853579,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "CPH",
+          "departAt": "2026-11-30",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "CPH",
+          "to": "SEL",
+          "departAt": "2026-12-14",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "CPH",
+        "destOut": "CPH",
+        "tripDays": 14,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL3011CPH14121?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-29T19:45:59",
+          "distanceKm": 7925,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 853579,
+        "sampleSize": 5,
+        "reason": "같은 노선 전체 5건의 평소값 853,579원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 853579,
+        "usableDays": 14
+      },
+      "signature": "SEL>CPH>CPH|2026W49|14d|?|9",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "ce1f1bba6da2ec77",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 831923,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "IST",
+          "departAt": "2027-01-21",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "IST",
+          "to": "SEL",
+          "departAt": "2027-02-02",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "IST",
+        "destOut": "IST",
+        "tripDays": 12,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2101IST02021?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-29T08:28:51",
+          "distanceKm": 7937,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "medium",
+        "discountPct": 0.1,
+        "zScore": null,
+        "baseline": 832785,
+        "sampleSize": 10,
+        "reason": "같은 노선·01월·10-13일 일정 10건의 평소값 832,785원 대비"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 86
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 831923,
+        "usableDays": 12
+      },
+      "signature": "SEL>IST>IST|2027W03|12d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "8d23738442b258e7",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1144364,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "TBS",
+          "departAt": "2026-12-29",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "TBS",
+          "to": "SEL",
+          "departAt": "2027-01-12",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "TBS",
+        "destOut": "TBS",
+        "tripDays": 14,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2912TBS12011?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-01T03:52:42",
+          "distanceKm": 6729,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 1144364,
+        "sampleSize": 5,
+        "reason": "같은 노선 전체 5건의 평소값 1,144,364원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1144364,
+        "usableDays": 14
+      },
+      "signature": "SEL>TBS>TBS|2026W53|14d|?|11",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "da4ed2fda25922dc",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1326979,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "EVN",
+          "departAt": "2026-12-22",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "EVN",
+          "to": "SEL",
+          "departAt": "2027-01-06",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "EVN",
+        "destOut": "EVN",
+        "tripDays": 15,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2212EVN06011?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-28T10:24:12",
+          "distanceKm": 6846,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 1326979,
+        "sampleSize": 15,
+        "reason": "같은 노선·12월·14-16일 일정 15건의 평소값 1,326,979원 대비"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1326979,
+        "usableDays": 15
+      },
+      "signature": "SEL>EVN>EVN|2026W52|15d|?|13",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "a6e0ac477d160ece",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1046951,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "CAI",
+          "departAt": "2027-06-27",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "CAI",
+          "to": "SEL",
+          "departAt": "2027-07-11",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "CAI",
+        "destOut": "CAI",
+        "tripDays": 14,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2706CAI11071?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-02T06:27:52",
+          "distanceKm": 8431,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 1046951,
+        "sampleSize": 5,
+        "reason": "같은 노선 전체 5건의 평소값 1,046,951원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1046951,
+        "usableDays": 14
+      },
+      "signature": "SEL>CAI>CAI|2027W25|14d|?|10",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "8fe214e3ba85f224",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 931583,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "CMN",
+          "departAt": "2026-10-26",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 2,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "CMN",
+          "to": "SEL",
+          "departAt": "2026-11-08",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "CMN",
+        "destOut": "CMN",
+        "tripDays": 13,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2610CMN08111?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 2회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-30T12:24:05",
+          "distanceKm": 10814,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 931583,
+        "sampleSize": 5,
+        "reason": "같은 노선 전체 5건의 평소값 931,583원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 93
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 931583,
+        "usableDays": 13
+      },
+      "signature": "SEL>CMN>CMN|2026W44|13d|?|9",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "4729983981ad1bf5",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1432049,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "SEZ",
+          "departAt": "2026-10-05",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 2,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "SEZ",
+          "to": "SEL",
+          "departAt": "2026-10-18",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "SEZ",
+        "destOut": "SEZ",
+        "tripDays": 13,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL0510SEZ18101?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 2회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-28T18:57:20",
+          "distanceKm": 8666,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 1432049,
+        "sampleSize": 5,
+        "reason": "같은 노선 전체 5건의 평소값 1,432,049원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 60,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 93
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1432049,
+        "usableDays": 13
+      },
+      "signature": "SEL>SEZ>SEZ|2026W41|13d|?|14",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "6228a399aba46c5b",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 770149,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "WAW",
+          "departAt": "2026-10-20",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "WAW",
+          "to": "SEL",
+          "departAt": "2026-10-30",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "WAW",
+        "destOut": "WAW",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2010WAW30101?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-02T00:02:00",
+          "distanceKm": 7726,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": 0,
+        "zScore": null,
+        "baseline": 770149,
+        "sampleSize": 5,
+        "reason": "같은 노선 전체 5건의 평소값 770,149원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 59,
+        "breakdown": {
+          "price": 50,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 770149,
+        "usableDays": 10
+      },
+      "signature": "SEL>WAW>WAW|2026W43|10d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "a396a434d2cc9d4d",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 596599,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "UBN",
+          "departAt": "2026-12-30",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 0,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "UBN",
+          "to": "SEL",
+          "departAt": "2027-01-10",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "UBN",
+        "destOut": "UBN",
+        "tripDays": 11,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL3012UBN10011?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 0회로 표시됨 (가는 편 기준, 오는 편은 미확인)",
+          "같은 가격으로 체류 10~11일 선택 가능 (2가지)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-30T06:50:03",
+          "distanceKm": 1958,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "high",
+        "discountPct": -10.2,
+        "zScore": null,
+        "baseline": 541501,
+        "sampleSize": 30,
+        "reason": "같은 노선·12월·10-13일 일정 30건의 평소값 541,501원 대비"
+      },
+      "value": {
+        "score": 59,
+        "breakdown": {
+          "price": 37,
+          "time": 50,
+          "layover": 100,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 79
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 596599,
+        "usableDays": 11
+      },
+      "tripDaysRange": [
+        10,
+        11
+      ],
+      "mergedCount": 2,
+      "signature": "SEL>UBN>UBN|2026W53|11d|?|6",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "328a896d053bafc4",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1178027,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "SSH",
+          "departAt": "2026-12-04",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 2,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "SSH",
+          "to": "SEL",
+          "departAt": "2026-12-19",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "SSH",
+        "destOut": "SSH",
+        "tripDays": 15,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL0412SSH19121?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 2회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-31T05:56:04",
+          "distanceKm": 8331,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "medium",
+        "discountPct": -2.4,
+        "zScore": null,
+        "baseline": 1150961,
+        "sampleSize": 10,
+        "reason": "같은 노선·12월·14-16일 일정 10건의 평소값 1,150,961원 대비"
+      },
+      "value": {
+        "score": 59,
+        "breakdown": {
+          "price": 47,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1178027,
+        "usableDays": 15
+      },
+      "signature": "SEL>SSH>SSH|2026W49|15d|?|12",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "14d8b0280e13b880",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 738084,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "BCN",
+          "departAt": "2026-12-02",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "BCN",
+          "to": "SEL",
+          "departAt": "2026-12-12",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "BCN",
+        "destOut": "BCN",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL0212BCN12121?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-28T12:31:42",
+          "distanceKm": 9595,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": -2,
+        "zScore": null,
+        "baseline": 723649,
+        "sampleSize": 10,
+        "reason": "같은 노선 전체 10건의 평소값 723,649원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 58,
+        "breakdown": {
+          "price": 48,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 738084,
+        "usableDays": 10
+      },
+      "signature": "SEL>BCN>BCN|2026W49|10d|?|7",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "b787de564f939ec5",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 838946,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "IST",
+          "departAt": "2027-02-11",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "IST",
+          "to": "SEL",
+          "departAt": "2027-02-21",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "IST",
+        "destOut": "IST",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1102IST21021?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-30T05:37:54",
+          "distanceKm": 7937,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": -0.6,
+        "zScore": null,
+        "baseline": 833663,
+        "sampleSize": 80,
+        "reason": "같은 노선 전체 80건의 평소값 833,663원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 58,
+        "breakdown": {
+          "price": 49,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 838946,
+        "usableDays": 10
+      },
+      "signature": "SEL>IST>IST|2027W06|10d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "f4c6f24fa26a1764",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1306256,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "EVN",
+          "departAt": "2026-11-08",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "EVN",
+          "to": "SEL",
+          "departAt": "2026-11-22",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "EVN",
+        "destOut": "EVN",
+        "tripDays": 14,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL0811EVN22111?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-28T10:25:17",
+          "distanceKm": 6846,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": -5.6,
+        "zScore": null,
+        "baseline": 1236527,
+        "sampleSize": 30,
+        "reason": "같은 노선 전체 30건의 평소값 1,236,527원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 58,
+        "breakdown": {
+          "price": 43,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1306256,
+        "usableDays": 14
+      },
+      "signature": "SEL>EVN>EVN|2026W45|14d|?|13",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "2c54bc4acc380a8f",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 844546,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "VIE",
+          "departAt": "2027-02-14",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "VIE",
+          "to": "SEL",
+          "departAt": "2027-02-24",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "VIE",
+        "destOut": "VIE",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1402VIE24021?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-02T14:54:09",
+          "distanceKm": 8249,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": -3.5,
+        "zScore": null,
+        "baseline": 815764,
+        "sampleSize": 10,
+        "reason": "같은 노선 전체 10건의 평소값 815,764원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 57,
+        "breakdown": {
+          "price": 46,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 844546,
+        "usableDays": 10
+      },
+      "signature": "SEL>VIE>VIE|2027W06|10d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "32053322ca518e49",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 844831,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "BUD",
+          "departAt": "2027-01-27",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "BUD",
+          "to": "SEL",
+          "departAt": "2027-02-06",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "BUD",
+        "destOut": "BUD",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2701BUD06021?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-02T14:42:47",
+          "distanceKm": 8138,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": -4.2,
+        "zScore": null,
+        "baseline": 810773,
+        "sampleSize": 10,
+        "reason": "같은 노선 전체 10건의 평소값 810,773원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 57,
+        "breakdown": {
+          "price": 45,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 844831,
+        "usableDays": 10
+      },
+      "signature": "SEL>BUD>BUD|2027W04|10d|?|8",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "434491780d040475",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1429835,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "EVN",
+          "departAt": "2026-12-23",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "EVN",
+          "to": "SEL",
+          "departAt": "2027-01-07",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "EVN",
+        "destOut": "EVN",
+        "tripDays": 15,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL2312EVN07011?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-28T10:13:27",
+          "distanceKm": 6846,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history",
+        "confidence": "medium",
+        "discountPct": -7.8,
+        "zScore": null,
+        "baseline": 1326979,
+        "sampleSize": 15,
+        "reason": "같은 노선·12월·14-16일 일정 15건의 평소값 1,326,979원 대비"
+      },
+      "value": {
+        "score": 56,
+        "breakdown": {
+          "price": 40,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1429835,
+        "usableDays": 15
+      },
+      "signature": "SEL>EVN>EVN|2026W52|15d|?|14",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "b0a25a958e550bad",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 952053,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "IST",
+          "departAt": "2026-10-10",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "IST",
+          "to": "SEL",
+          "departAt": "2026-10-29",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "IST",
+        "destOut": "IST",
+        "tripDays": 19,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1010IST29101?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-09-02T13:50:31",
+          "distanceKm": 7937,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": -14.2,
+        "zScore": null,
+        "baseline": 833663,
+        "sampleSize": 80,
+        "reason": "같은 노선 전체 80건의 평소값 833,663원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 53,
+        "breakdown": {
+          "price": 32,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 100
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 952053,
+        "usableDays": 19
+      },
+      "signature": "SEL>IST>IST|2026W41|19d|?|10",
+      "status": "watch"
+    },
+    {
+      "candidate": {
+        "id": "2d3b4251a40f8076",
+        "source": "travelpayouts",
+        "priceType": "indicative",
+        "fetchedAt": "2026-09-03T04:38:28.211Z",
+        "priceValidUntil": null,
+        "currency": "KRW",
+        "total": 1082702,
+        "base": null,
+        "taxes": null,
+        "outbound": {
+          "from": "SEL",
+          "to": "ZRH",
+          "departAt": "2026-12-13",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": 1,
+          "segments": [],
+          "layovers": []
+        },
+        "inbound": {
+          "from": "ZRH",
+          "to": "SEL",
+          "departAt": "2026-12-23",
+          "arriveAt": null,
+          "durationMin": null,
+          "stops": null,
+          "segments": [],
+          "layovers": []
+        },
+        "originOut": "SEL",
+        "destIn": "ZRH",
+        "destOut": "ZRH",
+        "tripDays": 10,
+        "openJaw": false,
+        "separateTickets": false,
+        "selfTransfer": null,
+        "airportChange": null,
+        "baggage": null,
+        "fareRules": null,
+        "seatsLeft": null,
+        "ground": null,
+        "links": [
+          {
+            "label": "아비아세일즈에서 같은 조건 검색",
+            "url": "https://www.aviasales.com/search/SEL1312ZRH23121?marker=773252"
+          }
+        ],
+        "unknown": [
+          "taxes",
+          "baggage",
+          "fareRules",
+          "selfTransfer",
+          "airportChange"
+        ],
+        "notes": [
+          "참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다.",
+          "경유 1회로 표시됨 (가는 편 기준, 오는 편은 미확인)"
+        ],
+        "raw": {
+          "endpoint": "v2/prices/latest",
+          "airline": null,
+          "flightNumber": null,
+          "observedAt": "2026-08-30T14:37:08",
+          "distanceKm": 8744,
+          "actual": true
+        }
+      },
+      "verdict": {
+        "isDeal": false,
+        "method": "history-route",
+        "confidence": "medium",
+        "discountPct": -12.3,
+        "zScore": null,
+        "baseline": 963925,
+        "sampleSize": 10,
+        "reason": "같은 노선 전체 10건의 평소값 963,925원 대비 (계절 구분 없음)"
+      },
+      "value": {
+        "score": 52,
+        "breakdown": {
+          "price": 35,
+          "time": 50,
+          "layover": 60,
+          "risk": 92,
+          "baggage": 40,
+          "stay": 71
+        },
+        "warnings": [
+          "이동시간 미확인",
+          "수하물 조건 미확인"
+        ],
+        "totalTripCostKRW": 1082702,
+        "usableDays": 10
+      },
+      "signature": "SEL>ZRH>ZRH|2026W50|10d|?|11",
       "status": "watch"
     }
   ]

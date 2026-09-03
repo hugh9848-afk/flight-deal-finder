@@ -12,7 +12,7 @@ import { MockProvider } from "./providers/mock/index.js";
 import { AmadeusProvider } from "./providers/amadeus/index.js";
 import { TravelpayoutsProvider } from "./providers/travelpayouts/index.js";
 import { SETTINGS } from "./config/settings.js";
-import { writeSummaryFile, sendWebhook, renderAlertText } from "./notify/index.js";
+import { writeSummaryFile, sendWebhook, renderAlertText, writeAlertsFile } from "./notify/index.js";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 
@@ -101,15 +101,22 @@ async function main() {
   const summary = renderSummary(result);
   const summaryFile = writeSummaryFile(summary, path.join(ROOT, "web", "data"));
 
-  // 새로 알릴 특가가 있을 때만 웹훅을 씁니다.
+  // 알림 대상을 파일로 남깁니다 (워크플로우가 읽어 GitHub 이슈로 올립니다).
+  const siteUrl = process.env.SITE_URL ?? null;
+  const alertsFile = writeAlertsFile(result.alerts, path.join(ROOT, "web", "data"), { siteUrl });
+
+  // 웹훅 주소가 설정돼 있으면 그리로도 보냅니다.
   if (result.alerts.length) {
-    const sent = await sendWebhook(renderAlertText(result.alerts));
-    console.log(`알림: ${sent.sent ? "웹훅 전송 완료" : `웹훅 미전송 (${sent.reason ?? sent.status})`}`);
+    const sent = await sendWebhook(renderAlertText(result.alerts, { siteUrl }));
+    console.log(`알림 ${result.alerts.length}건 · ${sent.sent ? "웹훅 전송 완료" : `웹훅 미전송(${sent.reason ?? sent.status})`}`);
+  } else {
+    console.log("알림: 새로 알릴 후보 없음");
   }
 
   console.log("\n" + summary);
   console.log(`\n저장: ${out.webFile}`);
   console.log(`요약: ${summaryFile}`);
+  console.log(`알림: ${alertsFile}`);
   if (result.report.warnings.length) {
     console.log("\n주의:");
     for (const w of result.report.warnings.slice(0, 10)) console.log(`  - ${w}`);
