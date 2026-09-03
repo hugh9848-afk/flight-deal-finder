@@ -5,6 +5,17 @@ name: 특가 스캔
 on:
   schedule:
     - cron: "0 21 */3 * *"   # 한국시간 오전 6시, 3일마다
+
+  # 코드를 고쳐 올리면 곧바로 다시 돌려 사이트에 반영합니다.
+  # 단, 이 워크플로우가 스스로 저장하는 폴더(data/, web/data/)는 무시합니다.
+  # 안 그러면 '실행 -> 결과 커밋 -> 그 커밋이 또 실행' 으로 끝없이 돕니다.
+  push:
+    branches: [main]
+    paths-ignore:
+      - "data/**"
+      - "web/data/**"
+      - "README.md"
+
   workflow_dispatch:          # 손으로도 돌릴 수 있게
     inputs:
       regions:
