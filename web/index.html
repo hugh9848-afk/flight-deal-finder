@@ -52,6 +52,10 @@
   details{margin-top:8px} summary{font-size:12.5px;color:var(--accent);cursor:pointer}
   code{font-size:11.5px;background:var(--bg);padding:1px 4px;border-radius:4px}
   .code{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+  .verify{display:block;margin-top:10px;padding:11px 12px;background:var(--accent);color:#fff;
+          border-radius:10px;text-align:center;font-weight:700;font-size:14px;text-decoration:none}
+  .verify:active{opacity:.85}
+  .verify small{display:block;font-weight:400;font-size:11.5px;opacity:.85;margin-top:2px}
 </style>
 </head>
 <body>
@@ -93,6 +97,19 @@ function legHtml(leg, label){
          + `${dt(s.departAt)} → ${esc(s.to)}${s.toTerminal?`(T${esc(s.toTerminal)})`:""} ${dt(s.arriveAt)} · ${hm(s.durationMin)}</div>${lay}`;
   }).join("");
   return `<div class="leg"><b>${label}</b> ${dt(leg.departAt)} · ${leg.durationMin != null ? `총 ${hm(leg.durationMin)} · ` : "이동시간 미확인 · "}${leg.stops === null || leg.stops === undefined ? "경유 미확인" : `경유 ${leg.stops}회`}${segs}</div>`;
+}
+
+/**
+ * '눌러서 실제 가격 확인' 버튼.
+ * 이 앱은 실제 운임을 자동으로 확정하지 못하므로,
+ * 마지막 확인은 사람이 이 버튼 한 번으로 합니다.
+ */
+function verifyLink(d){
+  const url = (d.links ?? [])[0]?.url;
+  if (!url) return "";
+  return `<a class="verify" href="${esc(url)}" target="_blank" rel="noopener noreferrer">`
+       + `눌러서 실제 가격 확인`
+       + `<small>아비아세일즈에서 같은 조건으로 검색합니다</small></a>`;
 }
 
 function cardHtml(d){
@@ -148,6 +165,7 @@ function cardHtml(d){
     ${legHtml(d.inbound,"귀국")}
     <div class="meta" style="margin-top:8px">🧳 ${esc(bg)} · ${esc(refund)}</div>
     ${ground}${unknown}${reason}${warns}
+    ${verifyLink(d)}
     <details><summary>판정 근거 보기</summary>
       <div class="meta">${esc(v.reason ?? "-")}</div>
       <div class="meta">기준값 ${won(v.baseline)} · 방식 <code>${esc(v.method ?? "-")}</code>${v.zScore!=null?` · z=${v.zScore}`:""}</div>
