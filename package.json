@@ -1,0 +1,16 @@
+{
+  "name": "flight-deal-finder",
+  "version": "0.1.0",
+  "description": "인천(ICN) 출발 유럽·아프리카·조지아·몽골 단기여행 특가 탐색기",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "scan": "node src/cli.js scan",
+    "scan:mock": "node src/cli.js scan --provider=mock",
+    "verify": "node src/cli.js verify",
+    "test": "node --test \"test/*.test.js\""
+  }
+}

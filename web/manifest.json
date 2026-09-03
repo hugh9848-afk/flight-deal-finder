@@ -1,0 +1,9 @@
+{
+  "name": "인천 출발 특가 탐색",
+  "short_name": "특가탐색",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b1120",
+  "theme_color": "#0b1120",
+  "icons": []
+}
