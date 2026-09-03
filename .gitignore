@@ -1,8 +1,4 @@
-# ── Travelpayouts (넓게 훑기 · 무료) ────────────────────────────
-# www.travelpayouts.com 가입 후 Profile → API token 에서 발급
-TRAVELPAYOUTS_TOKEN=
-# 링크에 붙는 제휴 번호. 없어도 동작합니다.
-TRAVELPAYOUTS_MARKER=
-
-# ── 알림 (선택) ────────────────────────────────────────────────
-NOTIFY_WEBHOOK_URL=
+node_modules/
+.env
+*.log
+.DS_Store
