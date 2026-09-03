@@ -2,6 +2,18 @@
 // 공개 폴더(web/data)에는 API 키가 절대 들어가지 않게, 필요한 값만 골라 적습니다.
 import fs from "node:fs";
 import path from "node:path";
+import { findAirport } from "../config/destinations.js";
+
+// 출발지 이름 (목적지 표에는 없으므로 따로 적어둡니다)
+const ORIGIN_NAMES = { ICN: "인천", GMP: "김포", SEL: "서울" };
+
+/** 공항·도시 코드를 사람이 읽는 이름으로 바꿉니다. 모르면 null. */
+function placeName(code) {
+  if (!code) return null;
+  if (ORIGIN_NAMES[code]) return { city: ORIGIN_NAMES[code], country: "대한민국" };
+  const a = findAirport(code);
+  return a ? { city: a.city, country: a.country } : null;
+}
 
 /** 화면에 보여줄 만큼만 추려 담습니다. */
 function publicView(item) {
@@ -34,6 +46,10 @@ function publicView(item) {
     taxes: c.taxes,
     totalTripCostKRW: item.value?.totalTripCostKRW ?? null,
     originOut: c.originOut, destIn: c.destIn, destOut: c.destOut,
+    // 화면에 보여줄 한글 이름 (코드만 보면 어딘지 모르니까요)
+    originName: placeName(c.originOut),
+    destInName: placeName(c.destIn),
+    destOutName: placeName(c.destOut),
     tripDays: c.tripDays, usableDays: item.value?.usableDays ?? null,
     tripDaysRange: item.tripDaysRange ?? null,
     mergedCount: item.mergedCount ?? null,

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-09-03T04:05:49.893Z",
+  "generatedAt": "2026-09-03T04:14:20.713Z",
   "report": {
-    "startedAt": "2026-09-03T04:05:26.900Z",
+    "startedAt": "2026-09-03T04:13:38.433Z",
     "provider": "travelpayouts",
     "window": {
       "departFrom": "2026-10-03",
@@ -90,8 +90,8 @@
       "confirmCalls": 0,
       "errors": []
     },
-    "finishedAt": "2026-09-03T04:05:49.893Z",
-    "elapsedSec": 23
+    "finishedAt": "2026-09-03T04:14:20.712Z",
+    "elapsedSec": 42
   },
   "deals": [],
   "needsReview": [
@@ -102,7 +102,7 @@
       "statusReason": "참고가입니다. 실제 구매 가능 여부와 총액을 아직 확인하지 못했습니다.",
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 576287,
@@ -112,6 +112,18 @@
       "originOut": "SEL",
       "destIn": "IST",
       "destOut": "IST",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
+      "destOutName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
       "tripDays": 14,
       "usableDays": 14,
       "tripDaysRange": null,
@@ -192,7 +204,7 @@
       "statusReason": "참고가입니다. 실제 구매 가능 여부와 총액을 아직 확인하지 못했습니다.",
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 876248,
@@ -202,6 +214,18 @@
       "originOut": "SEL",
       "destIn": "EVN",
       "destOut": "EVN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
+      "destOutName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -282,7 +306,7 @@
       "statusReason": "참고가입니다. 실제 구매 가능 여부와 총액을 아직 확인하지 못했습니다.",
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 709230,
@@ -292,6 +316,18 @@
       "originOut": "SEL",
       "destIn": "BCN",
       "destOut": "BCN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "바르셀로나",
+        "country": "스페인"
+      },
+      "destOutName": {
+        "city": "바르셀로나",
+        "country": "스페인"
+      },
       "tripDays": 11,
       "usableDays": 11,
       "tripDaysRange": null,
@@ -373,7 +409,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 440370,
@@ -383,6 +419,18 @@
       "originOut": "SEL",
       "destIn": "UBN",
       "destOut": "UBN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
+      "destOutName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
       "tripDays": 19,
       "usableDays": 19,
       "tripDaysRange": null,
@@ -463,7 +511,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 454291,
@@ -473,6 +521,18 @@
       "originOut": "SEL",
       "destIn": "UBN",
       "destOut": "UBN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
+      "destOutName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
       "tripDays": 20,
       "usableDays": 20,
       "tripDaysRange": null,
@@ -553,7 +613,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 713296,
@@ -563,6 +623,18 @@
       "originOut": "SEL",
       "destIn": "IST",
       "destOut": "IST",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
+      "destOutName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -643,7 +715,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 726078,
@@ -653,6 +725,18 @@
       "originOut": "SEL",
       "destIn": "IST",
       "destOut": "IST",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
+      "destOutName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -733,7 +817,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 833663,
@@ -743,6 +827,18 @@
       "originOut": "SEL",
       "destIn": "IST",
       "destOut": "IST",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
+      "destOutName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
       "tripDays": 20,
       "usableDays": 20,
       "tripDaysRange": [
@@ -827,7 +923,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 484300,
@@ -837,6 +933,18 @@
       "originOut": "SEL",
       "destIn": "UBN",
       "destOut": "UBN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
+      "destOutName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
       "tripDays": 18,
       "usableDays": 18,
       "tripDaysRange": [
@@ -921,7 +1029,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 931583,
@@ -931,6 +1039,18 @@
       "originOut": "SEL",
       "destIn": "CMN",
       "destOut": "CMN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "카사블랑카",
+        "country": "모로코"
+      },
+      "destOutName": {
+        "city": "카사블랑카",
+        "country": "모로코"
+      },
       "tripDays": 13,
       "usableDays": 13,
       "tripDaysRange": null,
@@ -1012,7 +1132,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 764629,
@@ -1022,6 +1142,18 @@
       "originOut": "SEL",
       "destIn": "IST",
       "destOut": "IST",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
+      "destOutName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
       "tripDays": 14,
       "usableDays": 14,
       "tripDaysRange": null,
@@ -1102,7 +1234,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1166812,
@@ -1112,6 +1244,18 @@
       "originOut": "SEL",
       "destIn": "EVN",
       "destOut": "EVN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
+      "destOutName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
       "tripDays": 15,
       "usableDays": 15,
       "tripDaysRange": null,
@@ -1192,7 +1336,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 769390,
@@ -1202,6 +1346,18 @@
       "originOut": "SEL",
       "destIn": "IST",
       "destOut": "IST",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
+      "destOutName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -1282,7 +1438,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1144364,
@@ -1292,6 +1448,18 @@
       "originOut": "SEL",
       "destIn": "TBS",
       "destOut": "TBS",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "트빌리시",
+        "country": "조지아"
+      },
+      "destOutName": {
+        "city": "트빌리시",
+        "country": "조지아"
+      },
       "tripDays": 14,
       "usableDays": 14,
       "tripDaysRange": null,
@@ -1373,7 +1541,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1159535,
@@ -1383,6 +1551,18 @@
       "originOut": "SEL",
       "destIn": "EVN",
       "destOut": "EVN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
+      "destOutName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -1463,7 +1643,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 759503,
@@ -1473,6 +1653,18 @@
       "originOut": "SEL",
       "destIn": "FRA",
       "destOut": "FRA",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "프랑크푸르트",
+        "country": "독일"
+      },
+      "destOutName": {
+        "city": "프랑크푸르트",
+        "country": "독일"
+      },
       "tripDays": 16,
       "usableDays": 16,
       "tripDaysRange": null,
@@ -1554,7 +1746,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1046951,
@@ -1564,6 +1756,18 @@
       "originOut": "SEL",
       "destIn": "CAI",
       "destOut": "CAI",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "카이로",
+        "country": "이집트"
+      },
+      "destOutName": {
+        "city": "카이로",
+        "country": "이집트"
+      },
       "tripDays": 14,
       "usableDays": 14,
       "tripDaysRange": null,
@@ -1645,7 +1849,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 783200,
@@ -1655,6 +1859,18 @@
       "originOut": "SEL",
       "destIn": "FRA",
       "destOut": "FRA",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "프랑크푸르트",
+        "country": "독일"
+      },
+      "destOutName": {
+        "city": "프랑크푸르트",
+        "country": "독일"
+      },
       "tripDays": 11,
       "usableDays": 11,
       "tripDaysRange": [
@@ -1740,7 +1956,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 831923,
@@ -1750,6 +1966,18 @@
       "originOut": "SEL",
       "destIn": "IST",
       "destOut": "IST",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
+      "destOutName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
       "tripDays": 12,
       "usableDays": 12,
       "tripDaysRange": null,
@@ -1830,7 +2058,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 530333,
@@ -1840,6 +2068,18 @@
       "originOut": "SEL",
       "destIn": "UBN",
       "destOut": "UBN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
+      "destOutName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
       "tripDays": 13,
       "usableDays": 13,
       "tripDaysRange": null,
@@ -1920,7 +2160,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 738084,
@@ -1930,6 +2170,18 @@
       "originOut": "SEL",
       "destIn": "BCN",
       "destOut": "BCN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "바르셀로나",
+        "country": "스페인"
+      },
+      "destOutName": {
+        "city": "바르셀로나",
+        "country": "스페인"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -2011,7 +2263,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 776730,
@@ -2021,6 +2273,18 @@
       "originOut": "SEL",
       "destIn": "BUD",
       "destOut": "BUD",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "부다페스트",
+        "country": "헝가리"
+      },
+      "destOutName": {
+        "city": "부다페스트",
+        "country": "헝가리"
+      },
       "tripDays": 13,
       "usableDays": 13,
       "tripDaysRange": null,
@@ -2102,7 +2366,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 838946,
@@ -2112,6 +2376,18 @@
       "originOut": "SEL",
       "destIn": "IST",
       "destOut": "IST",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
+      "destOutName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -2192,7 +2468,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1306256,
@@ -2202,6 +2478,18 @@
       "originOut": "SEL",
       "destIn": "EVN",
       "destOut": "EVN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
+      "destOutName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
       "tripDays": 14,
       "usableDays": 14,
       "tripDaysRange": null,
@@ -2282,7 +2570,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 541501,
@@ -2292,6 +2580,18 @@
       "originOut": "SEL",
       "destIn": "UBN",
       "destOut": "UBN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
+      "destOutName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
       "tripDays": 12,
       "usableDays": 12,
       "tripDaysRange": [
@@ -2376,7 +2676,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1123910,
@@ -2386,6 +2686,18 @@
       "originOut": "SEL",
       "destIn": "SSH",
       "destOut": "SSH",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "샤름엘셰이크",
+        "country": "이집트"
+      },
+      "destOutName": {
+        "city": "샤름엘셰이크",
+        "country": "이집트"
+      },
       "tripDays": 15,
       "usableDays": 15,
       "tripDaysRange": null,
@@ -2467,7 +2779,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 774104,
@@ -2477,6 +2789,18 @@
       "originOut": "SEL",
       "destIn": "FRA",
       "destOut": "FRA",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "프랑크푸르트",
+        "country": "독일"
+      },
+      "destOutName": {
+        "city": "프랑크푸르트",
+        "country": "독일"
+      },
       "tripDays": 12,
       "usableDays": 12,
       "tripDaysRange": null,
@@ -2558,7 +2882,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 766179,
@@ -2568,6 +2892,18 @@
       "originOut": "SEL",
       "destIn": "ATH",
       "destOut": "ATH",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "아테네",
+        "country": "그리스"
+      },
+      "destOutName": {
+        "city": "아테네",
+        "country": "그리스"
+      },
       "tripDays": 13,
       "usableDays": 13,
       "tripDaysRange": null,
@@ -2649,7 +2985,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1326979,
@@ -2659,6 +2995,18 @@
       "originOut": "SEL",
       "destIn": "EVN",
       "destOut": "EVN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
+      "destOutName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
       "tripDays": 15,
       "usableDays": 15,
       "tripDaysRange": null,
@@ -2739,7 +3087,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 786997,
@@ -2749,6 +3097,18 @@
       "originOut": "SEL",
       "destIn": "VIE",
       "destOut": "VIE",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "빈",
+        "country": "오스트리아"
+      },
+      "destOutName": {
+        "city": "빈",
+        "country": "오스트리아"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -2830,7 +3190,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 770149,
@@ -2840,6 +3200,18 @@
       "originOut": "SEL",
       "destIn": "WAW",
       "destOut": "WAW",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "바르샤바",
+        "country": "폴란드"
+      },
+      "destOutName": {
+        "city": "바르샤바",
+        "country": "폴란드"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -2921,7 +3293,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 853579,
@@ -2931,6 +3303,18 @@
       "originOut": "SEL",
       "destIn": "CPH",
       "destOut": "CPH",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "코펜하겐",
+        "country": "덴마크"
+      },
+      "destOutName": {
+        "city": "코펜하겐",
+        "country": "덴마크"
+      },
       "tripDays": 14,
       "usableDays": 14,
       "tripDaysRange": null,
@@ -3012,7 +3396,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1178027,
@@ -3022,6 +3406,18 @@
       "originOut": "SEL",
       "destIn": "SSH",
       "destOut": "SSH",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "샤름엘셰이크",
+        "country": "이집트"
+      },
+      "destOutName": {
+        "city": "샤름엘셰이크",
+        "country": "이집트"
+      },
       "tripDays": 15,
       "usableDays": 15,
       "tripDaysRange": null,
@@ -3103,7 +3499,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 844546,
@@ -3113,6 +3509,18 @@
       "originOut": "SEL",
       "destIn": "VIE",
       "destOut": "VIE",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "빈",
+        "country": "오스트리아"
+      },
+      "destOutName": {
+        "city": "빈",
+        "country": "오스트리아"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -3194,7 +3602,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 844831,
@@ -3204,6 +3612,18 @@
       "originOut": "SEL",
       "destIn": "BUD",
       "destOut": "BUD",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "부다페스트",
+        "country": "헝가리"
+      },
+      "destOutName": {
+        "city": "부다페스트",
+        "country": "헝가리"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -3285,7 +3705,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 952053,
@@ -3295,6 +3715,18 @@
       "originOut": "SEL",
       "destIn": "IST",
       "destOut": "IST",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
+      "destOutName": {
+        "city": "이스탄불",
+        "country": "튀르키예"
+      },
       "tripDays": 19,
       "usableDays": 19,
       "tripDaysRange": null,
@@ -3375,7 +3807,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1429835,
@@ -3385,6 +3817,18 @@
       "originOut": "SEL",
       "destIn": "EVN",
       "destOut": "EVN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
+      "destOutName": {
+        "city": "예레반",
+        "country": "아르메니아"
+      },
       "tripDays": 15,
       "usableDays": 15,
       "tripDaysRange": null,
@@ -3465,7 +3909,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 845163,
@@ -3475,6 +3919,18 @@
       "originOut": "SEL",
       "destIn": "ZRH",
       "destOut": "ZRH",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "취리히",
+        "country": "스위스"
+      },
+      "destOutName": {
+        "city": "취리히",
+        "country": "스위스"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
@@ -3556,7 +4012,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 596599,
@@ -3566,6 +4022,18 @@
       "originOut": "SEL",
       "destIn": "UBN",
       "destOut": "UBN",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
+      "destOutName": {
+        "city": "울란바토르",
+        "country": "몽골"
+      },
       "tripDays": 11,
       "usableDays": 11,
       "tripDaysRange": [
@@ -3650,7 +4118,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 939872,
@@ -3660,6 +4128,18 @@
       "originOut": "SEL",
       "destIn": "BEG",
       "destOut": "BEG",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "베오그라드",
+        "country": "세르비아"
+      },
+      "destOutName": {
+        "city": "베오그라드",
+        "country": "세르비아"
+      },
       "tripDays": 14,
       "usableDays": 14,
       "tripDaysRange": null,
@@ -3741,7 +4221,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1033647,
@@ -3751,6 +4231,18 @@
       "originOut": "SEL",
       "destIn": "HAM",
       "destOut": "HAM",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "함부르크",
+        "country": "독일"
+      },
+      "destOutName": {
+        "city": "함부르크",
+        "country": "독일"
+      },
       "tripDays": 14,
       "usableDays": 14,
       "tripDaysRange": null,
@@ -3832,7 +4324,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1432049,
@@ -3842,6 +4334,18 @@
       "originOut": "SEL",
       "destIn": "SEZ",
       "destOut": "SEZ",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "세이셸",
+        "country": "세이셸"
+      },
+      "destOutName": {
+        "city": "세이셸",
+        "country": "세이셸"
+      },
       "tripDays": 13,
       "usableDays": 13,
       "tripDaysRange": null,
@@ -3923,7 +4427,7 @@
       "statusReason": null,
       "source": "travelpayouts",
       "priceType": "indicative",
-      "fetchedAt": "2026-09-03T04:05:26.902Z",
+      "fetchedAt": "2026-09-03T04:13:38.435Z",
       "priceValidUntil": null,
       "currency": "KRW",
       "total": 1082702,
@@ -3933,6 +4437,18 @@
       "originOut": "SEL",
       "destIn": "ZRH",
       "destOut": "ZRH",
+      "originName": {
+        "city": "서울",
+        "country": "대한민국"
+      },
+      "destInName": {
+        "city": "취리히",
+        "country": "스위스"
+      },
+      "destOutName": {
+        "city": "취리히",
+        "country": "스위스"
+      },
       "tripDays": 10,
       "usableDays": 10,
       "tripDaysRange": null,
