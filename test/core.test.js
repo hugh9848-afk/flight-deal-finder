@@ -223,6 +223,42 @@ test("구간 정보가 없으면 경유 횟수를 0 이라고 단정하지 않�
   assert.equal(one.stops, 0, "구간이 1개면 진짜 직항이다");
 });
 
+test("스캔마다 새 파일에 적어서 서로 부딪히지 않는다", async () => {
+  const { PriceHistory } = await import("../src/store/history.js");
+  const fs = await import("node:fs");
+  const os = await import("node:os");
+  const path = await import("node:path");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hsplit-"));
+
+  // 서로 다른 두 스캔이 각자 적습니다
+  new PriceHistory(dir).append([cand({ total: 100000 }), cand({ total: 200000 })]);
+  new PriceHistory(dir).append([cand({ total: 300000 })]);
+
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".ndjson"));
+  assert.equal(files.length, 2, "스캔마다 낱장이 하나씩 생겨야 한다");
+  assert.equal(new PriceHistory(dir).load().length, 3, "읽을 때는 낱장을 전부 모아 읽어야 한다");
+});
+
+test("연습용 가짜 자료는 가격 이력에 남기지 않는다", async () => {
+  const { PriceHistory } = await import("../src/store/history.js");
+  const fs = await import("node:fs");
+  const os = await import("node:os");
+  const path = await import("node:path");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hmock-"));
+  const h = new PriceHistory(dir);
+
+  const fake = cand({ total: 111111 });
+  fake.source = "mock";
+  const real = cand({ dest: "FCO", total: 900000 });
+
+  const written = h.append([fake, real]);
+  assert.equal(written, 1, "가짜는 빼고 진짜만 적어야 한다");
+  const rows = new PriceHistory(dir).load();
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].source, "test");
+  assert.ok(!rows.some((r) => r.total === 111111), "가짜 가격이 섞이면 안 된다");
+});
+
 test("주차 계산이 맞는다", () => {
   assert.equal(isoWeek("2026-10-11"), "2026W41");
 });

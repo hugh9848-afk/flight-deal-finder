@@ -30,16 +30,33 @@ export class PriceHistory {
     this.cache = null;
   }
 
-  /** 이번 달 파일 이름 (예: 2026-09.ndjson) */
+  /**
+   * 이번 스캔이 쓸 파일 이름.
+   *
+   * 스캔마다 새 파일을 만듭니다 (예: 2026-09-03T0424-a3f1.ndjson).
+   * 한 파일에 여러 곳이 번갈아 쓰면 깃에서 충돌이 나기 때문입니다.
+   * 내 맥에서 돌린 것과 자동 실행이 돌린 것이 각자 낱장에 쓰고,
+   * 읽을 때는 폴더에 있는 낱장을 전부 모아 읽습니다.
+   */
   #fileFor(date = new Date()) {
-    return path.join(this.dir, `${date.toISOString().slice(0, 7)}.ndjson`);
+    if (!this.runFile) {
+      const stamp = date.toISOString().slice(0, 16).replace(/[:]/g, "").replace("T", "T");
+      const rand = Math.random().toString(16).slice(2, 6);
+      this.runFile = path.join(this.dir, `${stamp}-${rand}.ndjson`);
+    }
+    return this.runFile;
   }
 
-  /** 후보들을 공책에 적습니다. 값이 없는 건 적지 않습니다. */
+  /**
+   * 후보들을 공책에 적습니다.
+   * 값이 없는 건 적지 않고, 연습용 가짜(mock) 자료는 절대 적지 않습니다.
+   * 가짜 가격이 섞이면 '평소 가격' 판단이 통째로 망가집니다.
+   */
   append(candidates) {
     const rows = [];
     for (const c of candidates) {
       if (typeof c.total !== "number") continue;
+      if (c.source === "mock") continue;   // 연습용 자료는 이력에 남기지 않습니다
       const departureDate = c.outbound?.departAt?.slice(0, 10) ?? null;
       if (!departureDate || !c.destIn) continue;
       rows.push({
