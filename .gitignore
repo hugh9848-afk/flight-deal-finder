@@ -2,3 +2,8 @@ node_modules/
 .env
 *.log
 .DS_Store
+
+# 스캔할 때마다 새로 만들어지는 결과물 (배포 때 워크플로우가 생성합니다)
+web/data/deals.json
+web/data/summary.txt
+web/data/alerts.json
