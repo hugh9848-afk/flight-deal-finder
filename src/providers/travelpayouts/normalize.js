@@ -104,3 +104,130 @@ export function rowsFromCityDirections(data) {
 export function rowsFromLatest(data) {
   return Array.isArray(data?.data) ? data.data : [];
 }
+
+// ───────────────────────────────────────────────────────────
+// v3 (aviasales/v3/prices_for_dates) 전용
+//
+// v3 는 v2 보다 훨씬 자세합니다. 특히 이 세 가지가 중요합니다.
+//   origin_airport / destination_airport : 도시코드가 아닌 진짜 공항
+//   duration_to / duration_back          : 가는 편·오는 편 이동시간(분)
+//   return_transfers                     : 귀국편 경유 횟수
+// 그리고 시각에 시간대가 붙어 있어서
+// '귀국 출발 시각 + 오는 편 소요시간' 으로 실제 인천 도착 날짜를 계산할 수 있습니다.
+// ───────────────────────────────────────────────────────────
+
+/** 시각을 한국 날짜(YYYY-MM-DD)로 바꿉니다. */
+function kstDate(iso) {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return null;
+  return new Date(t + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
+/** 숫자면 그대로, 아니면 null */
+function num(v) {
+  return typeof v === "number" && Number.isFinite(v) ? v : null;
+}
+
+/**
+ * v3 한 줄을 후보로 바꿉니다.
+ * @param {object} row      v3 응답의 한 항목
+ * @param {string} linkBase 링크 앞에 붙일 주소 (예: https://www.aviasales.com)
+ * @param {string} marker   제휴 번호 (없으면 생략)
+ */
+export function normalizeV3Row(row, { currency = "KRW", fetchedAt, linkBase = "https://www.aviasales.com", marker = null } = {}) {
+  const departAt = row.departure_at ?? null;
+  const returnAt = row.return_at ?? null;
+  const durTo = num(row.duration_to);
+  const durBack = num(row.duration_back);
+
+  // 실제 인천 도착 시각 = 귀국 출발 시각 + 오는 편 소요시간
+  let icnArriveAt = null;
+  if (returnAt && durBack !== null) {
+    const t = Date.parse(returnAt);
+    if (Number.isFinite(t)) icnArriveAt = new Date(t + durBack * 60000).toISOString();
+  }
+
+  const departDay = departAt ? kstDate(departAt) : null;
+  const arriveDay = icnArriveAt ? kstDate(icnArriveAt) : null;
+
+  // 인천 도착일을 계산할 수 있으면 여행 일수를 '확정'할 수 있습니다.
+  let tripDays = null, tripDaysBasis = null;
+  if (departDay && arriveDay) {
+    tripDays = tripDaysBetween(departDay, arriveDay);
+    tripDaysBasis = "icn_confirmed";
+  } else if (departDay && returnAt) {
+    tripDays = tripDaysBetween(departDay, kstDate(returnAt));
+    tripDaysBasis = "local_departure_estimated";
+  }
+
+  // 사람이 눌러 확인할 링크. v3 는 상대 주소로 주므로 앞을 채워 줍니다.
+  let link = null;
+  if (typeof row.link === "string" && row.link) {
+    const u = new URL(row.link, linkBase);
+    if (marker) u.searchParams.set("marker", marker);
+    link = u.toString();
+  }
+
+  const outFrom = row.origin_airport ?? row.origin ?? null;
+  const outTo = row.destination_airport ?? row.destination ?? null;
+
+  const notes = ["참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다."];
+  if (row.gate) notes.push(`표시 판매처: ${row.gate}`);
+  if (tripDaysBasis === "icn_confirmed") {
+    notes.push(`인천 도착 예정 ${arriveDay} (귀국 출발 시각 + 오는 편 ${Math.round(durBack / 60)}시간으로 계산)`);
+  }
+
+  const c = makeCandidate({
+    source: "travelpayouts",
+    priceType: PRICE_TYPE.INDICATIVE,
+    fetchedAt,
+    currency,
+    total: num(row.price),
+    base: null,
+    taxes: null,
+    outbound: makeLeg({
+      from: outFrom, to: outTo,
+      departAt, durationMin: durTo, segments: [],
+    }),
+    inbound: returnAt
+      ? makeLeg({ from: outTo, to: outFrom, departAt: returnAt, arriveAt: icnArriveAt, durationMin: durBack, segments: [] })
+      : null,
+    originOut: outFrom,
+    destIn: outTo,
+    destOut: returnAt ? outTo : null,
+    tripDays,
+    tripDaysBasis,
+    openJaw: false,
+    separateTickets: null,
+    selfTransfer: null,
+    airportChange: null,
+    baggage: null,
+    fareRules: null,
+    links: link ? [{ label: "아비아세일즈에서 이 일정 확인", url: link }] : [],
+    notes,
+  });
+
+  // v3 는 양쪽 경유 횟수를 알려줍니다 (v2 는 가는 편만)
+  if (c.outbound) c.outbound.stops = num(row.transfers);
+  if (c.inbound) c.inbound.stops = num(row.return_transfers);
+  // 이동시간을 알게 됐으니 미확인 목록에서 빼줍니다
+  if (durTo !== null && durBack !== null) {
+    c.unknown = c.unknown.filter((k) => k !== "duration");
+  }
+
+  c.raw = {
+    endpoint: "aviasales/v3/prices_for_dates",
+    airline: row.airline ?? null,
+    flightNumber: row.flight_number ?? null,
+    gate: row.gate ?? null,
+    // v3 는 '언제 본 가격인지'를 주지 않으므로 우리가 받은 시각으로 대신합니다
+    observedAt: null,
+    icnArriveAt,
+  };
+  return c;
+}
+
+/** v3 응답은 배열입니다. */
+export function rowsFromV3(data) {
+  return Array.isArray(data?.data) ? data.data : [];
+}

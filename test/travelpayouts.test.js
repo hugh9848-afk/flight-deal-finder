@@ -106,7 +106,7 @@ test("체류일수와 출발 기간을 벗어난 후보는 걸러낸다", async 
   assert.ok(r.candidates[0].links[0].url.includes("aviasales.com/search/ICN1011CDG2411"));
 });
 
-test("같은 노선·날짜가 겹치면 싼 쪽만 남긴다", async () => {
+test("같은 노선·날짜가 겹치면 하나만 남기고, 자세한 v3 를 우선한다", async () => {
   const p = new TravelpayoutsProvider({
     client: new FakeClient({
       CDG: [
@@ -119,8 +119,43 @@ test("같은 노선·날짜가 겹치면 싼 쪽만 남긴다", async () => {
     origin: "ICN", departFrom: "2026-10-01", departTo: "2027-06-30",
     minTripDays: 10, maxTripDays: 20, destinations: dests("CDG"),
   });
-  assert.equal(r.candidates.length, 1);
-  assert.equal(r.candidates[0].total, 750000);
+  assert.equal(r.candidates.length, 1, "같은 일정은 하나만 남아야 한다");
+  assert.equal(r.candidates[0].total, 750000, "같은 종류끼리는 싼 쪽");
+});
+
+test("v2 와 v3 에 같은 일정이 있으면 자세한 v3 를 남긴다", async () => {
+  // v3 는 실제 공항·이동시간·귀국 경유를 주므로, 조금 비싸도 이쪽이 쓸모 있습니다.
+  class DualClient {
+    constructor() { this.marker = "m1"; }
+    async request(path) {
+      if (path === "/v2/prices/latest") {
+        return { ok: true, status: 200, data: { success: true, data: [
+          { origin: "ICN", destination: "PAR", depart_date: "2026-11-10",
+            return_date: "2026-11-20", value: 700000, number_of_changes: 1 },
+        ]}};
+      }
+      return { ok: true, status: 200, data: { data: [
+        { origin: "SEL", destination: "PAR", origin_airport: "ICN", destination_airport: "CDG",
+          departure_at: "2026-11-10T10:00:00+09:00", return_at: "2026-11-20T12:00:00+01:00",
+          price: 730000, transfers: 1, return_transfers: 2,
+          duration_to: 900, duration_back: 840, gate: "Trip.com", link: "/search/x" },
+      ]}};
+    }
+    searchLink() { return "https://x"; }
+  }
+  const p = new TravelpayoutsProvider({ client: new DualClient() });
+  const r = await p.searchInspiration({
+    origin: "ICN", departFrom: "2026-10-01", departTo: "2027-06-30",
+    minTripDays: 5, maxTripDays: 20, destinations: dests("CDG"),
+  });
+  assert.equal(r.candidates.length, 1, "같은 일정이므로 하나만 남아야 한다");
+  const c = r.candidates[0];
+  assert.equal(c.total, 730000, "조금 비싸도 자세한 v3 를 남긴다");
+  assert.equal(c.destIn, "CDG", "도시코드가 아니라 실제 공항이어야 한다");
+  assert.equal(c.outbound.durationMin, 900, "가는 편 이동시간을 알아야 한다");
+  assert.equal(c.inbound.stops, 2, "귀국편 경유 횟수를 알아야 한다");
+  assert.equal(c.tripDaysBasis, "icn_confirmed", "인천 도착일을 계산했으므로 확정");
+  assert.ok(c.links[0].url.includes("marker=m1"));
 });
 
 test("참고가만 주는 공급자로는 확정 특가가 절대 만들어지지 않는다", async () => {
