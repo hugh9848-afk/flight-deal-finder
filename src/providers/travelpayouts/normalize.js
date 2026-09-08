@@ -10,12 +10,8 @@ function dayOf(v) {
   return v.slice(0, 10);
 }
 
-/** 두 날짜 사이 일수. 하나라도 없으면 null. */
-function daysBetween(a, b) {
-  if (!a || !b) return null;
-  const d = Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
-  return Number.isFinite(d) ? d : null;
-}
+// 여행 일수는 공통 규칙(떠나는 날을 1일째로 셈)을 씁니다.
+import { tripDaysBetween } from "../../core/dateCombos.js";
 
 /**
  * 한 건을 후보 한 장으로 바꿉니다.
@@ -38,6 +34,7 @@ export function normalizeRow(row, { currency = "KRW", fetchedAt, link = null, en
   const outStops = typeof rawStops === "number" ? rawStops : null;
 
   const notes = ["참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다."];
+  if (returnDate) notes.push("여행 일수는 현지 출발일 기준 어림값입니다. 인천 도착일은 하루 뒤일 수 있습니다.");
   if (row.actual === false) notes.push("공급자가 '최신 아님'으로 표시한 가격입니다.");
   if (outStops !== null) notes.push(`경유 ${outStops}회로 표시됨 (가는 편 기준, 오는 편은 미확인)`);
 
@@ -64,7 +61,10 @@ export function normalizeRow(row, { currency = "KRW", fetchedAt, link = null, en
     originOut: row.origin,
     destIn: row.destination,
     destOut: returnDate ? row.destination : null,
-    tripDays: daysBetween(departureDate, returnDate),
+    // 이 공급자는 '현지에서 뜨는 날'까지만 알려줍니다.
+    // 인천에 실제로 내리는 날은 밤 비행기면 하루 뒤일 수 있어 확정할 수 없습니다.
+    tripDays: tripDaysBetween(departureDate, returnDate),
+    tripDaysBasis: "local_departure_estimated",
     openJaw: false,
     // 이 자료만으로는 별도 발권·자가환승 여부를 알 수 없습니다.
     separateTickets: null,

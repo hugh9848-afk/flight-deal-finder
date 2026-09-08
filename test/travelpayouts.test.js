@@ -50,7 +50,7 @@ test("문서에 나온 v1 응답을 그대로 읽어낸다", () => {
   assert.equal(rows.length, 1);
   const c = normalizeRow(rows[0], { endpoint: "v1" });
   assert.equal(c.total, 837700);
-  assert.equal(c.tripDays, 14);
+  assert.equal(c.tripDays, 15, "떠나는 날을 1일째로 세므로 15일");
   assert.equal(c.outbound.stops, 1);
   assert.equal(c.priceValidUntil, "2026-09-10T09:32:44Z");
   assert.equal(c.priceType, PRICE_TYPE.INDICATIVE, "참고가로 표시되어야 한다");
@@ -63,7 +63,8 @@ test("문서에 나온 v2 응답을 그대로 읽어낸다", () => {
   ]});
   const c = normalizeRow(rows[0], { endpoint: "v2" });
   assert.equal(c.total, 912000);
-  assert.equal(c.tripDays, 14);
+  assert.equal(c.tripDays, 15, "떠나는 날을 1일째로 세므로 15일");
+  assert.equal(c.tripDaysBasis, "local_departure_estimated", "인천 도착일을 모르므로 어림값이어야 한다");
   assert.equal(c.raw.observedAt, "2026-09-01T06:33:32+04:00");
 });
 
@@ -151,20 +152,58 @@ test("참고가만 주는 공급자로는 확정 특가가 절대 만들어지�
   assert.equal(fco.candidate.priceType, PRICE_TYPE.INDICATIVE);
 });
 
-test("참고가 단계에서도 경유 제한이 지켜진다 (유럽 1회 / 아프리카 2회)", async () => {
+test("참고가 단계에서도 경유 제한이 지켜진다 (어디든 2회까지)", async () => {
   const { history, alertState } = tmp();
   const mk = (dest, stops) => [{ origin: "ICN", destination: dest, depart_date: "2026-11-10",
                                  return_date: "2026-11-24", value: 800000, number_of_changes: stops }];
-  // 유럽(PRG) 2회 → 제외 / 유럽(VIE) 1회 → 통과 / 아프리카(CAI) 2회 → 통과 / 아프리카(NBO) 3회 → 제외
+  // 유럽 2회·아프리카 2회는 통과 / 3회는 어디서든 제외
   const p = new TravelpayoutsProvider({
-    client: new FakeClient({ PRG: mk("PRG", 2), VIE: mk("VIE", 1), CAI: mk("CAI", 2), NBO: mk("NBO", 3) }),
+    client: new FakeClient({ PRG: mk("PRG", 2), VIE: mk("VIE", 3), CAI: mk("CAI", 2), NBO: mk("NBO", 3) }),
   });
   const r = await runScan({
     provider: p, history, alertState, today: new Date("2026-09-03"), log: () => {},
   });
   const kept = r.needsReview.map((i) => i.candidate.destIn).sort();
-  assert.deepEqual(kept, ["CAI", "VIE"], `유럽 1회·아프리카 2회만 남아야 한다 (실제: ${kept.join(",")})`);
+  assert.deepEqual(kept, ["CAI", "PRG"], `2회짜리만 남아야 한다 (실제: ${kept.join(",")})`);
   assert.equal(r.report.stages.indicative.droppedByStops, 2);
+});
+
+test("여행 일수가 경계 밖인 후보는 알림으로 내보내지 않는다", async () => {
+  const { history, alertState } = tmp();
+  // 21일짜리(범위 밖)와 15일짜리(범위 안)를 같은 조건으로 내놓습니다
+  const codes = ["CDG", "FCO", "VIE", "PRG", "MAD", "BCN", "LIS", "ATH", "BUD", "WAW"];
+  const build = (fcoDays) => {
+    const byDest = {};
+    codes.forEach((d, i) => {
+      byDest[d] = Array.from({ length: 6 }, (_, k) => ({
+        origin: "ICN", destination: d,
+        depart_date: `2026-11-${String(10 + k).padStart(2, "0")}`,
+        return_date: `2026-11-${String(10 + k + (d === "FCO" ? fcoDays : 14) - 1).padStart(2, "0")}`,
+        value: (d === "FCO" ? 1_150_000 : 1_200_000 + i * 20000) + k * 5000,
+        number_of_changes: 1,
+      }));
+    });
+    return byDest;
+  };
+  const opts = { history, alertState, regions: ["europe"], today: new Date("2026-09-03"), log: () => {} };
+
+  // 이력을 쌓아 신뢰도를 올립니다 (평범한 값으로 두 번)
+  await runScan({ provider: new TravelpayoutsProvider({ client: new FakeClient(build(15)) }), ...opts });
+  await runScan({ provider: new TravelpayoutsProvider({ client: new FakeClient(build(15)) }), ...opts });
+
+  // 이제 FCO 를 21일(범위 밖)이면서 아주 싸게 만듭니다
+  const cheapOutOfRange = build(21);
+  for (const r of cheapOutOfRange.FCO) r.value = 380000;
+  const r = await runScan({
+    provider: new TravelpayoutsProvider({ client: new FakeClient(cheapOutOfRange) }), ...opts,
+  });
+
+  const fco = r.needsReview.find((i) => i.candidate.destIn === "FCO");
+  assert.ok(fco, "경계 밖이어도 목록에는 남아야 한다");
+  assert.equal(fco.candidate.outOfRange, true);
+  assert.ok(fco.candidate.notes.some((n) => n.includes("경계 밖")));
+  assert.ok(!r.alerts.some((a) => a.candidate.destIn === "FCO"),
+    "경계 밖 후보는 아무리 싸도 알림으로 나가면 안 된다");
 });
 
 test("값이 실제로 떨어졌을 때만 알리고, 같은 후보를 두 번 알리지 않는다", async () => {

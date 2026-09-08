@@ -51,6 +51,8 @@ function publicView(item) {
     destInName: placeName(c.destIn),
     destOutName: placeName(c.destOut),
     tripDays: c.tripDays, usableDays: item.value?.usableDays ?? null,
+    tripDaysBasis: c.tripDaysBasis ?? null,
+    outOfRange: c.outOfRange === true,
     tripDaysRange: item.tripDaysRange ?? null,
     mergedCount: item.mergedCount ?? null,
     openJaw: c.openJaw, separateTickets: c.separateTickets,

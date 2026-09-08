@@ -13,8 +13,11 @@ import { AmadeusProvider } from "./providers/amadeus/index.js";
 import { TravelpayoutsProvider } from "./providers/travelpayouts/index.js";
 import { SETTINGS } from "./config/settings.js";
 import { writeSummaryFile, sendWebhook, renderAlertText, writeAlertsFile } from "./notify/index.js";
+import { fileURLToPath } from "node:url";
 
-const ROOT = new URL("..", import.meta.url).pathname;
+// 폴더 이름에 한글이 있으면 URL.pathname 은 %ED%95%AD 처럼 바꿔버려 파일을 못 찾습니다.
+// fileURLToPath 를 써야 한글이 한글 그대로 읽힙니다.
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
 
 /** .env 파일이 있으면 읽어서 환경변수처럼 씁니다. (외부 라이브러리 없이) */
 function loadEnv() {

@@ -139,53 +139,51 @@ test("같은 특가를 연달아 스캔하면 두 번째에는 알리지 않는�
   assert.equal(second.alerts.length, 0, "값이 그대로면 다시 알리지 않아야 한다");
 });
 
-test("유럽은 경유 2회를 걸러내고, 아프리카는 2회를 허용한다", async () => {
-  // 경유 2회짜리만 내놓는 공급자
-  class TwoStopProvider extends StubProvider {
+test("경유 3회는 걸러내고 2회는 유럽·아프리카 모두 허용한다", async () => {
+  /** 경유 횟수를 정해서 후보를 내놓는 공급자 */
+  class StopsProvider extends StubProvider {
+    constructor(stops) { super(); this.stops = stops; }
     async searchLive({ destination }) {
       this.stats.liveCalls++;
+      const segs = Array.from({ length: this.stops + 1 }, (_, i) => ({
+        carrier: "XX", number: "XX" + i, from: "A" + i, to: "A" + (i + 1),
+        departAt: "2026-11-10T10:00:00", arriveAt: "2026-11-10T12:00:00",
+        durationMin: 120, layoverMin: i < this.stops ? 120 : null,
+      }));
       const c = makeCandidate({
         source: "stub", priceType: PRICE_TYPE.LIVE, total: 300000, base: 180000, taxes: 120000,
-        originOut: "ICN", destIn: destination, destOut: destination, tripDays: 14,
-        outbound: makeLeg({ from: "ICN", to: destination, departAt: "2026-11-10T10:00:00", durationMin: 1800,
-          segments: [
-            { carrier: "XX", number: "XX1", from: "ICN", to: "A", departAt: "2026-11-10T10:00:00", arriveAt: "2026-11-10T12:00:00", durationMin: 120, layoverMin: 120 },
-            { carrier: "XX", number: "XX2", from: "A", to: "B", departAt: "2026-11-10T14:00:00", arriveAt: "2026-11-10T18:00:00", durationMin: 240, layoverMin: 120 },
-            { carrier: "XX", number: "XX3", from: "B", to: destination, departAt: "2026-11-10T20:00:00", arriveAt: "2026-11-11T06:00:00", durationMin: 600, layoverMin: null },
-          ]}),
+        originOut: "ICN", destIn: destination, destOut: destination, tripDays: 15,
+        outbound: makeLeg({ from: "ICN", to: destination, departAt: "2026-11-10T10:00:00",
+                            durationMin: 1800, segments: segs }),
         inbound: leg(destination, "ICN", "2026-11-24T12:00:00", 930),
         baggage: { checkedPieces: 1, checkedKg: 23, cabinKg: 8 },
         separateTickets: false, selfTransfer: false, airportChange: false,
       });
-      assert.equal(c.outbound.stops, 2, "시험용 후보는 경유 2회여야 한다");
+      assert.equal(c.outbound.stops, this.stops);
       return { ok: true, candidates: [c] };
     }
   }
 
-  // --- 유럽: 경유 1회까지만 허용 → 전부 걸러져야 한다 ---
-  {
+  // 경유 2회는 유럽·아프리카 모두 통과해야 한다
+  for (const region of ["europe", "africa"]) {
     const { history, alertState } = tmpDirs();
     const r = await runScan({
-      provider: new TwoStopProvider(), history, alertState,
-      regions: ["europe"], today: new Date("2026-09-03"), log: () => {},
+      provider: new StopsProvider(2), history, alertState,
+      regions: [region], today: new Date("2026-09-03"), log: () => {},
     });
-    assert.equal(r.deals.length, 0, "유럽에서 경유 2회짜리는 특가로 나가면 안 된다");
-    assert.ok(r.report.stages.live.droppedByStops > 0, "걸러진 건수가 기록되어야 한다");
-    assert.equal(r.report.stages.live.maxStops, 1);
-    assert.ok(r.report.stages.live.emptyDestinations.length > 0, "결과 없는 목적지가 기록되어야 한다");
+    assert.equal(r.report.stages.live.droppedByStops, 0, `${region}: 경유 2회를 걸러내면 안 된다`);
+    assert.ok(r.report.stages.live.found > 0, `${region}: 후보가 남아야 한다`);
   }
 
-  // --- 아프리카: 경유 2회까지 허용 → 그대로 남아야 한다 ---
-  {
-    const { history, alertState } = tmpDirs();
-    const r = await runScan({
-      provider: new TwoStopProvider(), history, alertState,
-      regions: ["africa"], today: new Date("2026-09-03"), log: () => {},
-    });
-    assert.equal(r.report.stages.live.droppedByStops, 0, "아프리카에서는 경유 2회를 걸러내면 안 된다");
-    assert.ok(r.report.stages.live.found > 0, "아프리카 후보가 남아야 한다");
-    assert.ok(r.report.stages.live.coverage.every((x) => x.maxStops === 2), "아프리카 제한은 2회로 기록되어야 한다");
-  }
+  // 경유 3회는 어디서든 걸러져야 한다
+  const { history, alertState } = tmpDirs();
+  const r = await runScan({
+    provider: new StopsProvider(3), history, alertState,
+    regions: ["europe"], today: new Date("2026-09-03"), log: () => {},
+  });
+  assert.ok(r.report.stages.live.droppedByStops > 0, "경유 3회는 걸러져야 한다");
+  assert.equal(r.deals.length, 0);
+  assert.equal(r.report.stages.live.maxStops, 2);
 });
 
 test("스캔한 가격은 이력 공책에 쌓인다", async () => {

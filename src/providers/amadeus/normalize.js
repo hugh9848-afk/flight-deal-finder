@@ -1,5 +1,6 @@
 // Amadeus 응답 -> 우리 공통 양식지로 옮겨 적기.
 import { makeCandidate, makeLeg, PRICE_TYPE } from "../../core/model.js";
+import { tripDaysBetween } from "../../core/dateCombos.js";
 
 /** "PT21H10M" 같은 글자를 분 단위 숫자로 바꿉니다. */
 export function isoDurationToMinutes(iso) {
@@ -118,12 +119,16 @@ export function normalizeOffer(offer, { priceType = PRICE_TYPE.LIVE, fetchedAt }
   const total = Number(offer.price?.grandTotal ?? offer.price?.total);
   const base = Number(offer.price?.base);
 
-  // 체류 일수 = 귀국편 출발일 - 출국편 출발일
+  // 여행 일수 = 인천에서 뜨는 날을 1일째로 세어 인천에 내리는 날까지.
+  // 이 공급자는 실제 도착 시각을 주므로 확정할 수 있습니다.
   let tripDays = null;
-  if (outbound?.departAt && inbound?.departAt) {
-    tripDays = Math.round(
-      (Date.parse(inbound.departAt.slice(0, 10)) - Date.parse(outbound.departAt.slice(0, 10))) / 86400000
-    );
+  let tripDaysBasis = null;
+  if (outbound?.departAt && inbound?.arriveAt) {
+    tripDays = tripDaysBetween(outbound.departAt.slice(0, 10), inbound.arriveAt.slice(0, 10));
+    tripDaysBasis = "icn_confirmed";
+  } else if (outbound?.departAt && inbound?.departAt) {
+    tripDays = tripDaysBetween(outbound.departAt.slice(0, 10), inbound.departAt.slice(0, 10));
+    tripDaysBasis = "local_departure_estimated";
   }
 
   // 경유 중 공항이 바뀌는 구간이 하나라도 있으면 true
@@ -146,6 +151,7 @@ export function normalizeOffer(offer, { priceType = PRICE_TYPE.LIVE, fetchedAt }
     destIn: outbound?.to ?? null,
     destOut: inbound?.from ?? null,
     tripDays,
+    tripDaysBasis,
     // 들어간 도시와 나오는 도시가 다르면 오픈조
     openJaw: Boolean(inbound && outbound && inbound.from !== outbound.to),
     // GDS 단일 발권이므로 별도 발권/자가환승이 아닙니다.

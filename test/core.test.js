@@ -33,9 +33,43 @@ test("날짜 조합은 정해진 체류기간과 검색창 안에서만 만들�
   assert.ok(combos.length > 0);
   for (const c of combos) {
     assert.ok(c.tripDays >= SETTINGS.minTripDays && c.tripDays <= SETTINGS.maxTripDays);
-    const days = (Date.parse(c.returnDate) - Date.parse(c.departDate)) / 86400000;
-    assert.equal(days, c.tripDays, "귀국일 - 출발일 이 체류일수와 같아야 한다");
+    // 떠나는 날도 하루로 세므로, 날짜 차이는 여행일수보다 1 작습니다
+    const diff = (Date.parse(c.returnDate) - Date.parse(c.departDate)) / 86400000;
+    assert.equal(diff, c.tripDays - 1, "떠나는 날을 1일째로 세어야 한다");
   }
+});
+
+test("검색 창 경계: +14일은 제외, +15일은 포함, 6개월 마지막 날까지 포함", async () => {
+  const { addDays, addMonths, ymd } = await import("../src/core/dateCombos.js");
+  const today = new Date("2026-09-09T03:00:00Z");
+  const combos = buildDateCombos({ today, departStepDays: 1 });
+  const departs = new Set(combos.map((c) => c.departDate));
+
+  assert.ok(!departs.has(ymd(addDays(today, 14))), "+14일은 아직 이르다");
+  assert.ok(departs.has(ymd(addDays(today, 15))), "+15일은 들어와야 한다");
+  assert.ok(departs.has(ymd(addMonths(today, 6))), "6개월 되는 날까지 포함");
+  assert.ok(!departs.has(ymd(addDays(addMonths(today, 6), 1))), "6개월 넘으면 제외");
+  assert.equal(ymd(addMonths(today, 6)), "2027-03-09");
+});
+
+test("월말 6개월 계산은 그 달의 마지막 날로 맞춘다", async () => {
+  const { addMonths, ymd } = await import("../src/core/dateCombos.js");
+  // 8월 31일 + 6개월 = 2월 28일 (2월엔 31일이 없으니까요)
+  assert.equal(ymd(addMonths(new Date("2026-08-31T03:00:00Z"), 6)), "2027-02-28");
+  assert.equal(ymd(addMonths(new Date("2026-10-31T03:00:00Z"), 6)), "2027-04-30");
+});
+
+test("여행 일수 경계: 4일은 짧고 5·20일은 되고 21일은 길다", async () => {
+  const { tripDaysBetween } = await import("../src/core/dateCombos.js");
+  assert.equal(tripDaysBetween("2026-11-10", "2026-11-13"), 4);
+  assert.equal(tripDaysBetween("2026-11-10", "2026-11-14"), 5);
+  assert.equal(tripDaysBetween("2026-11-10", "2026-11-29"), 20);
+  assert.equal(tripDaysBetween("2026-11-10", "2026-11-30"), 21);
+
+  const combos = buildDateCombos({ today: new Date("2026-09-09T03:00:00Z") });
+  const lens = new Set(combos.map((c) => c.tripDays));
+  assert.ok(!lens.has(4) && !lens.has(21), "범위 밖 길이는 만들지 않는다");
+  assert.ok(lens.has(5), "5일이 들어와야 한다");
 });
 
 test("ISO 소요시간 글자를 분으로 바꾼다", () => {
@@ -157,10 +191,15 @@ test("이번 스캔에서 방금 적은 이력은 판정 근거로 쓰지 않는
   assert.notEqual(blocked.method, "history-route");
 });
 
-test("상한을 넘는 가격은 아예 후보에서 뺀다", () => {
-  const v = judgeDeal(cand({ total: 3000000 }), { cohorts: new Map() });
-  assert.equal(v.tooExpensive, true);
-  assert.equal(v.isDeal, false);
+test("가격 상한은 정해줬을 때만 걸러낸다", () => {
+  const withCap = { ...SETTINGS, deal: { ...SETTINGS.deal, maxTotalKRW: 1500000 } };
+  const v = judgeDeal(cand({ total: 3000000 }), { cohorts: new Map(), settings: withCap });
+  assert.equal(v.tooExpensive, true, "상한을 정해주면 걸러내야 한다");
+
+  // 기본값은 '제한 없음'. 비싼 노선에서 크게 싸진 것을 놓치지 않기 위해서입니다.
+  assert.equal(SETTINGS.deal.maxTotalKRW, null);
+  const v2 = judgeDeal(cand({ total: 3000000 }), { cohorts: new Map() });
+  assert.notEqual(v2.tooExpensive, true, "상한이 없으면 비싸다고 버리지 않는다");
 });
 
 test("비교할 자료가 없으면 특가라고 우기지 않는다", () => {
@@ -185,9 +224,9 @@ test("짧은 경유·수하물 미포함은 경고와 감점으로 이어진다"
 });
 
 test("실제로 놀 수 있는 날은 이동시간을 뺀 값이다", () => {
-  const c = cand({ tripDays: 14 });
+  const c = cand({ tripDays: 15 });
   const s = scoreCandidate(c, { discountPct: 10, method: "history" });
-  assert.ok(s.usableDays < 14 && s.usableDays > 12, `이동시간만큼 줄어야 한다 (실제 ${s.usableDays})`);
+  assert.ok(s.usableDays < 15 && s.usableDays > 13, `이동시간만큼 줄어야 한다 (실제 ${s.usableDays})`);
 });
 
 test("같은 특가는 하나로 묶고 점수 높은 쪽을 남긴다", () => {
@@ -257,6 +296,52 @@ test("연습용 가짜 자료는 가격 이력에 남기지 않는다", async ()
   assert.equal(rows.length, 1);
   assert.equal(rows[0].source, "test");
   assert.ok(!rows.some((r) => r.total === 111111), "가짜 가격이 섞이면 안 된다");
+});
+
+test("같은 캐시를 여러 번 받아도 관측 한 번으로 센다", async () => {
+  const { PriceHistory } = await import("../src/store/history.js");
+  const fs = await import("node:fs");
+  const os = await import("node:os");
+  const path = await import("node:path");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hdup-"));
+
+  // 공급자가 '2026-09-01에 본 가격'이라고 알려준 같은 자료를 세 번 받아옵니다
+  const make = () => {
+    const c = cand({ dest: "CDG", total: 900000 });
+    c.raw = { observedAt: "2026-09-01T06:00:00+00:00" };
+    return c;
+  };
+  for (let i = 0; i < 3; i++) new PriceHistory(dir).append([make()]);
+
+  const h = new PriceHistory(dir);
+  assert.equal(h.load().length, 3, "받은 기록 자체는 3건이 남는다");
+  const s = h.routeStats("ICN", "CDG");
+  assert.equal(s.rawCount, 3, "다시 받은 횟수도 알 수 있어야 한다");
+  assert.equal(s.count, 1, "같은 관측이므로 표본은 1건이어야 한다");
+});
+
+test("하루에 몰아 본 이력은 '높음'까지 올라가지 않는다", async () => {
+  const { PriceHistory } = await import("../src/store/history.js");
+  const fs = await import("node:fs");
+  const os = await import("node:os");
+  const path = await import("node:path");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hconf-"));
+  const h = new PriceHistory(dir);
+
+  // 같은 날 서로 다른 가격 25건 (관측일은 하루뿐)
+  const rows = Array.from({ length: 25 }, (_, i) => {
+    const c = cand({ dest: "CDG", total: 1000000 + i * 1000 });
+    c.raw = { observedAt: `2026-09-01T${String(i % 24).padStart(2, "0")}:00:00+00:00` };
+    return c;
+  });
+  h.append(rows);
+
+  const target = cand({ dest: "CDG", total: 400000 });
+  const v = judgeDeal(target, { history: h, cohorts: new Map() });
+  assert.match(v.method, /^history/);
+  assert.equal(v.confidence, "medium", "하루치만으로는 '높음'이 될 수 없다");
+  assert.equal(v.basis, "self_observed", "할인 근거가 표시되어야 한다");
+  assert.ok(v.distinctDays <= 1, `서로 다른 관측일이 1일이어야 한다 (실제 ${v.distinctDays})`);
 });
 
 test("주차 계산이 맞는다", () => {

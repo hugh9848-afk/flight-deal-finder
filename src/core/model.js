@@ -30,6 +30,11 @@ export function makeCandidate(input) {
     destIn: input.destIn ?? null,         // 입국(도착) 도시 공항
     destOut: input.destOut ?? null,       // 귀국편 출발 공항 (오픈조면 destIn 과 다름)
     tripDays: nz(input.tripDays),
+    // 이 일수를 무엇으로 셌는지. 정직하게 남깁니다.
+    //   icn_confirmed             : 실제 인천 도착 날짜로 셈 (확정)
+    //   local_departure_estimated : 현지에서 뜨는 날까지만 알아서 어림잡음
+    //                               (밤 비행기면 실제로는 하루 더 걸립니다)
+    tripDaysBasis: input.tripDaysBasis ?? null,
 
     openJaw: input.openJaw ?? false,          // 들어간 도시 ≠ 나오는 도시
     separateTickets: input.separateTickets ?? false, // 별도 발권 위험

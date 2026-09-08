@@ -2,8 +2,10 @@
 // 서버나 데이터베이스 없이도 깃허브에 그대로 쌓아둘 수 있습니다.
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const DEFAULT_DIR = new URL("../../data/history/", import.meta.url).pathname;
+// 한글 폴더명 때문에 pathname 을 쓰면 경로가 깨집니다 (%ED%95%AD…)
+const DEFAULT_DIR = fileURLToPath(new URL("../../data/history/", import.meta.url));
 
 /** 체류 일수를 세 칸(짧게/보통/길게)으로 묶습니다. */
 export function tripBucket(days) {
@@ -60,7 +62,10 @@ export class PriceHistory {
       const departureDate = c.outbound?.departAt?.slice(0, 10) ?? null;
       if (!departureDate || !c.destIn) continue;
       rows.push({
-        ts: c.fetchedAt ?? new Date().toISOString(),
+        v: 2,                                    // 이력 형식 번호 (옛 기록과 섞이지 않게)
+        ts: c.fetchedAt ?? new Date().toISOString(),   // 우리가 받아온 시각
+        // 공급자가 '이 가격을 실제로 본 시각'. 같은 캐시를 다시 받아도 이 값은 같습니다.
+        observedAt: c.raw?.observedAt ?? null,
         key: historyKey({ origin: c.originOut, destination: c.destIn, departureDate, tripDays: c.tripDays }),
         origin: c.originOut,
         destination: c.destIn,
@@ -97,22 +102,58 @@ export class PriceHistory {
    * "이 노선은 평소 얼마였나?"에 답합니다.
    * @returns {{count, median, p25, min, max}|null}  기록이 없으면 null
    */
+  /**
+   * 같은 관측을 여러 번 세지 않도록 추립니다.
+   *
+   * 우리는 3일마다 훑는데 공급자 캐시는 2~7일 남아 있어서,
+   * **같은 가격을 여러 번 다시 받게 됩니다.**
+   * 그걸 다 세면 "여러 번 확인했다"가 아니라 "같은 걸 여러 번 봤다"인데도
+   * 표본이 많은 것처럼 보여 '평소 가격' 판단이 망가집니다.
+   *
+   * 그래서 (노선·날짜·가격·공급자가 본 시각) 이 같으면 한 번으로 셉니다.
+   */
+  #distinct(rows) {
+    const seen = new Map();
+    for (const r of rows) {
+      const key = [
+        r.key, r.departureDate, r.total,
+        // 본 시각을 모르면 받아온 '날짜'로 대신합니다 (같은 날 같은 값이면 한 번으로)
+        r.observedAt ?? String(r.ts).slice(0, 10),
+      ].join("|");
+      if (!seen.has(key)) seen.set(key, r);
+    }
+    return [...seen.values()];
+  }
+
+  /** 이 기록들이 며칠에 걸쳐, 서로 다른 몇 날에 모였는지 셉니다. */
+  #spread(rows) {
+    if (!rows.length) return { spanDays: 0, distinctDays: 0 };
+    const days = new Set(rows.map((r) => String(r.observedAt ?? r.ts).slice(0, 10)));
+    const times = rows.map((r) => Date.parse(r.ts)).filter(Number.isFinite);
+    const spanDays = times.length
+      ? Math.round((Math.max(...times) - Math.min(...times)) / 86400000)
+      : 0;
+    return { spanDays, distinctDays: days.size };
+  }
+
   stats(key, { maxAgeDays = 400, before = null } = {}) {
     const cutoff = Date.now() - maxAgeDays * 86400000;
     // before 를 주면 그 시각 이전 기록만 봅니다.
     // 이번 스캔에서 방금 적은 값을 판정 근거로 쓰면 자기 자신과 비교하게 되니까요.
     const until = before ? Date.parse(before) : Infinity;
-    const values = this.load()
-      .filter((r) => r.key === key && Date.parse(r.ts) >= cutoff && Date.parse(r.ts) < until)
-      .map((r) => r.total)
-      .sort((a, b) => a - b);
-    if (!values.length) return null;
+    const raw = this.load()
+      .filter((r) => r.key === key && Date.parse(r.ts) >= cutoff && Date.parse(r.ts) < until);
+    const rows = this.#distinct(raw);
+    if (!rows.length) return null;
+    const values = rows.map((r) => r.total).sort((a, b) => a - b);
     return {
       count: values.length,
+      rawCount: raw.length,          // 다시 받은 것까지 포함한 원래 건수
       median: quantile(values, 0.5),
       p25: quantile(values, 0.25),
       min: values[0],
       max: values.at(-1),
+      ...this.#spread(rows),
     };
   }
 
@@ -120,13 +161,18 @@ export class PriceHistory {
   routeStats(origin, destination, { maxAgeDays = 400, before = null } = {}) {
     const cutoff = Date.now() - maxAgeDays * 86400000;
     const until = before ? Date.parse(before) : Infinity;
-    const values = this.load()
+    const raw = this.load()
       .filter((r) => r.origin === origin && r.destination === destination
-                  && Date.parse(r.ts) >= cutoff && Date.parse(r.ts) < until)
-      .map((r) => r.total)
-      .sort((a, b) => a - b);
-    if (!values.length) return null;
-    return { count: values.length, median: quantile(values, 0.5), p25: quantile(values, 0.25), min: values[0], max: values.at(-1) };
+                  && Date.parse(r.ts) >= cutoff && Date.parse(r.ts) < until);
+    const rows = this.#distinct(raw);
+    if (!rows.length) return null;
+    const values = rows.map((r) => r.total).sort((a, b) => a - b);
+    return {
+      count: values.length, rawCount: raw.length,
+      median: quantile(values, 0.5), p25: quantile(values, 0.25),
+      min: values[0], max: values.at(-1),
+      ...this.#spread(rows),
+    };
   }
 }
 

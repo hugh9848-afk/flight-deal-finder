@@ -6,8 +6,8 @@
 //
 // 3단계를 통과했고, 화면마다 값이 어긋나지 않은 것만 '확정 특가'라고 부릅니다.
 import { SETTINGS } from "../config/settings.js";
-import { pickDestinations, findAirport, maxStopsFor } from "../config/destinations.js";
-import { addDays, ymd } from "../core/dateCombos.js";
+import { pickDestinations, findAirport, maxStopsFor, allowedCodes } from "../config/destinations.js";
+import { addDays, addMonths, ymd } from "../core/dateCombos.js";
 import { buildCohorts, judgeDeal } from "../core/dealDetector.js";
 import { scoreCandidate } from "../core/valueScorer.js";
 import { dedupe, dealSignature, shouldAlert } from "../core/dedup.js";
@@ -28,9 +28,13 @@ export async function runScan({
   // 이번 스캔이 시작된 시각. 판정할 때 '이 시각 이전' 이력만 씁니다.
   const scanStartedAt = new Date().toISOString();
   const destinations = pickDestinations(regions);
-  const allowed = new Set(destinations.map((d) => d.iata));
+  // 공항코드와 도시코드를 모두 허용합니다 (공급자가 PAR/LON 으로 답하므로)
+  const allowed = allowedCodes(destinations);
   const departFrom = ymd(addDays(today, settings.searchWindow.fromDaysAhead));
-  const departTo = ymd(addDays(today, settings.searchWindow.toDaysAhead));
+  // 마지막 출발일 = 오늘부터 6개월 뒤 (달력 기준, 월말은 그 달 마지막 날로)
+  const departTo = settings.searchWindow.toMonthsAhead
+    ? ymd(addMonths(today, settings.searchWindow.toMonthsAhead))
+    : ymd(addDays(today, settings.searchWindow.toDaysAhead ?? 300));
 
   const report = {
     startedAt: new Date().toISOString(),
@@ -50,6 +54,7 @@ export async function runScan({
     minTripDays: settings.minTripDays, maxTripDays: settings.maxTripDays,
     tripDaysStep: settings.tripDaysStep,
     destinations,
+    slack: settings.collectTripDaysSlack ?? 0,
     maxPrice: settings.deal.maxTotalKRW,
   });
   if (insp.ok && insp.candidates.length) {
@@ -319,7 +324,9 @@ export async function runScan({
 function finishIndicativeOnly({ report, ranked, shortlist, settings, log, t0, provider, alertState }) {
   const merged = mergeSameFlight(ranked);
   const needsReview = [];
-  for (const item of merged.slice(0, Math.max(settings.funnel.liveCheckTop, shortlist.length) * 3)) {
+  // 화면에 몇 건까지 낼지. settings.maxResults 가 null 이면 전부 냅니다.
+  const limited = settings.maxResults ? merged.slice(0, settings.maxResults) : merged;
+  for (const item of limited) {
     item.signature = dealSignature(item.candidate);
     item.status = item.verdict.isDeal ? "needs_review" : "watch";
     if (item.verdict.isDeal) {
@@ -338,6 +345,9 @@ function finishIndicativeOnly({ report, ranked, shortlist, settings, log, t0, pr
       // 신뢰도가 '낮음'(이력 없이 같은 스캔끼리만 비교)이면 알리지 않습니다.
       // 첫 스캔부터 확신 없는 알림이 쏟아지는 걸 막습니다.
       if (item.verdict.confidence === "low") continue;
+      // 여행 일수가 요청 범위 경계 밖이면 알리지 않습니다.
+      // 실제 인천 도착일을 모르는 상태라 '5~20일 일정'이라고 단정할 수 없습니다.
+      if (item.candidate.outOfRange === true) continue;
       const decision = shouldAlert(item, alertState.data, settings);
       item.alertDecision = decision;
       if (decision.alert) {

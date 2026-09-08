@@ -34,7 +34,7 @@ export class TravelpayoutsProvider extends FlightProvider {
    *
    * 호출은 무료라서 목적지 수만큼(약 90회) 걸어도 부담이 없습니다.
    */
-  async searchInspiration({ origin, departFrom, departTo, minTripDays, maxTripDays, destinations = [], limit = 500 }) {
+  async searchInspiration({ origin, departFrom, departTo, minTripDays, maxTripDays, destinations = [], limit = 500, slack = 0 }) {
     const fetchedAt = new Date().toISOString();
     const rows = [];
     const errors = [];
@@ -69,7 +69,7 @@ export class TravelpayoutsProvider extends FlightProvider {
     this.stats.errors.push(...errors);
     this.lastCoverage = coverage;
 
-    const candidates = this.#toCandidates(rows, { fetchedAt, departFrom, departTo, minTripDays, maxTripDays });
+    const candidates = this.#toCandidates(rows, { fetchedAt, departFrom, departTo, minTripDays, maxTripDays, slack });
     if (!candidates.length && errors.length === targets.length) {
       return { ok: false, candidates: [], error: errors[0]?.error, status: errors[0]?.status, coverage };
     }
@@ -108,7 +108,11 @@ export class TravelpayoutsProvider extends FlightProvider {
    *  - 체류일수가 10~20일 밖이면 제외 (API 가 다른 것을 섞어 줄 수 있음)
    *  - 같은 (목적지·출발일·귀국일) 이 겹치면 싼 쪽만 남김
    */
-  #toCandidates(rows, { fetchedAt, departFrom, departTo, minTripDays, maxTripDays }) {
+  #toCandidates(rows, { fetchedAt, departFrom, departTo, minTripDays, maxTripDays, slack = 0 }) {
+    // 시차와 밤 비행기 때문에 경계에 걸친 일정이 통째로 빠지지 않도록
+    // 받을 때는 앞뒤로 slack 일만큼 넉넉하게 받습니다.
+    const lo = Math.max(1, minTripDays - slack);
+    const hi = maxTripDays + slack;
     const best = new Map();
     for (const { row, endpoint } of rows) {
       const link = this.client.searchLink({
@@ -124,7 +128,12 @@ export class TravelpayoutsProvider extends FlightProvider {
       if (departFrom && depart < departFrom) continue;
       if (departTo && depart > departTo) continue;
       if (c.tripDays === null) continue;
-      if (c.tripDays < minTripDays || c.tripDays > maxTripDays) continue;
+      if (c.tripDays < lo || c.tripDays > hi) continue;
+      // 넉넉히 받은 것 중 실제 범위를 벗어난 건 '경계 후보'로 표시해 둡니다.
+      if (c.tripDays < minTripDays || c.tripDays > maxTripDays) {
+        c.notes.push(`여행 일수 ${c.tripDays}일 — 요청 범위(${minTripDays}~${maxTripDays}일) 경계 밖. 실제 인천 도착일에 따라 달라질 수 있습니다.`);
+        c.outOfRange = true;
+      }
 
       const key = `${c.destIn}|${depart}|${c.inbound?.departAt?.slice(0, 10) ?? ""}`;
       const prev = best.get(key);

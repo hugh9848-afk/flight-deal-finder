@@ -185,6 +185,22 @@ export function maxStopsFor(iata, settings) {
 }
 
 /**
+ * 걸러낼 때 쓸 '허용 코드' 집합.
+ * 공항코드(CDG)와 도시코드(PAR)를 **둘 다** 넣습니다.
+ *
+ * 이게 없어서 파리·런던·로마·밀라노가 통째로 버려지고 있었습니다.
+ * 우리는 CDG 로 물어보는데 공급자는 PAR 로 답하기 때문입니다.
+ */
+export function allowedCodes(list = DESTINATIONS) {
+  const set = new Set();
+  for (const d of list) {
+    set.add(d.iata);
+    if (d.city_code) set.add(d.city_code);
+  }
+  return set;
+}
+
+/**
  * 공항코드 또는 도시코드로 한 곳을 찾습니다. 없으면 undefined.
  * API 가 PAR 로 답해도 CDG 항목을 찾아낼 수 있어야 합니다.
  */

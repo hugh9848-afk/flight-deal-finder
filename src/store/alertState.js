@@ -1,7 +1,9 @@
 // 어떤 특가를 언제 얼마에 알렸는지 적어두는 수첩.
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 
-const DEFAULT_PATH = new URL("../../data/alert-state.json", import.meta.url).pathname;
+// 한글 폴더명 때문에 pathname 을 쓰면 경로가 깨집니다 (%ED%95%AD…)
+const DEFAULT_PATH = fileURLToPath(new URL("../../data/alert-state.json", import.meta.url));
 
 export class AlertState {
   constructor(file = DEFAULT_PATH) {

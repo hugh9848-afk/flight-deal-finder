@@ -63,8 +63,11 @@ export function judgeDeal(candidate, { history, cohorts, settings = SETTINGS, hi
   if (typeof total !== "number") {
     return none("가격을 확인하지 못했습니다");
   }
-  if (total > settings.deal.maxTotalKRW) {
-    return { ...none(`상한(${settings.deal.maxTotalKRW.toLocaleString()}원)보다 비쌉니다`), tooExpensive: true };
+  // 상한이 정해져 있을 때만 걸러냅니다.
+  // 할인율이 우선이라, 비싼 노선에서 크게 싸진 것을 놓치지 않기 위해 기본값은 '제한 없음'입니다.
+  const cap = settings.deal.maxTotalKRW;
+  if (typeof cap === "number" && total > cap) {
+    return { ...none(`상한(${cap.toLocaleString()}원)보다 비쌉니다`), tooExpensive: true };
   }
 
   // --- 방법 A: 정확히 같은 조건의 이력 ---
@@ -75,15 +78,20 @@ export function judgeDeal(candidate, { history, cohorts, settings = SETTINGS, hi
     const s = history.stats(key, { before: historyBefore });
     if (s && s.count >= MIN_HISTORY_EXACT) {
       return fromBaseline(total, s.median, s.count, "history", settings,
-        s.count >= 20 ? "high" : "medium",
-        `같은 노선·${departureDate.slice(5, 7)}월·${tripBucket(candidate.tripDays)}일 일정 ${s.count}건의 평소값 ${fmt(s.median)}원 대비`);
+        confidenceFor(s, settings),
+        `같은 노선·${departureDate.slice(5, 7)}월·${tripBucket(candidate.tripDays)}일 일정 ` +
+        `${s.count}건(서로 다른 ${s.distinctDays}일, ${s.spanDays}일에 걸쳐 관측)의 평소값 ${fmt(s.median)}원 대비`,
+        s);
     }
 
     // --- 방법 A': 달 구분 없이 같은 노선 ---
     const r = history.routeStats(candidate.originOut, candidate.destIn, { before: historyBefore });
     if (r && r.count >= MIN_HISTORY_ROUTE) {
-      return fromBaseline(total, r.median, r.count, "history-route", settings, "medium",
-        `같은 노선 전체 ${r.count}건의 평소값 ${fmt(r.median)}원 대비 (계절 구분 없음)`);
+      // 계절을 구분하지 않은 비교이므로 '높음'까지는 올리지 않습니다.
+      const conf = confidenceFor(r, settings) === "high" ? "medium" : confidenceFor(r, settings);
+      return fromBaseline(total, r.median, r.count, "history-route", settings, conf,
+        `같은 노선 전체 ${r.count}건(서로 다른 ${r.distinctDays}일)의 평소값 ${fmt(r.median)}원 대비 (계절 구분 없음)`,
+        r);
     }
   }
 
@@ -100,6 +108,7 @@ export function judgeDeal(candidate, { history, cohorts, settings = SETTINGS, hi
       return {
         isDeal: z >= settings.deal.minZScore,
         method: "cohort",
+        basis: "same_scan",
         cohortLevel: levels[i],
         confidence: "low",
         discountPct: mean > 0 ? round1(((mean - total) / mean) * 100) : null,
@@ -114,23 +123,43 @@ export function judgeDeal(candidate, { history, cohorts, settings = SETTINGS, hi
   return none("비교할 자료가 아직 없습니다 (이력·비교군 모두 부족)");
 }
 
+/**
+ * 자체 관측 이력을 얼마나 믿을지 정합니다.
+ *
+ * 건수만 많은 것으로는 부족합니다. 하루에 몰아서 스무 번 본 것과
+ * 한 달에 걸쳐 스무 날 본 것은 다르기 때문입니다.
+ * 그래서 **관측 기간(며칠에 걸쳐)** 과 **서로 다른 관측일 수** 를 함께 봅니다.
+ */
+function confidenceFor(stat, settings) {
+  const need = settings.selfHistory ?? { minObservationDays: 30, minDistinctDays: 14 };
+  const enough = (stat.spanDays ?? 0) >= need.minObservationDays
+              && (stat.distinctDays ?? 0) >= need.minDistinctDays;
+  if (enough && stat.count >= 20) return "high";
+  return "medium";
+}
+
 /** 평소값(baseline)과 비교해 결과를 만듭니다. */
-function fromBaseline(total, baseline, sampleSize, method, settings, confidence, reason) {
+function fromBaseline(total, baseline, sampleSize, method, settings, confidence, reason, stat = null) {
   const discountPct = baseline > 0 ? round1(((baseline - total) / baseline) * 100) : null;
   return {
     isDeal: discountPct !== null && discountPct >= settings.deal.minDiscountPct,
     method,
+    // 이 할인율이 무엇을 기준으로 나온 값인지. 화면에 배지로 보여줍니다.
+    basis: "self_observed",
     confidence,
     discountPct,
     zScore: null,
     baseline,
     sampleSize,
+    observationDays: stat?.spanDays ?? null,
+    distinctDays: stat?.distinctDays ?? null,
     reason,
   };
 }
 
 function none(reason) {
-  return { isDeal: false, method: "none", confidence: "none", discountPct: null, zScore: null, baseline: null, sampleSize: 0, reason };
+  return { isDeal: false, method: "none", basis: "none", confidence: "none",
+           discountPct: null, zScore: null, baseline: null, sampleSize: 0, reason };
 }
 
 function meanSd(values) {

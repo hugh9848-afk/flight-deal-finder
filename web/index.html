@@ -52,6 +52,13 @@
   details{margin-top:8px} summary{font-size:12.5px;color:var(--accent);cursor:pointer}
   code{font-size:11.5px;background:var(--bg);padding:1px 4px;border-radius:4px}
   .code{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+  .basis{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:1px 6px;margin-left:2px}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .chip{padding:5px 10px;border:1px solid var(--line);background:var(--card);color:var(--muted);
+        border-radius:99px;font-size:12px;cursor:pointer;font-weight:600}
+  .chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+  .more{display:block;width:100%;padding:12px;margin-top:4px;border:1px solid var(--line);
+        background:var(--card);color:var(--accent);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
   .verify{display:block;margin-top:10px;padding:11px 12px;background:var(--accent);color:#fff;
           border-radius:10px;text-align:center;font-weight:700;font-size:14px;text-decoration:none}
   .verify:active{opacity:.85}
@@ -66,6 +73,7 @@
     <div class="tab" role="tab" data-tab="deals" aria-selected="true">확정 특가 <span id="n1"></span></div>
     <div class="tab" role="tab" data-tab="review" aria-selected="false">확인 필요 <span id="n2"></span></div>
   </div>
+  <div class="filters" id="filters"></div>
 </header>
 <main id="list"><div class="empty">불러오는 중…</div></main>
 
@@ -120,6 +128,8 @@ function cardHtml(d){
   if (d.selfTransfer) badges.push(`<span class="badge b-bad">자가환승</span>`);
   if (d.airportChange) badges.push(`<span class="badge b-warn">공항 변경</span>`);
   if (d.fareRules?.conflict) badges.push(`<span class="badge b-bad">값 불일치</span>`);
+  if (d.outOfRange) badges.push(`<span class="badge b-warn">기간 경계 밖</span>`);
+  if (d.tripDaysBasis === "local_departure_estimated") badges.push(`<span class="badge b-mute">일수 어림값</span>`);
   if (typeof d.seatsLeft === "number" && d.seatsLeft <= 3) badges.push(`<span class="badge b-warn">잔여 ${d.seatsLeft}석</span>`);
 
   const bg = d.baggage
@@ -133,6 +143,15 @@ function cardHtml(d){
   const disc = v.discountPct !== null && v.discountPct !== undefined
     ? `평소보다 <b>${v.discountPct}%</b> 저렴` : "할인율 미확인";
   const conf = {high:"높음",medium:"보통",low:"낮음",none:"없음"}[v.confidence] ?? "?";
+  // 이 할인율이 무엇을 기준으로 나온 값인지 분명히 밝힙니다
+  const basisLabel = {
+    self_observed: "이 앱이 모아온 값 대비",
+    same_scan:     "이번 검색 안에서 비교",
+    provider:      "공급자 제공 기준",
+    none:          "비교 기준 없음",
+  }[v.basis] ?? "";
+  const obs = (v.observationDays != null && v.distinctDays != null)
+    ? ` · ${v.observationDays}일에 걸쳐 ${v.distinctDays}일 관측` : "";
 
   const ground = d.ground
     ? `<div class="meta">🚆 ${esc(d.ground.fromCity)}→${esc(d.ground.toCity)} ${esc(d.ground.mode)} 약 ${won(d.ground.estCostKRW)} / ${d.ground.estHours}시간 <span class="badge b-warn">추정</span></div>`
@@ -159,7 +178,8 @@ function cardHtml(d){
       </div>
     </div>
     <div style="margin-top:8px">${badges.join("")}</div>
-    <div class="meta">${disc} · 판정 신뢰도 <b>${conf}</b> · 표본 ${v.sampleSize ?? 0}건</div>
+    <div class="meta">${disc}${basisLabel ? ` <span class="basis">${esc(basisLabel)}</span>` : ""}</div>
+    <div class="meta">판정 신뢰도 <b>${conf}</b> · 표본 ${v.sampleSize ?? 0}건${obs}</div>
     <div class="score">여행가치 ${d.score ?? "?"}점<div class="bar"><i style="width:${Math.max(0,Math.min(100,d.score??0))}%"></i></div></div>
     ${legHtml(d.outbound,"출국")}
     ${legHtml(d.inbound,"귀국")}
@@ -175,19 +195,60 @@ function cardHtml(d){
   </article>`;
 }
 
-let DATA = null, TAB = "deals";
+let DATA = null, TAB = "deals", SHOWN = 30, FILTER = "all";
+const PAGE = 30;   // 한 번에 보여줄 개수 (폰에서 248개를 한꺼번에 그리면 버겁습니다)
+
+/** 지역 이름 (나라 이름으로 대충 묶습니다) */
+const REGION_OF = {
+  "튀르키예":"유럽","조지아":"캅카스","아르메니아":"캅카스","아제르바이잔":"캅카스","몽골":"몽골",
+};
+function regionOf(d){
+  const country = d.destInName?.country;
+  if(!country) return "기타";
+  if(REGION_OF[country]) return REGION_OF[country];
+  const africa = ["이집트","모로코","튀니지","알제리","에티오피아","케냐","탄자니아","남아공",
+                  "짐바브웨","나미비아","나이지리아","가나","세네갈","모리셔스","세이셸"];
+  return africa.includes(country) ? "아프리카" : "유럽";
+}
+
+function currentItems(){
+  const base = TAB === "deals" ? DATA.deals : DATA.needsReview;
+  if(FILTER === "all") return base;
+  if(FILTER === "deal") return base.filter(x => x.verdict?.isDeal);
+  return base.filter(x => regionOf(x) === FILTER);
+}
+
+function renderFilters(){
+  if(!DATA) return;
+  const base = TAB === "deals" ? DATA.deals : DATA.needsReview;
+  const regions = [...new Set(base.map(regionOf))].sort();
+  const chips = [
+    ["all", `전체 ${base.length}`],
+    ["deal", `특가만 ${base.filter(x=>x.verdict?.isDeal).length}`],
+    ...regions.map(r => [r, `${r} ${base.filter(x=>regionOf(x)===r).length}`]),
+  ];
+  document.getElementById("filters").innerHTML = chips.map(([k,label]) =>
+    `<button class="chip" data-f="${esc(k)}" aria-pressed="${FILTER===k}">${esc(label)}</button>`).join("");
+}
+
 function render(){
   const list = document.getElementById("list");
   if(!DATA){ list.innerHTML = `<div class="empty">데이터를 불러오지 못했습니다.</div>`; return; }
-  const items = TAB === "deals" ? DATA.deals : DATA.needsReview;
+  renderFilters();
+  const items = currentItems();
   if(!items.length){
     list.innerHTML = `<div class="empty">${TAB==="deals"
       ? "이번 스캔에서 확정된 특가가 없습니다.<br>확인 필요 탭을 살펴보세요."
-      : "확인이 필요한 후보가 없습니다."}</div>`;
+      : "조건에 맞는 후보가 없습니다."}</div>`;
     return;
   }
-  list.innerHTML = items.map(cardHtml).join("") +
-    `<div class="note">${esc(DATA.disclaimer ?? "")}</div>`;
+  const page = items.slice(0, SHOWN);
+  list.innerHTML = page.map(cardHtml).join("")
+    + (items.length > SHOWN
+        ? `<button class="more" id="more">${items.length - SHOWN}건 더 보기</button>` : "")
+    + `<div class="note">${esc(DATA.disclaimer ?? "")}</div>`;
+  const more = document.getElementById("more");
+  if(more) more.addEventListener("click", () => { SHOWN += PAGE; render(); });
 }
 
 fetch("data/deals.json?t=" + Date.now())
@@ -205,8 +266,15 @@ fetch("data/deals.json?t=" + Date.now())
 
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
   document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", String(x === t)));
-  TAB = t.dataset.tab; render();
+  TAB = t.dataset.tab; SHOWN = PAGE; FILTER = "all"; render();
 }));
+
+// 지역·특가 필터 (누를 때마다 목록을 다시 그립니다)
+document.getElementById("filters").addEventListener("click", (e) => {
+  const b = e.target.closest(".chip");
+  if(!b) return;
+  FILTER = b.dataset.f; SHOWN = PAGE; render();
+});
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
