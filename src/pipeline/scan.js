@@ -36,8 +36,15 @@ export async function runScan({
     ? ymd(addMonths(today, settings.searchWindow.toMonthsAhead))
     : ymd(addDays(today, settings.searchWindow.toDaysAhead ?? 300));
 
+  // 공급자가 준비 절차를 요구하면 먼저 거칩니다 (예: SerpApi 잔여량 확인)
+  let prepared = null;
+  if (typeof provider.prepare === "function") {
+    prepared = await provider.prepare({ settings });
+  }
+
   const report = {
     startedAt: new Date().toISOString(),
+    prepared,
     provider: provider.name,
     window: { departFrom, departTo },
     regions: regions.length ? regions : ["전체"],
@@ -98,14 +105,23 @@ export async function runScan({
     departureVerified: indicative.filter((c) => c.departureAirportVerified === true).length,
     returnVerified: indicative.filter((c) => c.returnAirportVerified === true).length,
   };
-  if (insp.coverage) {
-    const withData = insp.coverage.filter((c) => c.rows > 0);
-    report.stages.indicative.coverage = {
-      queried: insp.coverage.length,
-      withData: withData.length,
-      empty: insp.coverage.filter((c) => c.rows === 0).map((c) => c.destination),
-    };
-    log(`  → 목적지 ${insp.coverage.length}곳 조회, ${withData.length}곳에서 자료 확보`);
+  if (insp.coverage?.length) {
+    // 공급자를 여럿 묶어 쓰면 '공급자별' 요약이, 하나만 쓰면 '목적지별' 요약이 옵니다.
+    const perProvider = insp.coverage.every((c) => c.provider);
+    if (perProvider) {
+      report.stages.indicative.byProvider = insp.coverage;
+      for (const c of insp.coverage) {
+        log(`  → ${c.provider}: ${c.found}건${c.ok === false ? ` (실패: ${c.error ?? "?"})` : ""}`);
+      }
+    } else {
+      const withData = insp.coverage.filter((c) => c.rows > 0);
+      report.stages.indicative.coverage = {
+        queried: insp.coverage.length,
+        withData: withData.length,
+        empty: insp.coverage.filter((c) => c.rows === 0).map((c) => c.destination),
+      };
+      log(`  → 목적지 ${insp.coverage.length}곳 조회, ${withData.length}곳에서 자료 확보`);
+    }
   }
   log(`  → 참고가 후보 ${indicative.length}건`);
 
@@ -129,9 +145,18 @@ export async function runScan({
     .filter((x) => !x.verdict.tooExpensive)
     .sort((a, b) => rankKey(b) - rankKey(a));
 
-  const shortlist = ranked.slice(0, settings.funnel.liveCheckTop);
+  // 실제 조회는 유료일 수 있으므로, 공급자가 정한 예산을 넘지 않게 합니다.
+  // 공급자가 정한 예산을 그대로 존중합니다.
+  //   detailBudget : 여러 공급자를 묶었을 때의 상한
+  //   detailCalls  : 공급자 하나를 단독으로 쓸 때의 상한
+  const providerCap = provider.detailBudget ?? provider.detailCalls;
+  const liveCap = typeof providerCap === "number"
+    ? Math.min(settings.funnel.liveCheckTop, providerCap)
+    : settings.funnel.liveCheckTop;
+  const shortlist = ranked.slice(0, liveCap);
   report.stages.shortlist = {
     count: shortlist.length,
+    liveCap,
     dealFlagged: ranked.filter((x) => x.verdict.isDeal).length,
     method: shortlist[0]?.verdict.method ?? null,
   };
@@ -220,11 +245,24 @@ export async function runScan({
   }
   if (openJaw.length) log(`  → 오픈조 후보 ${openJaw.length}건`);
 
-  const liveAll = [...live, ...openJaw];
+  // 상세 조회한 것만 남기면 넓게 훑은 수백 건을 통째로 버리게 됩니다.
+  // 상세 조회로 올라간 자리(도시·출발일·귀국일)만 대체하고 나머지는 그대로 둡니다.
+  const upgraded = new Set();
+  for (const c of [...live, ...openJaw]) {
+    const slot = `${findAirport(c.destIn)?.city_code ?? c.destIn}|${c.outbound?.departAt?.slice(0, 10)}`;
+    upgraded.add(slot);
+  }
+  const keptIndicative = indicative.filter((c) => {
+    const slot = `${findAirport(c.destIn)?.city_code ?? c.destIn}|${c.outbound?.departAt?.slice(0, 10)}`;
+    return !upgraded.has(slot);
+  });
+
+  const liveAll = [...live, ...openJaw, ...keptIndicative];
   history?.append(liveAll);
   report.stages.live = {
     found: live.length,
     openJaw: openJaw.length,
+    keptIndicative: keptIndicative.length,
     maxStops: settings.maxStops,
     maxStopsByRegion: settings.maxStopsByRegion ?? {},
     droppedByStops,
@@ -245,7 +283,10 @@ export async function runScan({
   log(`  → 중복 정리 후 ${deduped.length}건`);
 
   // ───────────────── 3단계: 가격 확정 ─────────────────
-  const toConfirm = provider.capabilities.confirm ? deduped.slice(0, settings.funnel.confirmTop) : [];
+  // 확정은 **실제로 조회한 후보에게만** 합니다.
+  // 넓게 훑기에서 온 참고가는 값을 직접 본 적이 없으므로 확정 대상이 아닙니다.
+  const confirmable = deduped.filter((x) => x.candidate.priceType === PRICE_TYPE.LIVE);
+  const toConfirm = provider.capabilities.confirm ? confirmable.slice(0, settings.funnel.confirmTop) : [];
   if (!provider.capabilities.confirm) {
     report.warnings.push(`${provider.name} 은(는) 가격 확정을 지원하지 않습니다. 모든 후보가 '확인 필요'로 남습니다.`);
     log(`[3단계] 건너뜀 — ${provider.name} 은 가격 확정을 지원하지 않습니다`);
@@ -271,7 +312,8 @@ export async function runScan({
     });
   }
   // 확정하지 않은 나머지도 목록에는 남깁니다 (다만 '확정 특가'는 아님)
-  for (const item of deduped.slice(toConfirm.length)) {
+  const confirmedIds = new Set(toConfirm.map((x) => x.candidate.id));
+  for (const item of deduped.filter((x) => !confirmedIds.has(x.candidate.id))) {
     finalItems.push({ ...item, signature: dealSignature(item.candidate) });
   }
 

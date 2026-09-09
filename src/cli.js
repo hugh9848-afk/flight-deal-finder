@@ -11,6 +11,9 @@ import { AlertState } from "./store/alertState.js";
 import { MockProvider } from "./providers/mock/index.js";
 import { AmadeusProvider } from "./providers/amadeus/index.js";
 import { TravelpayoutsProvider } from "./providers/travelpayouts/index.js";
+import { SerpApiProvider } from "./providers/serpapi/index.js";
+import { SerpApiClient } from "./providers/serpapi/client.js";
+import { CompositeProvider } from "./providers/composite.js";
 import { SETTINGS } from "./config/settings.js";
 import { writeSummaryFile, sendWebhook, renderAlertText, writeAlertsFile } from "./notify/index.js";
 import { fileURLToPath } from "node:url";
@@ -42,20 +45,7 @@ function parseArgs(argv) {
 
 function makeProvider(name) {
   if (name === "mock") return new MockProvider();
-  if (name === "travelpayouts") {
-    const token = process.env.TRAVELPAYOUTS_TOKEN;
-    if (!token) {
-      console.error(
-        "\n❌ Travelpayouts 토큰이 없습니다.\n" +
-        "   1) https://www.travelpayouts.com 에서 무료 가입\n" +
-        "   2) 대시보드 → Tools/API 에서 API 토큰과 마커(marker) 복사\n" +
-        "   3) 이 폴더의 .env 파일에 붙여넣기 (.env.example 참고)\n" +
-        "   지금 당장 시험만 해보려면 --provider=mock 을 쓰세요.\n"
-      );
-      process.exit(1);
-    }
-    return new TravelpayoutsProvider({ token, marker: process.env.TRAVELPAYOUTS_MARKER });
-  }
+  if (name === "travelpayouts") return makeTravelpayouts({ required: true });
   if (name === "amadeus") {
     const clientId = process.env.AMADEUS_CLIENT_ID;
     const clientSecret = process.env.AMADEUS_CLIENT_SECRET;
@@ -71,8 +61,59 @@ function makeProvider(name) {
     }
     return new AmadeusProvider({ clientId, clientSecret, env: process.env.AMADEUS_ENV ?? "test" });
   }
+  if (name === "serpapi" || name === "all") {
+    const tp = makeTravelpayouts({ required: name === "serpapi" ? false : true });
+    const sp = makeSerpApi({ required: name === "serpapi" });
+    const list = [sp, tp].filter(Boolean).map((provider) => ({ provider }));
+    if (!list.length) {
+      console.error("\n❌ 쓸 수 있는 공급자가 없습니다. .env 를 확인하세요.\n");
+      process.exit(1);
+    }
+    return list.length === 1 ? list[0].provider : new CompositeProvider(list);
+  }
   console.error(`알 수 없는 공급자: ${name}`);
   process.exit(1);
+}
+
+/** Travelpayouts 공급자를 만듭니다. 토큰이 없으면 null (필수면 종료). */
+function makeTravelpayouts({ required = true } = {}) {
+  const token = process.env.TRAVELPAYOUTS_TOKEN;
+  if (!token) {
+    if (required) {
+      console.error("\n❌ TRAVELPAYOUTS_TOKEN 이 없습니다. .env 를 확인하세요.\n");
+      process.exit(1);
+    }
+    return null;
+  }
+  return new TravelpayoutsProvider({ token, marker: process.env.TRAVELPAYOUTS_MARKER });
+}
+
+/**
+ * SerpApi 공급자를 만듭니다.
+ * 무료 250회/월 이므로 실행마다 쓸 양을 미리 정해둡니다.
+ *   발굴 5회 + 상세 12회 = 17회/실행 → 3일 주기(월 10회)면 약 170회
+ */
+function makeSerpApi({ required = false } = {}) {
+  const apiKey = process.env.SERPAPI_API_KEY;
+  if (!apiKey) {
+    if (required) {
+      console.error(
+        "\n❌ SERPAPI_API_KEY 가 없습니다.\n" +
+        "   1) https://serpapi.com 에서 무료 가입 (월 250회)\n" +
+        "   2) 대시보드에서 API Key 복사\n" +
+        "   3) 이 폴더의 .env 에 붙여넣기\n"
+      );
+      process.exit(1);
+    }
+    return null;
+  }
+  const client = new SerpApiClient({
+    apiKey,
+    runBudget: Number(process.env.SERPAPI_RUN_BUDGET ?? 20),
+    monthlyBudget: Number(process.env.SERPAPI_MONTHLY_BUDGET ?? 200),
+    ledgerPath: path.join(ROOT, "data", "serpapi-ledger.json"),
+  });
+  return new SerpApiProvider({ client, discoveryCalls: 5, detailCalls: 12 });
 }
 
 async function main() {
@@ -81,7 +122,7 @@ async function main() {
   const cmd = args._[0] ?? "scan";
 
   if (cmd !== "scan") {
-    console.error("사용법: node src/cli.js scan [--provider=travelpayouts|mock|amadeus] [--regions=europe,africa,caucasus,mongolia]");
+    console.error("사용법: node src/cli.js scan [--provider=all|travelpayouts|serpapi|mock] [--regions=europe,africa,caucasus,mongolia]");
     process.exit(1);
   }
 
