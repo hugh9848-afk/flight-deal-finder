@@ -103,10 +103,21 @@ jobs:
           git add data/history data/alert-state.json
           if git diff --staged --quiet; then
             echo "바뀐 내용 없음"
-          else
-            git commit -m "스캔 결과 갱신 $(date -u +%Y-%m-%dT%H:%MZ)"
-            git push
+            exit 0
           fi
+          git commit -m "스캔 결과 갱신 $(date -u +%Y-%m-%dT%H:%MZ)"
+          # 사람이 코드를 올리는 중이면 저장소가 앞서 있을 수 있습니다.
+          # 그럴 때는 최신 위로 올려놓고 다시 시도합니다 (최대 3번).
+          for i in 1 2 3; do
+            if git push; then
+              echo "저장 완료"
+              exit 0
+            fi
+            echo "저장소가 앞서 있어 다시 맞춥니다 ($i/3)"
+            git pull --rebase --autostash origin main || break
+          done
+          # 그래도 안 되면 가격 이력만 못 남길 뿐, 스캔 결과와 배포는 살립니다.
+          echo "::warning::가격 이력을 저장하지 못했습니다. 다음 실행에서 다시 시도합니다."
 
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
