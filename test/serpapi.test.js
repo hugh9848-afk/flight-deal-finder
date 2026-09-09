@@ -127,8 +127,14 @@ test("장부를 못 쓰면 안전하게 멈춘다", async () => {
     return jsonRes({ ok: true });
   });
   try {
-    // 쓸 수 없는 경로를 줍니다
-    const c = new SerpApiClient({ apiKey: "k", minIntervalMs: 0, ledgerPath: "/proc/불가능/ledger.json" });
+    // 쓸 수 없는 경로를 만듭니다.
+    // 먼저 '파일'을 하나 만들고, 그 파일 안쪽을 폴더인 것처럼 가리킵니다.
+    // 파일 안에는 폴더를 만들 수 없으므로 어느 운영체제에서나 똑같이 실패합니다.
+    // (예전에는 /proc 을 썼는데, 맥에는 없고 리눅스에는 있어서 결과가 달랐습니다)
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "serp-bad-"));
+    const notADir = path.join(dir, "이건파일");
+    fs.writeFileSync(notADir, "x");
+    const c = new SerpApiClient({ apiKey: "k", minIntervalMs: 0, ledgerPath: path.join(notADir, "ledger.json") });
     await c.checkQuota();
     await c.search({ engine: "e" });
     assert.ok(c.stopped, "장부 저장 실패는 조용히 넘어가면 안 된다");
@@ -207,13 +213,19 @@ test("시간대 없는 시각이어도 어느 컴퓨터에서나 같은 날짜�
   const offer = { type: "Round trip", price: 500000, total_duration: 600, layovers: [],
     flights: [{ departure_airport: { id: "ICN", time: "2026-10-01 23:00" },
                 arrival_airport: { id: "CDG", time: "2026-10-02 05:00" }, duration: 600 }] };
+  const hadTZ = "TZ" in process.env;
   const before = process.env.TZ;
   const days = [];
-  for (const tz of ["Asia/Seoul", "UTC", "America/Los_Angeles"]) {
-    process.env.TZ = tz;
-    days.push(normalizeFlightOffer(offer, { returnDate: "2026-10-07" }).tripDays);
+  try {
+    for (const tz of ["Asia/Seoul", "UTC", "America/Los_Angeles"]) {
+      process.env.TZ = tz;
+      days.push(normalizeFlightOffer(offer, { returnDate: "2026-10-07" }).tripDays);
+    }
+  } finally {
+    // 원래 없던 값이면 '없음'으로 되돌립니다.
+    // 그냥 undefined 를 넣으면 "undefined" 라는 글자가 들어가 뒤 시험이 망가집니다.
+    if (hadTZ) process.env.TZ = before; else delete process.env.TZ;
   }
-  process.env.TZ = before;
   assert.equal(new Set(days).size, 1, `시간대가 달라도 같아야 한다 (실제 ${days.join(",")})`);
   assert.equal(days[0], 7);
 });
