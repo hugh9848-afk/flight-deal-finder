@@ -37,7 +37,9 @@ export function makeCandidate(input) {
     tripDaysBasis: input.tripDaysBasis ?? null,
 
     openJaw: input.openJaw ?? false,          // 들어간 도시 ≠ 나오는 도시
-    separateTickets: input.separateTickets ?? false, // 별도 발권 위험
+    // 모르는 것은 null 로 둡니다. false(문제없음)로 바꾸면
+    // 사용자가 위험한 표를 안전하다고 믿게 됩니다.
+    separateTickets: input.separateTickets ?? null,  // 별도 발권 위험
     selfTransfer: input.selfTransfer ?? null,        // 자가환승 여부
     airportChange: input.airportChange ?? null,      // 경유 중 공항 변경
 
@@ -53,7 +55,7 @@ export function makeCandidate(input) {
   };
 
   // 아직 모르는 항목을 자동으로 표시해 둡니다.
-  for (const key of ["total", "taxes", "baggage", "fareRules", "selfTransfer", "airportChange"]) {
+  for (const key of ["total", "taxes", "baggage", "fareRules", "selfTransfer", "separateTickets", "airportChange"]) {
     if (c[key] === null || c[key] === undefined) c.unknown.push(key);
   }
 

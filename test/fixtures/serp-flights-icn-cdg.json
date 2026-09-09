@@ -1,0 +1,397 @@
+{
+  "best_flights": [
+    {
+      "flights": [
+        {
+          "departure_airport": {
+            "name": "인천국제공항",
+            "id": "ICN",
+            "time": "2027-01-16 13:15"
+          },
+          "arrival_airport": {
+            "name": "바르샤바 쇼팽 공항",
+            "id": "WAW",
+            "time": "2027-01-16 18:25"
+          },
+          "duration": 790,
+          "airplane": "Boeing 787",
+          "airline": "LOT 폴란드항공",
+          "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LO.png",
+          "travel_class": "Economy",
+          "flight_number": "LO 100",
+          "legroom": "81cm",
+          "extensions": [
+            "Above average legroom (81cm)",
+            "In-seat power & USB outlets",
+            "On-demand video",
+            "Carbon emissions estimate: 369 kg"
+          ]
+        },
+        {
+          "departure_airport": {
+            "name": "바르샤바 쇼팽 공항",
+            "id": "WAW",
+            "time": "2027-01-17 07:20"
+          },
+          "arrival_airport": {
+            "name": "파리 샤를드골 국제공항",
+            "id": "CDG",
+            "time": "2027-01-17 09:55"
+          },
+          "duration": 155,
+          "airplane": "Boeing 737MAX 8 Passenger",
+          "airline": "LOT 폴란드항공",
+          "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LO.png",
+          "travel_class": "Economy",
+          "flight_number": "LO 331",
+          "legroom": "74cm",
+          "extensions": [
+            "Below average legroom (74cm)",
+            "In-seat power & USB outlets",
+            "Carbon emissions estimate: 107 kg"
+          ]
+        }
+      ],
+      "layovers": [
+        {
+          "duration": 775,
+          "name": "바르샤바 쇼팽 공항",
+          "id": "WAW"
+        }
+      ],
+      "total_duration": 1720,
+      "carbon_emissions": {
+        "this_flight": 478000,
+        "typical_for_this_route": 647000,
+        "difference_percent": -26
+      },
+      "price": 790500,
+      "type": "Round trip",
+      "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LO.png",
+      "extensions": [
+        "Checked baggage for a fee",
+        "Fare non-refundable, taxes may be refundable",
+        "Ticket changes for a fee",
+        "Bag and fare conditions depend on the return flight"
+      ],
+      "departure_token": "WyJDalJJVGtaMWJsQTNRbFpVUmxsQlFVSjJibmRDUnkwdExTMHRMUzB0TFMxMGJIWndNa0ZCUVVGQlIzRm5hV2gzU0VoMFIyRkJFZ3RNVHpFd01IeE1Uek16TVJvTENPU2ZNQkFBR2dOTFVsYzRISERkekFNPSIsW1siSUNOIiwiMjAyNy0wMS0xNiIsIldBVyIsbnVsbCwiTE8iLCIxMDAiXSxbIldBVyIsIjIwMjctMDEtMTciLCJDREciLG51bGwsIkxPIiwiMzMxIl1dXQ=="
+    }
+  ],
+  "other_flights": [],
+  "price_insights": {
+    "lowest_price": 790500,
+    "price_level": "low",
+    "typical_price_range": [
+      890000,
+      1400000
+    ],
+    "price_history": [
+      [
+        1783609200,
+        983300
+      ],
+      [
+        1783695600,
+        983300
+      ],
+      [
+        1783782000,
+        983700
+      ],
+      [
+        1783868400,
+        985600
+      ],
+      [
+        1783954800,
+        982100
+      ],
+      [
+        1784041200,
+        982700
+      ],
+      [
+        1784127600,
+        978200
+      ],
+      [
+        1784214000,
+        982100
+      ],
+      [
+        1784300400,
+        978200
+      ],
+      [
+        1784386800,
+        989400
+      ],
+      [
+        1784473200,
+        988000
+      ],
+      [
+        1784559600,
+        988000
+      ],
+      [
+        1784646000,
+        984300
+      ],
+      [
+        1784732400,
+        982600
+      ],
+      [
+        1784818800,
+        983900
+      ],
+      [
+        1784905200,
+        980600
+      ],
+      [
+        1784991600,
+        979100
+      ],
+      [
+        1785078000,
+        977000
+      ],
+      [
+        1785164400,
+        977000
+      ],
+      [
+        1785250800,
+        977000
+      ],
+      [
+        1785337200,
+        977000
+      ],
+      [
+        1785423600,
+        977000
+      ],
+      [
+        1785510000,
+        977000
+      ],
+      [
+        1785596400,
+        977000
+      ],
+      [
+        1785682800,
+        977000
+      ],
+      [
+        1785769200,
+        977000
+      ],
+      [
+        1785855600,
+        977000
+      ],
+      [
+        1785942000,
+        977000
+      ],
+      [
+        1786028400,
+        977000
+      ],
+      [
+        1786114800,
+        977000
+      ],
+      [
+        1786201200,
+        977000
+      ],
+      [
+        1786287600,
+        977000
+      ],
+      [
+        1786374000,
+        977000
+      ],
+      [
+        1786460400,
+        1001100
+      ],
+      [
+        1786546800,
+        1001400
+      ],
+      [
+        1786633200,
+        1001400
+      ],
+      [
+        1786719600,
+        1002300
+      ],
+      [
+        1786806000,
+        1003300
+      ],
+      [
+        1786892400,
+        1003300
+      ],
+      [
+        1786978800,
+        1003100
+      ],
+      [
+        1787065200,
+        1001900
+      ],
+      [
+        1787151600,
+        1000900
+      ],
+      [
+        1787238000,
+        992500
+      ],
+      [
+        1787324400,
+        992500
+      ],
+      [
+        1787410800,
+        1027800
+      ],
+      [
+        1787497200,
+        1039100
+      ],
+      [
+        1787583600,
+        1039000
+      ],
+      [
+        1787670000,
+        1043500
+      ],
+      [
+        1787756400,
+        1039500
+      ],
+      [
+        1787842800,
+        1042500
+      ],
+      [
+        1787929200,
+        935700
+      ],
+      [
+        1788015600,
+        935700
+      ],
+      [
+        1788102000,
+        935700
+      ],
+      [
+        1788188400,
+        932500
+      ],
+      [
+        1788274800,
+        793900
+      ],
+      [
+        1788361200,
+        838900
+      ],
+      [
+        1788447600,
+        837600
+      ],
+      [
+        1788534000,
+        837100
+      ],
+      [
+        1788620400,
+        837100
+      ],
+      [
+        1788706800,
+        792100
+      ],
+      [
+        1788793200,
+        792100
+      ],
+      [
+        1788879600,
+        790500
+      ]
+    ]
+  },
+  "airports": [
+    {
+      "departure": [
+        {
+          "airport": {
+            "id": "ICN",
+            "name": "인천국제공항"
+          },
+          "city": "서울특별시",
+          "country": "대한민국",
+          "country_code": "KR",
+          "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaeVwigGtqKE3WHRHlXdsogk_5ZpMVDw4LeWvbjUbezo_88sViW8V2x7FhQlWlIeoYrrNajK9btPW_8w",
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxR7y_Va8i68eRlNWn4Omq2FHwgniQAe29Wb-NPNbNQCBFLvSQpBXOtZw5ZcbOagsrS83GufEhdkmk7mppoRZWU9enYxup7h1WZdBl7v4"
+        }
+      ],
+      "arrival": [
+        {
+          "airport": {
+            "id": "CDG",
+            "name": "파리 샤를드골 국제공항"
+          },
+          "city": "파리",
+          "country": "프랑스",
+          "country_code": "FR",
+          "image": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQGx8ii2KbSDdbdzfKye5oDN2bwBA6audqI7XUEf2iMRZezpn_ZbQe1ZIuvUSH-8XOMe958umDwSsAF1w",
+          "thumbnail": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSyQJ-woNs0iO22mPSkmRUM5gcsTbbYeypQ6BBTeFxXr90mqTxZl57Fdq2CDuLn4w7cKZ8TT9_zZhOpF57rIpA7yWKQnqKvkKIf9Y-qJDo"
+        }
+      ]
+    },
+    {
+      "departure": [
+        {
+          "airport": {
+            "id": "CDG",
+            "name": "파리 샤를드골 국제공항"
+          },
+          "city": "파리",
+          "country": "프랑스",
+          "country_code": "FR",
+          "image": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQGx8ii2KbSDdbdzfKye5oDN2bwBA6audqI7XUEf2iMRZezpn_ZbQe1ZIuvUSH-8XOMe958umDwSsAF1w",
+          "thumbnail": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSyQJ-woNs0iO22mPSkmRUM5gcsTbbYeypQ6BBTeFxXr90mqTxZl57Fdq2CDuLn4w7cKZ8TT9_zZhOpF57rIpA7yWKQnqKvkKIf9Y-qJDo"
+        }
+      ],
+      "arrival": [
+        {
+          "airport": {
+            "id": "ICN",
+            "name": "인천국제공항"
+          },
+          "city": "서울특별시",
+          "country": "대한민국",
+          "country_code": "KR",
+          "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaeVwigGtqKE3WHRHlXdsogk_5ZpMVDw4LeWvbjUbezo_88sViW8V2x7FhQlWlIeoYrrNajK9btPW_8w",
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxR7y_Va8i68eRlNWn4Omq2FHwgniQAe29Wb-NPNbNQCBFLvSQpBXOtZw5ZcbOagsrS83GufEhdkmk7mppoRZWU9enYxup7h1WZdBl7v4"
+        }
+      ]
+    }
+  ]
+}

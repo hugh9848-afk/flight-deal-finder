@@ -1,0 +1,77 @@
+{
+  "deals": [
+    {
+      "destination_id": "/m/03m9sv",
+      "name": "제주시",
+      "country": "대한민국",
+      "price": 139200,
+      "average_price": 529300,
+      "discount_percentage": 74,
+      "flight_link": "https://www.google.com/travel/flights?tfs=CCoQAhokEgoyMDI2LTEwLTEyagcIARIDSUNOcg0IAhIJL20vMDNtOXN2GiQSCjIwMjYtMTAtMTlqDQgCEgkvbS8wM205c3ZyBwgBEgNJQ05AAUgBUgNLUld6fENqUklPV1E0U1hZNFdEVlFNbEZCUVdFeFprRkNSeTB0TFMwdExTMHRMUzFqWlhSdk9VRkJRVUZCUjNGbmFVOXJTMGcwWVhGQkVoSkVaV0ZzUTI5dWMzUnlZV2x1ZEhNd0xUQWFDd2pBdndnUUFCb0RTMUpYT0Rod2tWRT0&curr=KRW&hl=ko&gl=KR&gsas=1",
+      "serpapi_flight_link": "https://serpapi.com/search.json?adults=1&arrival_id=%2Fm%2F03m9sv&currency=KRW&deep_search=true&departure_id=ICN&engine=google_flights&gl=kr&hl=ko&outbound_date=2026-10-12&return_date=2026-10-19&travel_class=1&type=1",
+      "thumbnail": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRPg9EMEvsoRJ_W6GF-5u1qJT26u-mnaXDrA1nYP0eRVvpmLRIVRhOz4AvDQZwj5JtbjMJjxg",
+      "outbound_date": "2026-10-12",
+      "return_date": "2026-10-19",
+      "departure_airport_code": "ICN",
+      "arrival_airport_code": "CJU",
+      "flight_duration": 80,
+      "stops": 0,
+      "airline": "제주항공",
+      "airline_code": "7C",
+      "description": "민속 박물관, 난타 극장, 해수 사우나가 있는 대한민국 제주도의 행정 수도",
+      "highlights": "민속 박물관 및 해수 사우나"
+    },
+    {
+      "destination_id": "/m/0gp6ft",
+      "name": "요나고시",
+      "country": "일본",
+      "price": 199700,
+      "average_price": 569000,
+      "discount_percentage": 65,
+      "flight_link": "https://www.google.com/travel/flights?tfs=CCoQAhokEgoyMDI2LTEwLTE0agcIARIDSUNOcg0IAhIJL20vMGdwNmZ0GiQSCjIwMjYtMTAtMjNqDQgCEgkvbS8wZ3A2ZnRyBwgBEgNJQ05AAUgBUgNLUld6fENqUklPV1E0U1hZNFdEVlFNbEZCUVdFeFprRkNSeTB0TFMwdExTMHRMUzFqWlhSdk9VRkJRVUZCUjNGbmFVOXJTMGcwWVhGQkVoSkVaV0ZzUTI5dWMzUnlZV2x1ZEhNd0xURWFDd2lVbUF3UUFCb0RTMUpYT0Rod3MzUT0&curr=KRW&hl=ko&gl=KR&gsas=1",
+      "serpapi_flight_link": "https://serpapi.com/search.json?adults=1&arrival_id=%2Fm%2F0gp6ft&currency=KRW&deep_search=true&departure_id=ICN&engine=google_flights&gl=kr&hl=ko&outbound_date=2026-10-14&return_date=2026-10-23&travel_class=1&type=1",
+      "thumbnail": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTYB1W0_0xAeKPWqFNdg5e5T01DY_ns1pRoMeD-mHjQi0WVDtB5gNYB68puc9gpS8oF_n-koQ",
+      "outbound_date": "2026-10-14",
+      "return_date": "2026-10-23",
+      "departure_airport_code": "ICN",
+      "arrival_airport_code": "YGJ",
+      "flight_duration": 85,
+      "stops": 0,
+      "airline": "에어서울",
+      "airline_code": "RS",
+      "description": "요나고 성 유적지, 미나토야마 공원, 후쿠이치 공원 유적으로 유명한 일본의 도시",
+      "highlights": "요나고 성 및 미나토야마 공원"
+    },
+    {
+      "destination_id": "/m/0gp6_w",
+      "name": "오이타시",
+      "country": "일본",
+      "price": 270100,
+      "average_price": 634618,
+      "discount_percentage": 57,
+      "flight_link": "https://www.google.com/travel/flights?tfs=CCoQAhokEgoyMDI2LTEwLTA4agcIARIDSUNOcg0IAhIJL20vMGdwNl93GiQSCjIwMjYtMTAtMTVqDQgCEgkvbS8wZ3A2X3dyBwgBEgNJQ05AAUgBUgNLUld6fENqUklPV1E0U1hZNFdEVlFNbEZCUVdFeFprRkNSeTB0TFMwdExTMHRMUzFqWlhSdk9VRkJRVUZCUjNGbmFVOXJTMGcwWVhGQkVoSkVaV0ZzUTI5dWMzUnlZV2x1ZEhNd0xUSWFDd2lVdmhBUUFCb0RTMUpYT0Rod3Q1MEI&curr=KRW&hl=ko&gl=KR&gsas=1",
+      "serpapi_flight_link": "https://serpapi.com/search.json?adults=1&arrival_id=%2Fm%2F0gp6_w&currency=KRW&deep_search=true&departure_id=ICN&engine=google_flights&gl=kr&hl=ko&outbound_date=2026-10-08&return_date=2026-10-15&travel_class=1&type=1",
+      "thumbnail": "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcQITA7sTvKEv1dBNyogt4xIgCLoXX2SrX0rScFRGbWSHvC9KxAbx1yBCqCEJsF7OjhrE9psMHG_2mez0RprpylqgBKAW_91aaw",
+      "outbound_date": "2026-10-08",
+      "return_date": "2026-10-15",
+      "departure_airport_code": "ICN",
+      "arrival_airport_code": "OIT",
+      "flight_duration": 105,
+      "stops": 0,
+      "airline": "제주항공",
+      "airline_code": "7C",
+      "highlights": "미술관, 공원, 음악회 및 미술 전시회"
+    }
+  ],
+  "departure_informations": {
+    "airport_name": "인천국제공항",
+    "airport_code": "ICN",
+    "city": "서울특별시",
+    "city_id": "/m/0hsqf",
+    "country": "대한민국",
+    "gps_coordinates": {
+      "latitude": 37.4625,
+      "longitude": 126.439167
+    }
+  }
+}

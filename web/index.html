@@ -130,6 +130,8 @@ function cardHtml(d){
   if (d.fareRules?.conflict) badges.push(`<span class="badge b-bad">값 불일치</span>`);
   if (d.outOfRange) badges.push(`<span class="badge b-warn">기간 경계 밖</span>`);
   if (d.tripDaysBasis === "local_departure_estimated") badges.push(`<span class="badge b-mute">일수 어림값</span>`);
+  if (d.tripDaysBasis === "arrival_time_derived") badges.push(`<span class="badge b-mute">도착시각 계산값</span>`);
+  if (d.returnAirportVerified === false) badges.push(`<span class="badge b-warn">귀국 공항 미확인</span>`);
   if (typeof d.seatsLeft === "number" && d.seatsLeft <= 3) badges.push(`<span class="badge b-warn">잔여 ${d.seatsLeft}석</span>`);
 
   const bg = d.baggage
@@ -145,10 +147,11 @@ function cardHtml(d){
   const conf = {high:"높음",medium:"보통",low:"낮음",none:"없음"}[v.confidence] ?? "?";
   // 이 할인율이 무엇을 기준으로 나온 값인지 분명히 밝힙니다
   const basisLabel = {
-    self_observed: "이 앱이 모아온 값 대비",
-    same_scan:     "이번 검색 안에서 비교",
-    provider:      "공급자 제공 기준",
-    none:          "비교 기준 없음",
+    google_deals_reported:             "Google 이 알려준 평소가 대비",
+    app_computed_from_google_history:  "Google 가격이력으로 앱이 계산",
+    self_observed:                     "이 앱이 모아온 값 대비",
+    same_scan:                         "이번 검색 안에서 비교",
+    none:                              "비교 기준 없음",
   }[v.basis] ?? "";
   const obs = (v.observationDays != null && v.distinctDays != null)
     ? ` · ${v.observationDays}일에 걸쳐 ${v.distinctDays}일 관측` : "";
@@ -180,6 +183,8 @@ function cardHtml(d){
     <div style="margin-top:8px">${badges.join("")}</div>
     <div class="meta">${disc}${basisLabel ? ` <span class="basis">${esc(basisLabel)}</span>` : ""}</div>
     <div class="meta">판정 신뢰도 <b>${conf}</b> · 표본 ${v.sampleSize ?? 0}건${obs}</div>
+    ${d.providerRange ? `<div class="meta">Google 통상 가격대 ${d.providerRange.range.map(n=>n.toLocaleString("ko-KR")).join(" ~ ")}원</div>` : ""}
+    ${v.selfObserved ? `<div class="meta">참고 · 이 앱 관측으로는 ${v.selfObserved.discountPct}% (표본 ${v.selfObserved.sampleSize}건)</div>` : ""}
     <div class="score">여행가치 ${d.score ?? "?"}점<div class="bar"><i style="width:${Math.max(0,Math.min(100,d.score??0))}%"></i></div></div>
     ${legHtml(d.outbound,"출국")}
     ${legHtml(d.inbound,"귀국")}

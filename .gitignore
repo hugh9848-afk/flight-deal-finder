@@ -7,3 +7,6 @@ node_modules/
 web/data/deals.json
 web/data/summary.txt
 web/data/alerts.json
+
+# SerpApi 사용 장부는 실행할 때마다 바뀝니다 (충돌 방지)
+data/serpapi-ledger.json

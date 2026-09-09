@@ -7,13 +7,23 @@ import { fileURLToPath } from "node:url";
 // 한글 폴더명 때문에 pathname 을 쓰면 경로가 깨집니다 (%ED%95%AD…)
 const DEFAULT_DIR = fileURLToPath(new URL("../../data/history/", import.meta.url));
 
-/** 체류 일수를 세 칸(짧게/보통/길게)으로 묶습니다. */
+/**
+ * 여행 일수를 비슷한 것끼리 묶습니다.
+ *
+ * 5일 여행과 13일 여행은 성격이 완전히 다른데 예전엔 같은 칸이었습니다.
+ * 여행 기간이 5~20일로 넓어졌으므로 네 칸으로 나눕니다.
+ */
 export function tripBucket(days) {
   if (days === null || days === undefined) return "unknown";
-  if (days <= 13) return "10-13";
-  if (days <= 16) return "14-16";
-  return "17-20";
+  if (days <= 7) return "5-7";     // 짧은 여행
+  if (days <= 10) return "8-10";   // 일주일 남짓
+  if (days <= 14) return "11-14";  // 두 주
+  return "15-20";                  // 긴 여행
 }
+
+// 이력 형식 번호. 여행 일수를 세는 방법과 묶음이 바뀌면 올립니다.
+// 옛 기록은 지우지 않되, 새 판정에는 섞지 않습니다.
+export const HISTORY_VERSION = 3;
 
 /**
  * 이력을 찾을 때 쓰는 열쇠글.
@@ -62,7 +72,7 @@ export class PriceHistory {
       const departureDate = c.outbound?.departAt?.slice(0, 10) ?? null;
       if (!departureDate || !c.destIn) continue;
       rows.push({
-        v: 2,                                    // 이력 형식 번호 (옛 기록과 섞이지 않게)
+        v: HISTORY_VERSION,                      // 이력 형식 번호 (옛 기록과 섞이지 않게)
         ts: c.fetchedAt ?? new Date().toISOString(),   // 우리가 받아온 시각
         // 공급자가 '이 가격을 실제로 본 시각'. 같은 캐시를 다시 받아도 이 값은 같습니다.
         observedAt: c.raw?.observedAt ?? null,
@@ -142,6 +152,8 @@ export class PriceHistory {
     // 이번 스캔에서 방금 적은 값을 판정 근거로 쓰면 자기 자신과 비교하게 되니까요.
     const until = before ? Date.parse(before) : Infinity;
     const raw = this.load()
+      // 형식이 다른 옛 기록은 섞지 않습니다 (일수 세는 법이 달랐습니다)
+      .filter((r) => (r.v ?? 1) === HISTORY_VERSION)
       .filter((r) => r.key === key && Date.parse(r.ts) >= cutoff && Date.parse(r.ts) < until);
     const rows = this.#distinct(raw);
     if (!rows.length) return null;
@@ -162,6 +174,7 @@ export class PriceHistory {
     const cutoff = Date.now() - maxAgeDays * 86400000;
     const until = before ? Date.parse(before) : Infinity;
     const raw = this.load()
+      .filter((r) => (r.v ?? 1) === HISTORY_VERSION)
       .filter((r) => r.origin === origin && r.destination === destination
                   && Date.parse(r.ts) >= cutoff && Date.parse(r.ts) < until);
     const rows = this.#distinct(raw);

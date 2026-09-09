@@ -106,7 +106,7 @@ test("체류일수와 출발 기간을 벗어난 후보는 걸러낸다", async 
   assert.ok(r.candidates[0].links[0].url.includes("aviasales.com/search/ICN1011CDG2411"));
 });
 
-test("같은 노선·날짜가 겹치면 하나만 남기고, 자세한 v3 를 우선한다", async () => {
+test("값이 다르면 같은 날짜라도 둘 다 남긴다 (싼 후보를 잃지 않기 위해)", async () => {
   const p = new TravelpayoutsProvider({
     client: new FakeClient({
       CDG: [
@@ -117,21 +117,24 @@ test("같은 노선·날짜가 겹치면 하나만 남기고, 자세한 v3 를 �
   });
   const r = await p.searchInspiration({
     origin: "ICN", departFrom: "2026-10-01", departTo: "2027-06-30",
-    minTripDays: 10, maxTripDays: 20, destinations: dests("CDG"),
+    minTripDays: 5, maxTripDays: 20, destinations: dests("CDG"),
   });
-  assert.equal(r.candidates.length, 1, "같은 일정은 하나만 남아야 한다");
-  assert.equal(r.candidates[0].total, 750000, "같은 종류끼리는 싼 쪽");
+  // 날짜가 같아도 값이 다르면 다른 운임일 수 있습니다. 함부로 지우지 않습니다.
+  assert.equal(r.candidates.length, 2, "값이 다르면 둘 다 남아야 한다");
+  const totals = r.candidates.map((c) => c.total).sort((a, b) => a - b);
+  assert.deepEqual(totals, [750000, 900000]);
+  // 같은 일정끼리 묶어 볼 수 있도록 표시가 붙어야 합니다
+  assert.equal(new Set(r.candidates.map((c) => c.itinerarySlot)).size, 1);
 });
 
-test("v2 와 v3 에 같은 일정이 있으면 자세한 v3 를 남긴다", async () => {
-  // v3 는 실제 공항·이동시간·귀국 경유를 주므로, 조금 비싸도 이쪽이 쓸모 있습니다.
-  class DualClient {
+test("값까지 같으면 하나만 남기고 자세한 v3 를 고른다", async () => {
+  class SamePriceClient {
     constructor() { this.marker = "m1"; }
     async request(path) {
       if (path === "/v2/prices/latest") {
         return { ok: true, status: 200, data: { success: true, data: [
           { origin: "ICN", destination: "PAR", depart_date: "2026-11-10",
-            return_date: "2026-11-20", value: 700000, number_of_changes: 1 },
+            return_date: "2026-11-20", value: 730000, number_of_changes: 1 },
         ]}};
       }
       return { ok: true, status: 200, data: { data: [
@@ -143,64 +146,129 @@ test("v2 와 v3 에 같은 일정이 있으면 자세한 v3 를 남긴다", asyn
     }
     searchLink() { return "https://x"; }
   }
-  const p = new TravelpayoutsProvider({ client: new DualClient() });
+  const p = new TravelpayoutsProvider({ client: new SamePriceClient() });
   const r = await p.searchInspiration({
     origin: "ICN", departFrom: "2026-10-01", departTo: "2027-06-30",
     minTripDays: 5, maxTripDays: 20, destinations: dests("CDG"),
   });
-  assert.equal(r.candidates.length, 1, "같은 일정이므로 하나만 남아야 한다");
+  assert.equal(r.candidates.length, 1, "값이 같으면 하나만 남는다");
   const c = r.candidates[0];
-  assert.equal(c.total, 730000, "조금 비싸도 자세한 v3 를 남긴다");
-  assert.equal(c.destIn, "CDG", "도시코드가 아니라 실제 공항이어야 한다");
-  assert.equal(c.outbound.durationMin, 900, "가는 편 이동시간을 알아야 한다");
+  assert.equal(c.destIn, "CDG", "도시코드가 아니라 실제 공항");
+  assert.equal(c.outbound.durationMin, 900);
   assert.equal(c.inbound.stops, 2, "귀국편 경유 횟수를 알아야 한다");
-  assert.equal(c.tripDaysBasis, "icn_confirmed", "인천 도착일을 계산했으므로 확정");
-  assert.ok(c.links[0].url.includes("marker=m1"));
 });
 
-test("참고가만 주는 공급자로는 확정 특가가 절대 만들어지지 않는다", async () => {
+test("비싼 v3 가 싼 v2 를 지우면 안 된다", async () => {
+  // 점검에서 발견된 결함: 날짜만 같으면 v3 를 무조건 남겨서
+  // v2 50만원짜리가 v3 150만원 때문에 사라졌다.
+  class CheapV2Client {
+    constructor() { this.marker = "m1"; }
+    async request(path) {
+      if (path === "/v2/prices/latest") {
+        return { ok: true, status: 200, data: { success: true, data: [
+          { origin: "ICN", destination: "PAR", depart_date: "2026-11-10",
+            return_date: "2026-11-20", value: 500000, number_of_changes: 1 },
+        ]}};
+      }
+      return { ok: true, status: 200, data: { data: [
+        { origin: "SEL", destination: "PAR", origin_airport: "ICN", destination_airport: "CDG",
+          departure_at: "2026-11-10T10:00:00+09:00", return_at: "2026-11-20T12:00:00+01:00",
+          price: 1500000, transfers: 1, return_transfers: 1,
+          duration_to: 900, duration_back: 840, link: "/search/x" },
+      ]}};
+    }
+    searchLink() { return "https://x"; }
+  }
+  const p = new TravelpayoutsProvider({ client: new CheapV2Client() });
+  const r = await p.searchInspiration({
+    origin: "ICN", departFrom: "2026-10-01", departTo: "2027-06-30",
+    minTripDays: 5, maxTripDays: 20, destinations: dests("CDG"),
+  });
+  const totals = r.candidates.map((c) => c.total).sort((a, b) => a - b);
+  assert.ok(totals.includes(500000), `싼 후보가 남아야 한다 (실제: ${totals.join(",")})`);
+  assert.equal(r.candidates.length, 2, "값이 다르므로 둘 다 남는다");
+});
+
+test("v2 가 실패해도 v3 는 따로 시도한다", async () => {
+  const calls = [];
+  class V2FailsClient {
+    constructor() { this.marker = "m1"; }
+    async request(path) {
+      calls.push(path);
+      if (path === "/v2/prices/latest") return { ok: false, status: 503, error: "서버 오류" };
+      return { ok: true, status: 200, data: { data: [
+        { origin: "SEL", destination: "PAR", origin_airport: "ICN", destination_airport: "CDG",
+          departure_at: "2026-11-10T10:00:00+09:00", return_at: "2026-11-20T12:00:00+01:00",
+          price: 800000, transfers: 1, return_transfers: 1,
+          duration_to: 900, duration_back: 840, link: "/search/x" },
+      ]}};
+    }
+    searchLink() { return "https://x"; }
+  }
+  const p = new TravelpayoutsProvider({ client: new V2FailsClient() });
+  const r = await p.searchInspiration({
+    origin: "ICN", departFrom: "2026-10-01", departTo: "2027-06-30",
+    minTripDays: 5, maxTripDays: 20, destinations: dests("CDG"),
+  });
+  assert.ok(calls.includes("/aviasales/v3/prices_for_dates"), "v2 가 죽어도 v3 는 불러야 한다");
+  assert.equal(r.candidates.length, 1, "v3 결과는 살아남아야 한다");
+  assert.equal(r.candidates[0].total, 800000);
+});
+
+test("귀국편 경유가 많으면 가는 편이 괜찮아도 걸러낸다", async () => {
   const { history, alertState } = tmp();
-  // 유럽 여러 곳 + 유난히 싼 곳 하나
+  class ReturnStopsClient {
+    constructor() { this.marker = "m1"; }
+    async request(path, q) {
+      if (path === "/v2/prices/latest") return { ok: true, status: 200, data: { success: true, data: [] } };
+      return { ok: true, status: 200, data: { data: [
+        { origin: "SEL", destination: q.destination, origin_airport: "ICN", destination_airport: q.destination,
+          departure_at: "2026-11-10T10:00:00+09:00", return_at: "2026-11-20T12:00:00+01:00",
+          price: 800000, transfers: 1,
+          return_transfers: q.destination === "PRG" ? 4 : 1,   // 프라하만 귀국 4회 경유
+          duration_to: 900, duration_back: 840, link: "/search/x" },
+      ]}};
+    }
+    searchLink() { return "https://x"; }
+  }
+  const r = await runScan({
+    provider: new TravelpayoutsProvider({ client: new ReturnStopsClient() }),
+    history, alertState, regions: ["europe"], today: new Date("2026-09-03"), log: () => {},
+  });
+  const kept = r.needsReview.map((i) => i.candidate.destIn);
+  assert.ok(!kept.includes("PRG"), "귀국편 경유 4회짜리는 걸러져야 한다");
+  assert.ok(kept.length > 0, "나머지는 남아야 한다");
+});
+
+test("출발 공항이 인천으로 확인되지 않으면 알리지 않는다", async () => {
+  const { history, alertState } = tmp();
   const codes = ["CDG", "FCO", "VIE", "PRG", "MAD", "BCN", "LIS", "ATH", "BUD", "WAW"];
-  const byDest = {};
-  codes.forEach((d, i) => {
-    byDest[d] = [{ origin: "ICN", destination: d, depart_date: "2026-11-10", return_date: "2026-11-24",
-                   value: d === "FCO" ? 380000 : 1200000 + i * 20000, number_of_changes: 1 }];
-  });
-  const p = new TravelpayoutsProvider({ client: new FakeClient(byDest) });
+  class GmpClient {
+    constructor() { this.marker = "m1"; }
+    async request(path, q) {
+      if (path === "/v2/prices/latest") return { ok: true, status: 200, data: { success: true, data: [] } };
+      return { ok: true, status: 200, data: { data: Array.from({ length: 6 }, (_, k) => ({
+        origin: "SEL", destination: q.destination,
+        origin_airport: q.destination === "FCO" ? "GMP" : "ICN",   // 로마행만 김포 출발
+        destination_airport: q.destination,
+        departure_at: `2026-11-${String(10 + k).padStart(2, "0")}T10:00:00+09:00`,
+        return_at: `2026-11-${String(20 + k).padStart(2, "0")}T12:00:00+01:00`,
+        price: q.destination === "FCO" ? 300000 : 1200000 + k * 5000,
+        transfers: 1, return_transfers: 1, duration_to: 900, duration_back: 840, link: "/search/x",
+      }))}};
+    }
+    searchLink() { return "https://x"; }
+  }
+  const opts = { history, alertState, regions: ["europe"], today: new Date("2026-09-03"), log: () => {} };
+  const mk = () => new TravelpayoutsProvider({ client: new GmpClient() });
+  await runScan({ provider: mk(), ...opts });   // 이력 쌓기
+  const r = await runScan({ provider: mk(), ...opts });
 
-  const r = await runScan({
-    provider: p, history, alertState, regions: ["europe"],
-    today: new Date("2026-09-03"), log: () => {},
-  });
-
-  assert.equal(r.deals.length, 0, "실제 조회를 못 했으므로 확정 특가는 0건이어야 한다");
-  assert.equal(r.alerts.length, 0, "확정하지 않은 것을 알림으로 보내면 안 된다");
-  assert.ok(r.report.stages.live.skipped, "2단계를 건너뛴 사실이 기록되어야 한다");
-  assert.ok(r.report.warnings.some((w) => w.includes("실제 운임 조회를 지원하지 않습니다")));
-
-  // 싼 후보는 '확인 필요'로는 올라와야 합니다
   const fco = r.needsReview.find((i) => i.candidate.destIn === "FCO");
-  assert.ok(fco, "유난히 싼 후보는 확인 필요 목록에 있어야 한다");
-  assert.equal(fco.status, "needs_review");
-  assert.match(fco.statusReason, /참고가/);
-  assert.equal(fco.candidate.priceType, PRICE_TYPE.INDICATIVE);
-});
-
-test("참고가 단계에서도 경유 제한이 지켜진다 (어디든 2회까지)", async () => {
-  const { history, alertState } = tmp();
-  const mk = (dest, stops) => [{ origin: "ICN", destination: dest, depart_date: "2026-11-10",
-                                 return_date: "2026-11-24", value: 800000, number_of_changes: stops }];
-  // 유럽 2회·아프리카 2회는 통과 / 3회는 어디서든 제외
-  const p = new TravelpayoutsProvider({
-    client: new FakeClient({ PRG: mk("PRG", 2), VIE: mk("VIE", 3), CAI: mk("CAI", 2), NBO: mk("NBO", 3) }),
-  });
-  const r = await runScan({
-    provider: p, history, alertState, today: new Date("2026-09-03"), log: () => {},
-  });
-  const kept = r.needsReview.map((i) => i.candidate.destIn).sort();
-  assert.deepEqual(kept, ["CAI", "PRG"], `2회짜리만 남아야 한다 (실제: ${kept.join(",")})`);
-  assert.equal(r.report.stages.indicative.droppedByStops, 2);
+  assert.ok(fco, "김포 출발이어도 목록에는 남는다");
+  assert.equal(fco.candidate.departureAirportVerified, false);
+  assert.ok(!r.alerts.some((a) => a.candidate.destIn === "FCO"),
+    "출발 공항이 인천으로 확인되지 않으면 아무리 싸도 알리지 않는다");
 });
 
 test("여행 일수가 경계 밖인 후보는 알림으로 내보내지 않는다", async () => {

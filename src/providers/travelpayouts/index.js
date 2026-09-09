@@ -56,13 +56,15 @@ export class TravelpayoutsProvider extends FlightProvider {
         limit,
         page: 1,
       });
-      if (!res.ok) {
+      // v2 가 실패해도 v3 는 따로 시도합니다.
+      // 서로 보완하려고 둘을 쓰는데 하나가 죽었다고 나머지까지 막으면 안 됩니다.
+      let got = [];
+      if (res.ok) {
+        got = rowsFromLatest(res.data);
+        rows.push(...got.map((r) => ({ row: r, endpoint: "v2/prices/latest" })));
+      } else {
         errors.push({ step: "latest", destination: d.iata, status: res.status, error: res.error });
-        coverage.push({ destination: d.iata, city: d.city, rows: 0, error: res.error });
-        continue;
       }
-      const got = rowsFromLatest(res.data);
-      rows.push(...got.map((r) => ({ row: r, endpoint: "v2/prices/latest" })));
 
       // v3 도 함께 물어봅니다. 건수는 v2 보다 적지만 훨씬 자세합니다.
       // (진짜 공항, 가는·오는 편 이동시간, 귀국 경유 횟수, 판매처, 확인 링크)
@@ -78,14 +80,19 @@ export class TravelpayoutsProvider extends FlightProvider {
       } else {
         errors.push({ step: "v3", destination: d.iata, status: res3.status, error: res3.error });
       }
-      coverage.push({ destination: d.iata, city: d.city, rows: got.length + got3.length, v2: got.length, v3: got3.length });
+      coverage.push({
+        destination: d.iata, city: d.city,
+        rows: got.length + got3.length, v2: got.length, v3: got3.length,
+        v2ok: res.ok, v3ok: res3.ok,
+      });
     }
 
     this.stats.errors.push(...errors);
     this.lastCoverage = coverage;
 
     const candidates = this.#toCandidates(rows, { fetchedAt, departFrom, departTo, minTripDays, maxTripDays, slack });
-    if (!candidates.length && errors.length === targets.length) {
+    // 목적지마다 2번(v2·v3) 부르므로, '전부 실패' 는 오류가 2배일 때입니다
+    if (!candidates.length && errors.length >= targets.length * 2) {
       return { ok: false, candidates: [], error: errors[0]?.error, status: errors[0]?.status, coverage };
     }
     return { ok: true, candidates, coverage };
@@ -156,22 +163,22 @@ export class TravelpayoutsProvider extends FlightProvider {
         c.outOfRange = true;
       }
 
-      // 같은 일정(도시 + 출발일 + 귀국일)은 하나만 남깁니다.
-      // v2 는 도시코드(PAR), v3 는 공항코드(CDG)로 오므로 도시 기준으로 맞춥니다.
+      // 같은 일정(도시 + 출발일 + 귀국일)이라도 **같은 운임이라는 보장이 없습니다.**
+      // 항공사·편명·판매처가 다를 수 있으므로, 값이 다르면 둘 다 남깁니다.
+      //
+      // 예전에는 v3 를 무조건 우선했는데, 그러면
+      // v2 50만원짜리가 v3 150만원 때문에 사라졌습니다. 가장 중요한 단서를 잃는 셈입니다.
       const city = findAirport(c.destIn)?.city_code ?? c.destIn;
       const back = c.inbound?.departAt?.slice(0, 10) ?? "";
-      const key = `${city}|${depart}|${back}`;
+      const slot = `${city}|${depart}|${back}`;
+      const key = `${slot}|${c.total}`;          // 값까지 같아야 같은 후보
       const prev = best.get(key);
 
-      // 어느 쪽을 남길지:
-      //   1) v3 가 있으면 v3 (실제 공항·이동시간·귀국 경유·확인 링크가 들어 있음)
-      //   2) 같은 종류끼리면 싼 쪽
       const isV3 = (x) => Boolean(x.raw?.endpoint?.startsWith("aviasales/v3"));
-      if (!prev) { best.set(key, c); continue; }
-      if (isV3(c) !== isV3(prev)) {
-        if (isV3(c)) best.set(key, c);          // v3 를 우선
-      } else if (c.total < prev.total) {
-        best.set(key, c);                        // 같은 종류면 싼 쪽
+      // 값도 같고 일정도 같으면 자세한 쪽(v3)만 남깁니다
+      if (!prev || (isV3(c) && !isV3(prev))) {
+        c.itinerarySlot = slot;                  // 같은 일정끼리 묶어 보여줄 때 씁니다
+        best.set(key, c);
       }
     }
     return [...best.values()];

@@ -70,6 +70,40 @@ export function judgeDeal(candidate, { history, cohorts, settings = SETTINGS, hi
     return { ...none(`상한(${cap.toLocaleString()}원)보다 비쌉니다`), tooExpensive: true };
   }
 
+  // --- 방법 0: 공급자가 준 기준가 (있으면 가장 먼저 씁니다) ---
+  //
+  // 우리 자체 이력은 몇 달을 모아야 쓸 만해집니다.
+  // 구글이 기준가를 주면 그걸 먼저 쓰되, **자체 관측과 섞지 않고** 따로 표시합니다.
+  // 기준이 다른 두 숫자를 평균내면 둘 다 못 믿게 됩니다.
+  const pb = candidate.providerBaseline;
+  if (pb && typeof pb.baseline === "number" && pb.baseline > 0) {
+    const provided = pb.kind === "google_deals_reported";
+    // 구글이 직접 준 할인율이 있으면 그 값을, 없으면 우리가 계산합니다
+    const discountPct = typeof pb.discountPct === "number"
+      ? pb.discountPct
+      : round1(((pb.baseline - total) / pb.baseline) * 100);
+
+    const verdict = {
+      isDeal: discountPct >= settings.deal.minDiscountPct,
+      method: "provider",
+      basis: pb.kind,
+      // 직접 받은 값이면 '보통', 우리가 계산한 값이면 한 단계 낮춥니다
+      confidence: provided ? "medium" : "low",
+      discountPct,
+      zScore: null,
+      baseline: pb.baseline,
+      sampleSize: pb.historyPoints ?? null,
+      reason: provided
+        ? `Google 이 알려준 평소가 ${fmt(pb.baseline)}원 대비`
+        : `Google 이 준 가격 이력 ${pb.historyPoints}개의 중앙값 ${fmt(pb.baseline)}원 대비 (앱이 계산)`,
+    };
+
+    // 자체 관측도 있으면 따로 붙여 둡니다 (평균내지 않고 나란히 보관)
+    const own = selfObserved(candidate, { history, historyBefore, settings, departureDate });
+    if (own) verdict.selfObserved = own;
+    return verdict;
+  }
+
   // --- 방법 A: 정확히 같은 조건의 이력 ---
   if (history && departureDate) {
     const key = historyKey({
@@ -121,6 +155,30 @@ export function judgeDeal(candidate, { history, cohorts, settings = SETTINGS, hi
   }
 
   return none("비교할 자료가 아직 없습니다 (이력·비교군 모두 부족)");
+}
+
+/**
+ * 자체 관측만 따로 계산합니다.
+ * 공급자 기준이 있을 때 '참고로 우리 기록은 이렇다'를 나란히 보여주기 위한 것입니다.
+ */
+function selfObserved(candidate, { history, historyBefore, settings, departureDate }) {
+  if (!history || !departureDate) return null;
+  const key = historyKey({
+    origin: candidate.originOut, destination: candidate.destIn,
+    departureDate, tripDays: candidate.tripDays,
+  });
+  const s = history.stats(key, { before: historyBefore })
+        ?? history.routeStats(candidate.originOut, candidate.destIn, { before: historyBefore });
+  if (!s || s.count < MIN_HISTORY_ROUTE || !(s.median > 0)) return null;
+  return {
+    basis: "self_observed",
+    baseline: s.median,
+    discountPct: round1(((s.median - candidate.total) / s.median) * 100),
+    sampleSize: s.count,
+    observationDays: s.spanDays ?? null,
+    distinctDays: s.distinctDays ?? null,
+    confidence: confidenceFor(s, settings),
+  };
 }
 
 /**

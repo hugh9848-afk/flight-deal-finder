@@ -77,16 +77,27 @@ export async function runScan({
   // (2단계를 건너뛰는 공급자에서도 "유럽 1회 / 아프리카 2회" 약속이 지켜지도록)
   const beforeStopFilter = indicative.length;
   indicative = indicative.filter((c) => {
-    const s = c.outbound?.stops;
-    if (typeof s !== "number") return true;   // 모르면 남겨둡니다 (거르지 않음)
-    return s <= maxStopsFor(c.destIn, settings);
+    const limit = maxStopsFor(c.destIn, settings);
+    // 가는 편과 오는 편을 **둘 다** 봅니다.
+    // 모르는 쪽은 거르지 않습니다 (모르는 것과 0회는 다릅니다).
+    for (const leg of [c.outbound, c.inbound]) {
+      const n = leg?.stops;
+      if (typeof n === "number" && n > limit) return false;
+    }
+    return true;
   });
   const droppedIndicativeByStops = beforeStopFilter - indicative.length;
   if (droppedIndicativeByStops) {
     log(`  → 경유 제한 초과 ${droppedIndicativeByStops}건 제외`);
   }
 
-  report.stages.indicative = { found: indicative.length, droppedByStops: droppedIndicativeByStops };
+  report.stages.indicative = {
+    found: indicative.length,
+    droppedByStops: droppedIndicativeByStops,
+    // 공항이 확인된 후보가 몇 건인지 (알림 자격과 직결됩니다)
+    departureVerified: indicative.filter((c) => c.departureAirportVerified === true).length,
+    returnVerified: indicative.filter((c) => c.returnAirportVerified === true).length,
+  };
   if (insp.coverage) {
     const withData = insp.coverage.filter((c) => c.rows > 0);
     report.stages.indicative.coverage = {
@@ -348,6 +359,9 @@ function finishIndicativeOnly({ report, ranked, shortlist, settings, log, t0, pr
       // 여행 일수가 요청 범위 경계 밖이면 알리지 않습니다.
       // 실제 인천 도착일을 모르는 상태라 '5~20일 일정'이라고 단정할 수 없습니다.
       if (item.candidate.outOfRange === true) continue;
+      // 출발 공항이 인천인지 확인되지 않았으면 알리지 않습니다.
+      // (김포 출발이거나 도시코드만 아는 후보일 수 있습니다)
+      if (item.candidate.departureAirportVerified === false) continue;
       const decision = shouldAlert(item, alertState.data, settings);
       item.alertDecision = decision;
       if (decision.alert) {

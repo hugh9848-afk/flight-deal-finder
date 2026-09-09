@@ -141,20 +141,39 @@ export function normalizeV3Row(row, { currency = "KRW", fetchedAt, linkBase = "h
   const durBack = num(row.duration_back);
 
   // 실제 인천 도착 시각 = 귀국 출발 시각 + 오는 편 소요시간
+  //
+  // 주의: 이건 '계산한 값'이지 공급자가 알려준 도착 시각이 아닙니다.
+  // 그리고 이 응답에는 **귀국편이 어느 공항에 내리는지가 없습니다.**
+  // 출발 공항과 같다고 넘겨짚으면 안 됩니다(김포로 돌아오는 표일 수도 있습니다).
   let icnArriveAt = null;
-  if (returnAt && durBack !== null) {
+  let arrivalTimeBasis = null;
+  if (returnAt && durBack !== null && durBack > 0) {
+    // 시간대가 붙어 있어야 정확한 순간을 알 수 있습니다
+    const hasZone = /[+-]\d{2}:?\d{2}$|Z$/.test(returnAt);
     const t = Date.parse(returnAt);
-    if (Number.isFinite(t)) icnArriveAt = new Date(t + durBack * 60000).toISOString();
+    if (Number.isFinite(t) && hasZone) {
+      icnArriveAt = new Date(t + durBack * 60000).toISOString();
+      arrivalTimeBasis = "derived_from_duration";   // 계산해서 얻은 값
+    }
   }
 
   const departDay = departAt ? kstDate(departAt) : null;
   const arriveDay = icnArriveAt ? kstDate(icnArriveAt) : null;
 
-  // 인천 도착일을 계산할 수 있으면 여행 일수를 '확정'할 수 있습니다.
+  // 출발 공항이 실제로 인천인지 확인합니다. 귀국 도착 공항은 이 응답에 없으므로 '미확인'입니다.
+  const outFrom0 = row.origin_airport ?? row.origin ?? null;
+  const departureAirportVerified = outFrom0 === "ICN";
+  const returnAirportVerified = false;   // 이 공급자는 귀국 도착 공항을 알려주지 않습니다
+
+  // 여행 일수:
+  //  - 양쪽 공항이 다 확인돼야 '확정'이라 부를 수 있습니다.
+  //  - 지금은 귀국 공항을 모르므로, 시각 계산이 됐어도 '계산값'까지입니다.
   let tripDays = null, tripDaysBasis = null;
   if (departDay && arriveDay) {
     tripDays = tripDaysBetween(departDay, arriveDay);
-    tripDaysBasis = "icn_confirmed";
+    tripDaysBasis = (departureAirportVerified && returnAirportVerified)
+      ? "icn_confirmed"
+      : "arrival_time_derived";
   } else if (departDay && returnAt) {
     tripDays = tripDaysBetween(departDay, kstDate(returnAt));
     tripDaysBasis = "local_departure_estimated";
@@ -168,13 +187,14 @@ export function normalizeV3Row(row, { currency = "KRW", fetchedAt, linkBase = "h
     link = u.toString();
   }
 
-  const outFrom = row.origin_airport ?? row.origin ?? null;
+  const outFrom = outFrom0;
   const outTo = row.destination_airport ?? row.destination ?? null;
 
   const notes = ["참고가(캐시)입니다. 실제 구매 가능 여부와 총액은 확인 전입니다."];
   if (row.gate) notes.push(`표시 판매처: ${row.gate}`);
-  if (tripDaysBasis === "icn_confirmed") {
-    notes.push(`인천 도착 예정 ${arriveDay} (귀국 출발 시각 + 오는 편 ${Math.round(durBack / 60)}시간으로 계산)`);
+  if (arrivalTimeBasis === "derived_from_duration") {
+    notes.push(`도착 예정 ${arriveDay} — 귀국 출발 시각에 오는 편 ${Math.round(durBack / 60)}시간을 더해 계산했습니다.`);
+    notes.push("귀국편이 내리는 공항은 이 자료에 없어 미확인입니다.");
   }
 
   const c = makeCandidate({
@@ -215,6 +235,9 @@ export function normalizeV3Row(row, { currency = "KRW", fetchedAt, linkBase = "h
     c.unknown = c.unknown.filter((k) => k !== "duration");
   }
 
+  c.arrivalTimeBasis = arrivalTimeBasis;
+  c.departureAirportVerified = departureAirportVerified;
+  c.returnAirportVerified = returnAirportVerified;
   c.raw = {
     endpoint: "aviasales/v3/prices_for_dates",
     airline: row.airline ?? null,

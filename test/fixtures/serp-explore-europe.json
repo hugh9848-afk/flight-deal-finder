@@ -1,0 +1,92 @@
+{
+  "destinations": [
+    {
+      "destination_id": "/m/04jpl",
+      "name": "런던",
+      "country": "영국",
+      "gps_coordinates": {
+        "latitude": 51.5072178,
+        "longitude": -0.1275862
+      },
+      "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR9ojtKjiILCNbB-EEQloSQgf0ztJmvJqCEPJG2ZaV1mRpcm-IyFCJ6KiunnAuYyD0ah668bgM7zlmgzUjsRcEvefiOP-egq-zdFPy-eQ",
+      "destination_airport": {
+        "code": "LHR"
+      },
+      "start_date": "2026-12-07",
+      "end_date": "2026-12-20",
+      "flight_price": 784400,
+      "flight_duration": 1125,
+      "number_of_stops": 1,
+      "airline": "LOT 폴란드항공",
+      "airline_code": "LO",
+      "link": "https://www.google.com/travel/explore?hl=ko&gl=kr&curr=KRW&tfs=CBwQAxoVEgoyMDI2LTEyLTA3agcIARIDSUNOGhUSCjIwMjYtMTItMjByBwgBEgNJQ05AAUgBcAGCAQsI____________AZgBAbIBDioMCAMSCC9tLzA0anBs",
+      "serpapi_link": "https://serpapi.com/search.json?adults=1&arrival_id=%2Fm%2F04jpl&currency=KRW&departure_id=ICN&engine=google_travel_explore&gl=kr&hl=ko&month=0&outbound_date=2026-12-07&return_date=2026-12-20&travel_class=1&travel_duration=3&type=1"
+    },
+    {
+      "destination_id": "/m/05qtj",
+      "name": "파리",
+      "country": "프랑스",
+      "gps_coordinates": {
+        "latitude": 48.8575475,
+        "longitude": 2.3513765
+      },
+      "thumbnail": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQqBkfxJKf4FPkN9wibVFEjWDzIwnWCbOSCc1PtKLTbh7iXUGcunx5lB_WSR6jCDup9b1zSVKaalqcHcytus1mpsDDWoFnnaYuLS7UR5A",
+      "destination_airport": {
+        "code": "CDG"
+      },
+      "start_date": "2027-01-16",
+      "end_date": "2027-01-30",
+      "flight_price": 790500,
+      "flight_duration": 1720,
+      "number_of_stops": 1,
+      "airline": "LOT 폴란드항공",
+      "airline_code": "LO",
+      "link": "https://www.google.com/travel/explore?hl=ko&gl=kr&curr=KRW&tfs=CBwQAxoVEgoyMDI3LTAxLTE2agcIARIDSUNOGhUSCjIwMjctMDEtMzByBwgBEgNJQ05AAUgBcAGCAQsI____________AZgBAbIBDioMCAMSCC9tLzA1cXRq",
+      "serpapi_link": "https://serpapi.com/search.json?adults=1&arrival_id=%2Fm%2F05qtj&currency=KRW&departure_id=ICN&engine=google_travel_explore&gl=kr&hl=ko&month=0&outbound_date=2027-01-16&return_date=2027-01-30&travel_class=1&travel_duration=3&type=1"
+    },
+    {
+      "destination_id": "/m/06c62",
+      "name": "로마",
+      "country": "이탈리아",
+      "gps_coordinates": {
+        "latitude": 41.8967068,
+        "longitude": 12.4822025
+      },
+      "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQbPDHRJ1mpe3Ciqhm0quXXrKsDcz2TFBAJZrdC9aINdpgSwAxbdlGVr0n7KCOhIkfKc3kK3BTeeb-muzbqKNxrwqugqC0U0Rh7IhLxyg",
+      "destination_airport": {
+        "code": "FCO"
+      },
+      "start_date": "2026-12-27",
+      "end_date": "2027-01-11",
+      "flight_price": 793700,
+      "flight_duration": 1075,
+      "number_of_stops": 1,
+      "airline": "LOT 폴란드항공",
+      "airline_code": "LO",
+      "link": "https://www.google.com/travel/explore?hl=ko&gl=kr&curr=KRW&tfs=CBwQAxoVEgoyMDI2LTEyLTI3agcIARIDSUNOGhUSCjIwMjctMDEtMTFyBwgBEgNJQ05AAUgBcAGCAQsI____________AZgBAbIBDioMCAMSCC9tLzA2YzYy",
+      "serpapi_link": "https://serpapi.com/search.json?adults=1&arrival_id=%2Fm%2F06c62&currency=KRW&departure_id=ICN&engine=google_travel_explore&gl=kr&hl=ko&month=0&outbound_date=2026-12-27&return_date=2027-01-11&travel_class=1&travel_duration=3&type=1"
+    },
+    {
+      "destination_id": "/m/01f62",
+      "name": "바르셀로나",
+      "country": "스페인",
+      "gps_coordinates": {
+        "latitude": 41.3874374,
+        "longitude": 2.1686496
+      },
+      "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSR2Zry5fT8CDZ7BzRos141fuxjtJEVf2oicTxcSGYPDETRNheDbbishAau7MbwyXyFJkgxtES2fk7TbwQ8aVuTGSxWLprnqK9yCfu0_g",
+      "destination_airport": {
+        "code": "BCN"
+      },
+      "start_date": "2026-12-03",
+      "end_date": "2026-12-16",
+      "flight_price": 798700,
+      "flight_duration": 1415,
+      "number_of_stops": 1,
+      "airline": "심천항공",
+      "airline_code": "ZH",
+      "link": "https://www.google.com/travel/explore?hl=ko&gl=kr&curr=KRW&tfs=CBwQAxoVEgoyMDI2LTEyLTAzagcIARIDSUNOGhUSCjIwMjYtMTItMTZyBwgBEgNJQ05AAUgBcAGCAQsI____________AZgBAbIBDioMCAMSCC9tLzAxZjYy",
+      "serpapi_link": "https://serpapi.com/search.json?adults=1&arrival_id=%2Fm%2F01f62&currency=KRW&departure_id=ICN&engine=google_travel_explore&gl=kr&hl=ko&month=0&outbound_date=2026-12-03&return_date=2026-12-16&travel_class=1&travel_duration=3&type=1"
+    }
+  ]
+}
