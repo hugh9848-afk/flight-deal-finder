@@ -36,6 +36,9 @@ concurrency:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    # 시간 제한이 없으면 멈춰도 6시간(GitHub 기본값)까지 돕니다.
+    # 정상이면 2분 안에 끝나므로 15분이면 넉넉합니다.
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -47,6 +50,7 @@ jobs:
           node-version: "22"
 
       - name: 시험 통과 확인
+        timeout-minutes: 5
         run: npm test
 
       - name: 특가 스캔 실행
@@ -55,6 +59,7 @@ jobs:
           TRAVELPAYOUTS_MARKER: ${{ secrets.TRAVELPAYOUTS_MARKER }}
           NOTIFY_WEBHOOK_URL: ${{ secrets.NOTIFY_WEBHOOK_URL }}
           SITE_URL: https://hugh9848-afk.github.io/flight-deal-finder/
+        timeout-minutes: 8
         run: node src/cli.js scan --provider=travelpayouts --regions="${{ inputs.regions }}"
 
       # 새 후보가 있으면 이슈로 올립니다.
