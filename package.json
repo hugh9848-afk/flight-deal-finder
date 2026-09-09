@@ -11,6 +11,6 @@
     "scan": "node src/cli.js scan",
     "scan:mock": "node src/cli.js scan --provider=mock",
     "verify": "node src/cli.js verify",
-    "test": "node --test \"test/*.test.js\""
+    "test": "node --test --test-timeout=20000 --test-force-exit \"test/*.test.js\""
   }
 }
