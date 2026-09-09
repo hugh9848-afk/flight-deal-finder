@@ -215,6 +215,33 @@ test("v2 가 실패해도 v3 는 따로 시도한다", async () => {
   assert.equal(r.candidates[0].total, 800000);
 });
 
+test("공급자가 느리면 시간 예산 안에서 멈추고 그 사실을 남긴다", async () => {
+  // 한 번 부를 때마다 시간이 걸리는 공급자를 흉내 냅니다
+  class SlowClient {
+    constructor() { this.marker = "m1"; this.calls = 0; }
+    async request() {
+      this.calls++;
+      await new Promise((r) => setTimeout(r, 30));
+      return { ok: true, status: 200, data: { success: true, data: [] } };
+    }
+    searchLink() { return "https://x"; }
+  }
+  const client = new SlowClient();
+  const p = new TravelpayoutsProvider({ client });
+  const many = Array.from({ length: 50 }, (_, i) => ({
+    iata: "X" + i, city: "도시" + i, city_code: "X" + i, region: "europe", lat: 0, lon: 0,
+  }));
+  const r = await p.searchInspiration({
+    origin: "ICN", departFrom: "2026-10-01", departTo: "2027-03-09",
+    minTripDays: 5, maxTripDays: 20, destinations: many,
+    timeBudgetMs: 200,          // 0.2초만 허용
+  });
+  assert.equal(r.ok, true, "시간이 다 돼도 그때까지 모은 것은 돌려줘야 한다");
+  assert.ok(client.calls < 50, `50곳을 다 돌면 안 된다 (실제 ${client.calls}곳)`);
+  assert.ok(p.stats.errors.some((e) => e.step === "time-budget"),
+    "시간이 모자랐다는 사실을 기록해야 한다");
+});
+
 test("귀국편 경유가 많으면 가는 편이 괜찮아도 걸러낸다", async () => {
   const { history, alertState } = tmp();
   class ReturnStopsClient {

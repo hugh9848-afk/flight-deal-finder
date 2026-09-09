@@ -34,8 +34,12 @@ export class TravelpayoutsProvider extends FlightProvider {
    *
    * 호출은 무료라서 목적지 수만큼(약 90회) 걸어도 부담이 없습니다.
    */
-  async searchInspiration({ origin, departFrom, departTo, minTripDays, maxTripDays, destinations = [], limit = 500, slack = 0 }) {
+  async searchInspiration({ origin, departFrom, departTo, minTripDays, maxTripDays, destinations = [], limit = 500, slack = 0, timeBudgetMs = 6 * 60 * 1000 }) {
     const fetchedAt = new Date().toISOString();
+    // 시간 예산. 공급자가 느려지면 정해진 시간까지만 모으고 마무리합니다.
+    // (끝없이 기다리면 자동 실행이 통째로 멈춥니다)
+    const deadline = Date.now() + timeBudgetMs;
+    let ranOutOfTime = false;
     const rows = [];
     const errors = [];
     const coverage = [];
@@ -44,6 +48,7 @@ export class TravelpayoutsProvider extends FlightProvider {
     const targets = uniqueByCity(destinations.length ? destinations : DESTINATIONS);
 
     for (const d of targets) {
+      if (Date.now() > deadline) { ranOutOfTime = true; break; }
       this.stats.indicativeCalls++;
       const res = await this.client.request("/v2/prices/latest", {
         origin,
@@ -89,6 +94,10 @@ export class TravelpayoutsProvider extends FlightProvider {
 
     this.stats.errors.push(...errors);
     this.lastCoverage = coverage;
+    if (ranOutOfTime) {
+      this.stats.errors.push({ step: "time-budget",
+        error: `시간이 다 되어 ${coverage.length}/${targets.length}곳까지만 조회했습니다` });
+    }
 
     const candidates = this.#toCandidates(rows, { fetchedAt, departFrom, departTo, minTripDays, maxTripDays, slack });
     // 목적지마다 2번(v2·v3) 부르므로, '전부 실패' 는 오류가 2배일 때입니다
