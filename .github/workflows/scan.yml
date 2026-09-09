@@ -60,9 +60,14 @@ jobs:
           TRAVELPAYOUTS_TOKEN: ${{ secrets.TRAVELPAYOUTS_TOKEN }}
           TRAVELPAYOUTS_MARKER: ${{ secrets.TRAVELPAYOUTS_MARKER }}
           NOTIFY_WEBHOOK_URL: ${{ secrets.NOTIFY_WEBHOOK_URL }}
+          # SerpApi 는 무료 250회/월 입니다. Secret 이 없으면 이 공급자만 빠지고
+          # Travelpayouts 로 정상 동작합니다 (한 곳이 없다고 전체가 멈추지 않습니다).
+          SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
+          SERPAPI_RUN_BUDGET: "17"
+          SERPAPI_MONTHLY_BUDGET: "200"
           SITE_URL: https://hugh9848-afk.github.io/flight-deal-finder/
         timeout-minutes: 8
-        run: node src/cli.js scan --provider=travelpayouts --regions="${{ inputs.regions }}"
+        run: node src/cli.js scan --provider=all --regions="${{ inputs.regions }}"
 
       # 새 후보가 있으면 이슈로 올립니다.
       # 휴대폰 GitHub 앱이 이 순간 푸시 알림을 띄웁니다.
