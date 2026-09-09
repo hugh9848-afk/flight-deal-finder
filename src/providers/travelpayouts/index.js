@@ -73,6 +73,8 @@ export class TravelpayoutsProvider extends FlightProvider {
 
       // v3 도 함께 물어봅니다. 건수는 v2 보다 적지만 훨씬 자세합니다.
       // (진짜 공항, 가는·오는 편 이동시간, 귀국 경유 횟수, 판매처, 확인 링크)
+      // 목적지 하나에 두 번 부르므로 여기서도 시간을 한 번 더 봅니다.
+      if (Date.now() > deadline) { ranOutOfTime = true; break; }
       this.stats.indicativeCalls++;
       const res3 = await this.client.request("/aviasales/v3/prices_for_dates", {
         origin, destination: d.iata, currency: this.currency,

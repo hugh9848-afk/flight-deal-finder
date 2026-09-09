@@ -3,11 +3,14 @@
 const HOST = "https://api.travelpayouts.com";
 
 export class TravelpayoutsClient {
-  constructor({ token, marker, minIntervalMs = 250 } = {}) {
+  constructor({ token, marker, minIntervalMs = 250, timeoutMs = 15000 } = {}) {
     if (!token) throw new Error("TRAVELPAYOUTS_TOKEN 이 필요합니다");
     this.token = token;
     this.marker = marker ?? null;   // 링크를 만들 때 쓰는 제휴 번호
     this.minIntervalMs = minIntervalMs;
+    // 응답이 없을 때 얼마나 기다릴지. 이게 없으면 한 번의 호출이
+    // 영영 매달려서 자동 실행 전체가 멈춥니다(실제로 5시간 28분 멈춘 적 있음).
+    this.timeoutMs = timeoutMs;
     this.lastCallAt = 0;
     this.callCount = 0;
   }
@@ -33,9 +36,20 @@ export class TravelpayoutsClient {
       this.callCount++;
       let res;
       try {
-        res = await fetch(url, { headers: { "x-access-token": this.token, Accept: "application/json" } });
+        // 정해진 시간이 지나면 스스로 끊습니다
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), this.timeoutMs);
+        try {
+          res = await fetch(url, {
+            headers: { "x-access-token": this.token, Accept: "application/json" },
+            signal: ctrl.signal,
+          });
+        } finally {
+          clearTimeout(timer);
+        }
       } catch (e) {
-        if (attempt === 2) return { ok: false, status: 0, data: null, error: String(e) };
+        const msg = e?.name === "AbortError" ? `응답 없음 (${this.timeoutMs / 1000}초 초과)` : String(e);
+        if (attempt === 2) return { ok: false, status: 0, data: null, error: msg };
         await sleep(500 * (attempt + 1));
         continue;
       }

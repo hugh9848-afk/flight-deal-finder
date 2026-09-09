@@ -215,6 +215,27 @@ test("v2 가 실패해도 v3 는 따로 시도한다", async () => {
   assert.equal(r.candidates[0].total, 800000);
 });
 
+test("응답이 없는 호출은 정해진 시간에 끊는다", async () => {
+  const { TravelpayoutsClient } = await import("../src/providers/travelpayouts/client.js");
+  const real = globalThis.fetch;
+  // 영영 응답하지 않는 서버를 흉내 냅니다 (신호를 받으면 중단)
+  globalThis.fetch = (url, opts) => new Promise((_, reject) => {
+    opts?.signal?.addEventListener("abort", () => {
+      const e = new Error("aborted"); e.name = "AbortError"; reject(e);
+    });
+  });
+  try {
+    const c = new TravelpayoutsClient({ token: "t", minIntervalMs: 0, timeoutMs: 50 });
+    const started = Date.now();
+    const r = await c.request("/v2/prices/latest", {});
+    const took = Date.now() - started;
+    assert.equal(r.ok, false);
+    assert.match(r.error, /응답 없음/);
+    // 3번까지 재시도하므로 넉넉히 잡되, 영영 매달리지는 않아야 합니다
+    assert.ok(took < 5000, `끝없이 기다리면 안 된다 (실제 ${took}ms)`);
+  } finally { globalThis.fetch = real; }
+});
+
 test("공급자가 느리면 시간 예산 안에서 멈추고 그 사실을 남긴다", async () => {
   // 한 번 부를 때마다 시간이 걸리는 공급자를 흉내 냅니다
   class SlowClient {
