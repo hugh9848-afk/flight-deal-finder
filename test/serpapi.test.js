@@ -280,16 +280,8 @@ test("기준가가 0이나 음수면 할인율을 만들지 않는다", async ()
   }
 });
 
-test("상세 조회 예산을 자료 부족 지역에 나눠 준다", async () => {
+test("상세 조회 예산은 출국·귀국 두 번의 요청을 포함한다", async () => {
   const { SerpApiProvider } = await import("../src/providers/serpapi/index.js");
   const p = new SerpApiProvider({ apiKey: "k", detailCalls: 10, emptyRegionShare: 0.3 });
-  const ranked = [
-    ...Array.from({ length: 20 }, (_, i) => ({ destIn: "IST", i })),
-    ...Array.from({ length: 5 }, (_, i) => ({ destIn: "NBO", i })),
-  ];
-  const { top, thin, plan } = p.splitDetailBudget(ranked, new Set(["NBO"]));
-  assert.equal(plan.forThin, 3, "10회 중 3회는 자료 부족 지역 몫");
-  assert.equal(top.length, 7);
-  assert.equal(thin.length, 3);
-  assert.ok(thin.every((x) => x.destIn === "NBO"));
+  assert.equal(p.detailBudget, 5, "10회로 최대 5개 일정의 양방향을 조회한다");
 });

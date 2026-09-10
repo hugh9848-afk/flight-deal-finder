@@ -146,7 +146,8 @@ test("경유 3회는 걸러내고 2회는 유럽·아프리카 모두 허용한�
     async searchLive({ destination }) {
       this.stats.liveCalls++;
       const segs = Array.from({ length: this.stops + 1 }, (_, i) => ({
-        carrier: "XX", number: "XX" + i, from: "A" + i, to: "A" + (i + 1),
+        carrier: "XX", number: "XX" + i, from: i === 0 ? "ICN" : "A" + i,
+        to: i === this.stops ? destination : "A" + (i + 1),
         departAt: "2026-11-10T10:00:00", arriveAt: "2026-11-10T12:00:00",
         durationMin: 120, layoverMin: i < this.stops ? 120 : null,
       }));

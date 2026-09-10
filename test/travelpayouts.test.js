@@ -313,8 +313,7 @@ test("출발 공항이 인천으로 확인되지 않으면 알리지 않는다",
   const r = await runScan({ provider: mk(), ...opts });
 
   const fco = r.needsReview.find((i) => i.candidate.destIn === "FCO");
-  assert.ok(fco, "김포 출발이어도 목록에는 남는다");
-  assert.equal(fco.candidate.departureAirportVerified, false);
+  assert.equal(fco, undefined, "김포 출발로 확인된 후보는 ICN 전용 목록에서 제외한다");
   assert.ok(!r.alerts.some((a) => a.candidate.destIn === "FCO"),
     "출발 공항이 인천으로 확인되지 않으면 아무리 싸도 알리지 않는다");
 });
@@ -357,7 +356,7 @@ test("여행 일수가 경계 밖인 후보는 알림으로 내보내지 않는�
     "경계 밖 후보는 아무리 싸도 알림으로 나가면 안 된다");
 });
 
-test("값이 실제로 떨어졌을 때만 알리고, 같은 후보를 두 번 알리지 않는다", async () => {
+test("값이 실제로 떨어져도 귀국 공항·도착일이 없는 참고가는 알리지 않는다", async () => {
   const { history, alertState } = tmp();
   const codes = ["CDG", "FCO", "VIE", "PRG", "MAD", "BCN", "LIS", "ATH", "BUD", "WAW"];
 
@@ -395,8 +394,8 @@ test("값이 실제로 떨어졌을 때만 알리고, 같은 후보를 두 번 �
   assert.equal(deal.verdict.isDeal, true, "평소보다 크게 싸지면 특가여야 한다");
   assert.ok(deal.verdict.discountPct > 50, `할인율이 커야 한다 (실제 ${deal.verdict.discountPct}%)`);
   assert.notEqual(deal.verdict.confidence, "low");
-  assert.ok(dropped.alerts.length >= 1, "떨어졌으면 알려야 한다");
-  assert.equal(dropped.alerts[0].candidate.priceType, "indicative", "참고가임을 유지해야 한다");
+  assert.equal(dropped.alerts.length, 0, "귀국편을 확인하기 전에는 알리지 않는다");
+  assert.equal(deal.candidate.priceType, "indicative", "참고가는 목록에 유지한다");
   alertState.save();
 
   // 4회차: 같은 값이면 다시 알리지 않는다

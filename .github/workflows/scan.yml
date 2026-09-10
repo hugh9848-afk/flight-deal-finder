@@ -66,8 +66,9 @@ jobs:
           SERPAPI_RUN_BUDGET: "17"
           SERPAPI_MONTHLY_BUDGET: "200"
           SITE_URL: https://hugh9848-afk.github.io/flight-deal-finder/
+          SCAN_REGIONS: ${{ inputs.regions }}
         timeout-minutes: 8
-        run: node src/cli.js scan --provider=all --regions="${{ inputs.regions }}"
+        run: node src/cli.js scan --provider=all --regions="$SCAN_REGIONS"
 
       # 새 후보가 있으면 이슈로 올립니다.
       # 휴대폰 GitHub 앱이 이 순간 푸시 알림을 띄웁니다.
@@ -97,10 +98,15 @@ jobs:
       # web/data 는 스캔할 때마다 새로 만들어지는 결과물이라 커밋하지 않습니다.
       # (커밋하면 맥에서 돌린 것과 자동 실행이 매번 충돌합니다)
       - name: 가격 이력을 저장소에 되돌려 저장
+        if: always()
         run: |
           git config user.name "flight-deal-bot"
           git config user.email "bot@users.noreply.github.com"
           git add data/history data/alert-state.json
+          # 검색 실패·시간 초과도 예약 장부를 남겨 다음 실행의 사용량 계산에 포함합니다.
+          if [ -f data/serpapi-ledger.json ]; then
+            git add -f data/serpapi-ledger.json
+          fi
           if git diff --staged --quiet; then
             echo "바뀐 내용 없음"
             exit 0

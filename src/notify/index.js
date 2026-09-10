@@ -56,7 +56,7 @@ export function renderAlertText(alerts, { siteUrl = null } = {}) {
   const L = [];
   L.push(`✈️ 인천 출발 특가 후보 ${alerts.length}건`);
   L.push("");
-  L.push("⚠️ 아래는 모두 참고가(캐시)입니다. 실제 구매 가능 여부·총액·수하물·환불조건은 확인되지 않았습니다.");
+  L.push("⚠️ 참고가 또는 항공권 조회 결과입니다. 실제 구매 가능 여부·총액·수하물·환불조건은 판매 화면에서 확인되지 않았습니다.");
   L.push("각 항목의 링크를 눌러 실제 가격을 직접 확인하세요.");
   L.push("");
 
@@ -67,9 +67,12 @@ export function renderAlertText(alerts, { siteUrl = null } = {}) {
     const kind = item.alertDecision?.kind === "cheaper" ? "가격 하락" : "신규";
 
     L.push(`── ${name} (${c.destIn}) · ${kind}`);
-    L.push(`   ${won(c.total)}${v.discountPct != null ? ` · 평소보다 ${v.discountPct}% 저렴` : ""}`);
+    const basis = { google_deals_reported: "Google 제공 할인율", app_computed_from_google_history: "Google 이력으로 앱이 계산",
+      self_observed: "자체 관측 대비", same_scan: "같은 스캔의 후보 대비" }[v.basis] ?? "기준 미확인";
+    L.push(`   ${won(c.total)}${v.discountPct != null ? ` · ${v.discountPct}% (${basis})` : ""}`);
     L.push(`   ${c.outbound?.departAt?.slice(0, 10) ?? "?"} 출발 · ${tripLabel(item)}`);
-    L.push(`   경유 ${c.outbound?.stops ?? "미확인"}회(가는 편) · 판정 신뢰도 ${kor(v.confidence)} · 표본 ${v.sampleSize ?? 0}건`);
+    L.push(`   경유 출국 ${c.outbound?.stops ?? "미확인"}회 / 귀국 ${c.inbound?.stops ?? "미확인"}회 · 판정 신뢰도 ${kor(v.confidence)} · 표본 ${v.sampleSize ?? 0}건`);
+    L.push(`   인천 도착 ${c.inbound?.arriveAt ?? "미확인"}`);
     if (item.alertDecision?.kind === "cheaper") L.push(`   ${item.alertDecision.reason}`);
     const link = (c.links ?? [])[0]?.url;
     if (link) L.push(`   실제 가격 확인 → ${link}`);

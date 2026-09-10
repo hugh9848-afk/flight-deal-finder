@@ -4,9 +4,13 @@ node_modules/
 .DS_Store
 
 # 스캔할 때마다 새로 만들어지는 결과물 (배포 때 워크플로우가 생성합니다)
+# last-scan.json 은 2MB 넘는 점검용 전체 기록이라 저장소에 두지 않습니다.
+data/last-scan.json
 web/data/deals.json
 web/data/summary.txt
 web/data/alerts.json
 
 # SerpApi 사용 장부는 실행할 때마다 바뀝니다 (충돌 방지)
 data/serpapi-ledger.json
+data/serpapi-ledger.json.lock
+data/serpapi-ledger.json.*.tmp

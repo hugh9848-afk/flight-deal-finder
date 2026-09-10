@@ -46,6 +46,7 @@ function publicView(item) {
     taxes: c.taxes,
     totalTripCostKRW: item.value?.totalTripCostKRW ?? null,
     originOut: c.originOut, destIn: c.destIn, destOut: c.destOut,
+    region: findAirport(c.destIn)?.region ?? null,
     // 화면에 보여줄 한글 이름 (코드만 보면 어딘지 모르니까요)
     originName: placeName(c.originOut),
     destInName: placeName(c.destIn),
@@ -108,6 +109,17 @@ export function renderSummary({ report, deals, needsReview, alerts = [] }) {
   L.push(`✈️ 인천 출발 특가 스캔 결과 (${report.provider})`);
   L.push(`기간: ${report.window.departFrom} ~ ${report.window.departTo} 출발 · 목적지 ${report.destinationCount}곳`);
   L.push(`확정 특가 ${deals.length}건 / 확인 필요 ${needsReview.length}건 / 새 알림 ${alerts.length}건`);
+
+  // 알림이 0건일 때, '특가가 없어서'인지 '확인할 수단이 없어서'인지 구분해 줍니다.
+  // 이걸 안 적으면 조용한 것을 "좋은 표가 없다"로 오해하게 됩니다.
+  const all = [...deals, ...needsReview];
+  const verified = all.filter((i) => i.candidate?.returnAirportVerified === true).length;
+  if (!alerts.length && all.length && verified === 0) {
+    L.push("");
+    L.push("ℹ️ 알림이 없는 이유: 귀국편이 인천에 내리는지 확인된 후보가 0건입니다.");
+    L.push("   (알림은 출국·귀국 공항이 모두 인천으로 확인된 후보에만 보냅니다)");
+    L.push("   상세 조회 예산이 남아 있는지, SerpApi 키가 설정돼 있는지 확인하세요.");
+  }
   L.push("");
 
   if (!deals.length) {

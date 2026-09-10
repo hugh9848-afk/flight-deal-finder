@@ -19,6 +19,9 @@ export class SerpApiClient {
   constructor({ apiKey, runBudget = 30, monthlyBudget = 200, ledgerPath = null,
                 minIntervalMs = 300, timeoutMs = DEFAULT_TIMEOUT } = {}) {
     if (!apiKey) throw new Error("SERPAPI_API_KEY 가 필요합니다");
+    for (const [name, n] of Object.entries({ runBudget, monthlyBudget })) {
+      if (!Number.isSafeInteger(n) || n < 0) throw new Error(`${name}: 0 이상의 정수가 필요합니다`);
+    }
     this.apiKey = apiKey;
     this.runBudget = runBudget;         // 이번 실행에서 쓸 수 있는 최대
     this.monthlyBudget = monthlyBudget; // 우리가 스스로 정한 한 달 상한
@@ -30,6 +33,7 @@ export class SerpApiClient {
     this.completed = 0;       // 실제로 끝난 호출 수
     this.accountLeft = null;  // 계정 잔여 (확인 전에는 모름)
     this.quotaChecked = false;
+    this.accountUsed = 0;
     this.stopped = null;      // 멈춘 이유
     this.lastCallAt = 0;
     this.queue = Promise.resolve();   // 호출을 한 줄로 세우기 위한 대기줄
@@ -40,13 +44,12 @@ export class SerpApiClient {
    * **이걸 통과해야만 검색을 시작할 수 있습니다.**
    */
   async checkQuota() {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), this.timeoutMs);
     try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), this.timeoutMs);
       const res = await fetch(`${HOST}/account?api_key=${encodeURIComponent(this.apiKey)}`, { signal: ctrl.signal });
-      clearTimeout(timer);
       const j = await res.json().catch(() => null);
-      if (!j || j.error) {
+      if (!res.ok || !j || j.error) {
         this.stopped = `잔여량 확인 실패: ${j?.error ?? "응답 없음"}`;
         return { ok: false, error: this.stopped };
       }
@@ -56,13 +59,15 @@ export class SerpApiClient {
         return { ok: false, error: this.stopped };
       }
       this.accountLeft = left;
+      this.accountUsed = Number.isFinite(j.this_month_usage) ? j.this_month_usage : 0;
+      this.quotaReservedAt = this.reserved;
       this.quotaChecked = true;
       return { ok: true, plan: j.plan_name ?? null, perMonth: j.searches_per_month ?? null,
                used: j.this_month_usage ?? null, left };
     } catch (e) {
       this.stopped = `잔여량 확인 실패: ${e}`;
       return { ok: false, error: this.stopped };
-    }
+    } finally { clearTimeout(timer); }
   }
 
   /** 이번 달에 우리가 이미 쓴 횟수 (장부 기준) */
@@ -71,8 +76,13 @@ export class SerpApiClient {
     try {
       const led = JSON.parse(fs.readFileSync(this.ledgerPath, "utf8"));
       const month = new Date().toISOString().slice(0, 7);
-      return led.month === month ? (led.calls ?? []).length : 0;
-    } catch { return 0; }
+      if (!Array.isArray(led.calls)) throw new Error("잘못된 사용 장부");
+      return led.month === month ? led.calls.length : 0;
+    } catch (e) {
+      if (e.code === "ENOENT") return 0;
+      this.stopped = "사용 장부를 읽을 수 없어 중단했습니다";
+      return Infinity;
+    }
   }
 
   /**
@@ -84,28 +94,45 @@ export class SerpApiClient {
     if (this.stopped) return this.stopped;
     if (!this.quotaChecked) return "잔여량을 먼저 확인해야 합니다";
     if (this.reserved >= this.runBudget) return "이번 실행 예산 소진";
-    if (this.#ledgerUsed() + this.reserved >= this.monthlyBudget) return "이번 달 자체 예산 소진";
-    if (this.reserved >= this.accountLeft - SAFETY_MARGIN) return "계정 잔여 부족";
+    if (this.accountUsed + this.reserved - (this.quotaReservedAt ?? 0) >= this.monthlyBudget) return "이번 달 자체 예산 소진";
+    if (this.reserved - (this.quotaReservedAt ?? 0) >= this.accountLeft - SAFETY_MARGIN) return "계정 잔여 부족";
     this.reserved++;              // ← 기다리기 전에 미리 자리를 잡습니다
     return null;
   }
 
   /** 사용 기록을 장부에 남깁니다. 실패하면 안전하게 멈춥니다. */
   #record(entry) {
-    if (!this.ledgerPath) return true;
+    if (!this.ledgerPath) {
+      this.stopped = "사용 장부 경로가 없어 중단했습니다";
+      return false;
+    }
+    let lock;
+    const lockPath = `${this.ledgerPath}.lock`;
     try {
       fs.mkdirSync(path.dirname(this.ledgerPath), { recursive: true });
+      // 다른 프로세스도 같은 장부를 사용할 수 있습니다. 충돌하면 검색하지 않습니다.
+      lock = fs.openSync(lockPath, "wx");
       let led = { month: null, calls: [] };
-      try { led = JSON.parse(fs.readFileSync(this.ledgerPath, "utf8")); } catch { /* 첫 장부 */ }
+      try { led = JSON.parse(fs.readFileSync(this.ledgerPath, "utf8")); }
+      catch (e) { if (e.code !== "ENOENT") throw e; }
+      if (!Array.isArray(led.calls)) throw new Error("잘못된 사용 장부");
       const month = new Date().toISOString().slice(0, 7);
       if (led.month !== month) led = { month, calls: [] };
+      if (led.calls.length >= this.monthlyBudget) {
+        this.stopped = "이번 달 자체 예산 소진";
+        return false;
+      }
       led.calls.push(entry);
-      fs.writeFileSync(this.ledgerPath, JSON.stringify(led, null, 2));
+      const temp = `${this.ledgerPath}.${process.pid}.tmp`;
+      fs.writeFileSync(temp, JSON.stringify(led, null, 2));
+      fs.renameSync(temp, this.ledgerPath);
       return true;
     } catch (e) {
       // 장부를 못 쓰면 얼마나 썼는지 알 수 없게 됩니다. 조용히 넘어가면 안 됩니다.
       this.stopped = `사용 기록 저장 실패로 중단: ${e}`;
       return false;
+    } finally {
+      if (lock !== undefined) { fs.closeSync(lock); fs.unlinkSync(lockPath); }
     }
   }
 
@@ -138,28 +165,30 @@ export class SerpApiClient {
 
     await this.#throttle();
     const at = new Date().toISOString();
+    if (this.stopped) return { ok: false, skipped: true, error: this.stopped };
+    // 네트워크 요청 전에 기록합니다. 강제 종료·시간 초과도 한 번 사용한 것으로 셉니다.
+    if (!this.#record({ at, engine: params.engine, state: "reserved" })) {
+      return { ok: false, skipped: true, error: this.stopped };
+    }
 
     let res, json, timedOut = false;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => { timedOut = true; ctrl.abort(); }, this.timeoutMs);
     try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => { timedOut = true; ctrl.abort(); }, this.timeoutMs);
       res = await fetch(url, { signal: ctrl.signal });
-      clearTimeout(timer);
       json = await res.json().catch(() => null);
     } catch (e) {
       // 시간이 초과되면 과금됐는지 알 수 없습니다.
       // 예약은 그대로 두고(=쓴 것으로 치고) 장부에도 남깁니다.
       this.completed++;
-      this.#record({ at, engine: params.engine, ok: false, timedOut, error: String(e) });
       return { ok: false, error: timedOut ? "시간 초과 (과금 여부 불명)" : String(e) };
-    }
+    } finally { clearTimeout(timer); }
 
     this.completed++;
     const failed = !res.ok || !json || json.error;
-    const saved = this.#record({ at, engine: params.engine, ok: !failed, status: res.status, error: json?.error ?? null });
-    if (!saved) return { ok: false, error: this.stopped };
 
-    if (failed) return { ok: false, status: res.status, error: json?.error ?? `HTTP ${res.status}`, data: json };
+    if ([401, 403, 429].includes(res.status)) this.stopped = `HTTP ${res.status}: 계정 또는 사용량 확인 필요`;
+    if (failed) return { ok: false, status: res.status, error: timedOut ? "응답 본문 시간 초과 (과금 여부 불명)" : json?.error ?? `HTTP ${res.status}`, data: json };
     return { ok: true, data: json };
   }
 

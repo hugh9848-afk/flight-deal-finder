@@ -22,7 +22,7 @@ export class CompositeProvider extends FlightProvider {
   get detailBudget() {
     const budgets = this.entries
       .filter((e) => e.provider.capabilities.live)
-      .map((e) => e.provider.detailCalls)
+      .map((e) => e.provider.detailBudget ?? e.provider.detailCalls)
       .filter((n) => typeof n === "number");
     return budgets.length ? Math.min(...budgets) : undefined;
   }
@@ -34,12 +34,21 @@ export class CompositeProvider extends FlightProvider {
              confirm: any("confirm"), openJaw: any("openJaw") };
   }
 
+  planDetails(ranked, opts) {
+    const p = this.entries.find((e) => e.provider.capabilities.live && e.provider.planDetails)?.provider;
+    return p ? p.planDetails(ranked, opts) : { items: ranked.slice(0, opts.cap) };
+  }
+
   /** 시작 전 준비 (SerpApi 는 잔여량 확인이 필요합니다) */
   async prepare(opts) {
     const results = {};
     for (const { provider } of this.entries) {
       if (typeof provider.prepare === "function") {
-        results[provider.name] = await provider.prepare(opts);
+        try { results[provider.name] = await provider.prepare(opts); }
+        catch (e) {
+          results[provider.name] = { ok: false, error: String(e) };
+          this.stats.errors.push({ provider: provider.name, step: "prepare", error: String(e) });
+        }
       }
     }
     return results;

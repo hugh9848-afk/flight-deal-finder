@@ -6,7 +6,7 @@
 //
 // 중요: Google 이 준 기준가는 우리 자체 관측과 **섞지 않고** 따로 보관합니다.
 // 기준이 다른 두 숫자를 평균내면 둘 다 못 믿게 됩니다.
-import { makeCandidate, makeLeg, PRICE_TYPE } from "../../core/model.js";
+import { makeCandidate, makeLeg, candidateId, PRICE_TYPE } from "../../core/model.js";
 import { tripDaysBetween } from "../../core/dateCombos.js";
 
 /**
@@ -54,6 +54,8 @@ export function normalizeDeal(row, { currency = "KRW", fetchedAt, origin = "ICN"
       departAt: ret, segments: [],
     }) : null,
     originOut: row.departure_airport_code ?? origin,
+    departureAirportVerified: row.departure_airport_code === origin,
+    returnAirportVerified: false,
     destIn: row.arrival_airport_code ?? null,
     destOut: ret ? (row.arrival_airport_code ?? null) : null,
     // 날짜만 알고 실제 도착 시각은 모르므로 어림값입니다
@@ -96,6 +98,8 @@ export function normalizeExplore(row, { currency = "KRW", fetchedAt, origin = "I
                         durationMin: num(row.flight_duration), segments: [] }),
     inbound: ret ? makeLeg({ from: air, to: origin, departAt: ret, segments: [] }) : null,
     originOut: origin,
+    departureAirportVerified: false,
+    returnAirportVerified: false,
     destIn: air,
     destOut: ret ? air : null,
     tripDays: tripDaysBetween(dep, ret),
@@ -157,6 +161,8 @@ export function normalizeFlightOffer(offer, { currency = "KRW", fetchedAt, price
     outbound,
     inbound: retDay ? makeLeg({ from: last?.to ?? null, to: origin, departAt: retDay, segments: [] }) : null,
     originOut: first?.from ?? origin,
+    departureAirportVerified: first?.from === origin,
+    returnAirportVerified: false,
     destIn: last?.to ?? null,
     destOut: retDay ? (last?.to ?? null) : null,
     tripDays: tripDaysBetween(depDay, retDay),
@@ -215,6 +221,26 @@ export function normalizeFlightOffer(offer, { currency = "KRW", fetchedAt, price
   c.raw = { endpoint: "google_flights", offerType: offer.type ?? null,
             carbon: offer.carbon_emissions?.this_flight ?? null,
             departureToken: offer.departure_token ?? null };
+  return c;
+}
+
+/** departure_token 으로 선택한 출국편에 귀국편 응답을 결합합니다. */
+export function normalizeRoundTrip(outboundOffer, returnOffer, opts = {}) {
+  // 귀국 응답의 price 는 선택된 왕복 총액입니다. 편도 두 가격을 더하지 않습니다.
+  const c = normalizeFlightOffer({ ...outboundOffer, price: returnOffer.price }, opts);
+  const back = normalizeFlightOffer(returnOffer, { currency: opts.currency, fetchedAt: opts.fetchedAt });
+  c.inbound = back.outbound;
+  c.destOut = c.inbound.from;
+  c.returnAirportVerified = c.inbound.segments.length > 0 && c.inbound.to === (opts.origin ?? "ICN");
+  const arrivalDay = calDay(c.inbound.arriveAt);
+  if (c.departureAirportVerified && c.returnAirportVerified && arrivalDay) {
+    c.tripDays = tripDaysBetween(calDay(c.outbound.departAt), arrivalDay);
+    c.tripDaysBasis = "icn_confirmed";
+  }
+  c.airportChange = [c.airportChange, back.airportChange].includes(true) ? true
+    : [c.airportChange, back.airportChange].includes(null) ? null : false;
+  c.raw.bookingToken = returnOffer.booking_token ?? null;
+  c.id = candidateId(c);
   return c;
 }
 

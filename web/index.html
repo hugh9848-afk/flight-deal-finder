@@ -113,11 +113,12 @@ function legHtml(leg, label){
  * 마지막 확인은 사람이 이 버튼 한 번으로 합니다.
  */
 function verifyLink(d){
-  const url = (d.links ?? [])[0]?.url;
-  if (!url) return "";
+  const link = (d.links ?? [])[0];
+  const url = link?.url;
+  if (!url || !/^https?:\/\//i.test(url)) return "";
   return `<a class="verify" href="${esc(url)}" target="_blank" rel="noopener noreferrer">`
        + `눌러서 실제 가격 확인`
-       + `<small>아비아세일즈에서 같은 조건으로 검색합니다</small></a>`;
+       + `<small>${esc(link.label ?? "같은 조건으로 다시 확인합니다")}</small></a>`;
 }
 
 function cardHtml(d){
@@ -131,7 +132,8 @@ function cardHtml(d){
   if (d.outOfRange) badges.push(`<span class="badge b-warn">기간 경계 밖</span>`);
   if (d.tripDaysBasis === "local_departure_estimated") badges.push(`<span class="badge b-mute">일수 어림값</span>`);
   if (d.tripDaysBasis === "arrival_time_derived") badges.push(`<span class="badge b-mute">도착시각 계산값</span>`);
-  if (d.returnAirportVerified === false) badges.push(`<span class="badge b-warn">귀국 공항 미확인</span>`);
+  if (d.departureAirportVerified !== true) badges.push(`<span class="badge b-warn">출국 공항 미확인</span>`);
+  if (d.returnAirportVerified !== true) badges.push(`<span class="badge b-warn">귀국 공항 미확인</span>`);
   if (typeof d.seatsLeft === "number" && d.seatsLeft <= 3) badges.push(`<span class="badge b-warn">잔여 ${d.seatsLeft}석</span>`);
 
   const bg = d.baggage
@@ -143,7 +145,7 @@ function cardHtml(d){
 
   const v = d.verdict ?? {};
   const disc = v.discountPct !== null && v.discountPct !== undefined
-    ? `평소보다 <b>${v.discountPct}%</b> 저렴` : "할인율 미확인";
+    ? `${v.basis === "same_scan" ? "이번 검색 비교값 대비" : "기준가 대비"} <b>${Math.abs(v.discountPct)}%</b> ${v.discountPct < 0 ? "높음" : "낮음"}` : "할인율 미확인";
   const conf = {high:"높음",medium:"보통",low:"낮음",none:"없음"}[v.confidence] ?? "?";
   // 이 할인율이 무엇을 기준으로 나온 값인지 분명히 밝힙니다
   const basisLabel = {
@@ -208,6 +210,8 @@ const REGION_OF = {
   "튀르키예":"유럽","조지아":"캅카스","아르메니아":"캅카스","아제르바이잔":"캅카스","몽골":"몽골",
 };
 function regionOf(d){
+  const region = { europe: "유럽", africa: "아프리카", caucasus: "캅카스", mongolia: "몽골" }[d.region];
+  if(region) return region;
   const country = d.destInName?.country;
   if(!country) return "기타";
   if(REGION_OF[country]) return REGION_OF[country];

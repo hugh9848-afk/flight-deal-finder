@@ -35,6 +35,8 @@ export function makeCandidate(input) {
     //   local_departure_estimated : 현지에서 뜨는 날까지만 알아서 어림잡음
     //                               (밤 비행기면 실제로는 하루 더 걸립니다)
     tripDaysBasis: input.tripDaysBasis ?? null,
+    departureAirportVerified: input.departureAirportVerified ?? null,
+    returnAirportVerified: input.returnAirportVerified ?? null,
 
     openJaw: input.openJaw ?? false,          // 들어간 도시 ≠ 나오는 도시
     // 모르는 것은 null 로 둡니다. false(문제없음)로 바꾸면

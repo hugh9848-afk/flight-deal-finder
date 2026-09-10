@@ -41,13 +41,13 @@ export function dealSignature(c) {
  * 비슷한 후보들을 묶고, 묶음마다 점수가 제일 높은 하나만 남깁니다.
  * @param {Array<{candidate, verdict, value}>} scored
  */
-export function dedupe(scored) {
+export function dedupe(scored, { key = dealSignature } = {}) {
   const best = new Map();
   for (const item of scored) {
-    const sig = dealSignature(item.candidate);
+    const sig = key(item.candidate);
     const prev = best.get(sig);
     if (!prev || item.value.score > prev.value.score) {
-      best.set(sig, { ...item, signature: sig, duplicatesMerged: (prev?.duplicatesMerged ?? -1) + 1 });
+      best.set(sig, { ...item, signature: dealSignature(item.candidate), duplicatesMerged: (prev?.duplicatesMerged ?? -1) + 1 });
     } else {
       prev.duplicatesMerged = (prev.duplicatesMerged ?? 0) + 1;
     }

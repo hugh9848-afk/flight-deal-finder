@@ -9,10 +9,11 @@
 import { FlightProvider } from "../base.js";
 import { SerpApiClient } from "./client.js";
 import {
-  normalizeDeal, normalizeExplore, normalizeFlightOffer,
+  normalizeDeal, normalizeExplore, normalizeFlightOffer, normalizeRoundTrip,
   rowsFromDeals, rowsFromExplore, offersFromFlights,
 } from "./normalize.js";
 import { findAirport } from "../../config/destinations.js";
+import { planDetails } from "../../core/detailPlan.js";
 
 // 지역 이름 -> 구글이 쓰는 지역 번호 (위키데이터에서 확인한 값)
 export const AREA_ID = {
@@ -32,10 +33,23 @@ export class SerpApiProvider extends FlightProvider {
     this.discoveryCalls = opts.discoveryCalls ?? 6;
     this.detailCalls = opts.detailCalls ?? 12;
     this.emptyRegionShare = opts.emptyRegionShare ?? 0.3;  // 자료 없는 지역 몫
+    for (const n of [this.discoveryCalls, this.detailCalls]) {
+      if (!Number.isSafeInteger(n) || n < 0) throw new Error("호출 예산은 0 이상의 정수여야 합니다");
+    }
+    if (!Number.isFinite(this.emptyRegionShare) || this.emptyRegionShare < 0 || this.emptyRegionShare > 1) {
+      throw new Error("자료 부족 지역 비율은 0~1이어야 합니다");
+    }
+    this.detailUsed = 0;
+    this.detailCache = new Map();
     this.stats = { indicativeCalls: 0, liveCalls: 0, confirmCalls: 0, errors: [], skipped: [] };
   }
 
   get name() { return "serpapi"; }
+  // 일정당 출국 목록 1회 + 선택한 출국편의 귀국 목록 1회를 확보합니다.
+  get detailBudget() { return Math.floor(this.detailCalls / 2); }
+  planDetails(ranked, opts) {
+    return planDetails(ranked, { ...opts, emptyRegionShare: this.emptyRegionShare });
+  }
   get capabilities() {
     // 실제 조회는 되지만, 판매 화면에서 확인한 것은 아니므로 confirm 은 false 입니다.
     return { indicative: true, live: true, confirm: false, openJaw: false };
@@ -62,10 +76,13 @@ export class SerpApiProvider extends FlightProvider {
     const areas = (regions.length ? regions : ["europe", "africa"])
       .map((r) => [r, AREA_ID[r]]).filter(([, id]) => id);
 
-    for (const [region, areaId] of areas) {
-      if (budget <= 0) break;
-      for (const dur of ["3", "2"]) {          // 3=2주, 2=1주
-        if (budget <= 0) break;
+    const reserveDeals = departFrom && departTo ? 1 : 0;
+    const cycle = Math.floor(Date.parse(departFrom ?? fetchedAt.slice(0, 10)) / 86400000 / 3);
+    const durations = cycle % 2 ? ["3", "2"] : ["2", "3"];
+    // 예산상 한 기간만 볼 수 있을 때도 매번 2주 여행만 수집하지 않게 순환합니다.
+    for (const dur of durations) {          // 모든 지역을 한 번씩 본 뒤 두 번째 기간
+      for (const [region, areaId] of areas) {
+        if (budget <= reserveDeals) break;
         budget--;
         this.stats.indicativeCalls++;
         const res = await this.client.search({
@@ -119,25 +136,63 @@ export class SerpApiProvider extends FlightProvider {
 
   /**
    * 2단계: 유망 후보를 자세히 조회합니다.
-   * 한 번 호출로 왕복 총액·구간·경유·구글 가격이력까지 받습니다.
+   * 첫 응답은 출국편만 있습니다. 토큰으로 귀국편을 추가 조회합니다.
    */
-  async searchLive({ origin = "ICN", destination, departureDate, returnDate, max = 5 }) {
-    this.stats.liveCalls++;
-    const res = await this.client.search({
+  async searchLive({ origin = "ICN", destination, departureDate, returnDate, max = 5, maxStops = 2 }) {
+    const params = {
       engine: "google_flights", departure_id: origin, arrival_id: destination,
       outbound_date: departureDate, return_date: returnDate,
       currency: this.currency, hl: "ko", gl: "kr",
       type: "1", travel_class: "1", adults: "1",
-    });
+      stops: String(maxStops + 1), sort_by: "2",
+    };
+    const search = async (p) => {
+      const key = JSON.stringify(p);
+      if (this.detailCache.has(key)) return this.detailCache.get(key);
+      if (this.detailUsed >= this.detailCalls) return { ok: false, skipped: true, error: "상세 조회 예산 소진" };
+      this.detailUsed++;
+      this.stats.liveCalls++;
+      const promise = this.client.search(p);
+      this.detailCache.set(key, promise);
+      return promise;
+    };
+    const res = await search(params);
     if (!res.ok) {
       (res.skipped ? this.stats.skipped : this.stats.errors).push({ step: "flights", destination, error: res.error });
       return { ok: false, candidates: [], error: res.error, skipped: res.skipped };
     }
     const fetchedAt = new Date().toISOString();
-    const offers = offersFromFlights(res.data).slice(0, max);
-    const candidates = offers.map((o) => normalizeFlightOffer(o, {
-      currency: this.currency, fetchedAt, priceInsights: res.data.price_insights, origin, returnDate,
-    }));
+    const opts = { currency: this.currency, fetchedAt, priceInsights: res.data.price_insights, origin, returnDate };
+    const offers = offersFromFlights(res.data)
+      .filter((o) => Number.isFinite(o.price) && o.price > 0)
+      .sort((a, b) => a.price - b.price);
+    const eligible = offers.filter((o) => {
+      const c = normalizeFlightOffer(o, opts);
+      return c.departureAirportVerified && c.outbound.stops <= maxStops
+        && (c.destIn === destination || findAirport(c.destIn)?.city_code === destination)
+        && c.outbound.departAt?.slice(0, 10) === departureDate;
+    });
+    let candidates = eligible.slice(0, max).map((o) => normalizeFlightOffer(o, opts));
+    const selected = eligible.find((o) => o.departure_token);
+    let url = res.data.search_metadata?.google_flights_url;
+    if (selected) {
+      const back = await search({ ...params, departure_token: selected.departure_token });
+      if (back.ok) {
+        const complete = offersFromFlights(back.data)
+          .map((o) => normalizeRoundTrip(selected, o, opts))
+          .filter((c) => c.returnAirportVerified && c.inbound.stops <= maxStops
+            && (c.destOut === destination || findAirport(c.destOut)?.city_code === destination)
+            && c.inbound.departAt?.slice(0, 10) === returnDate && Number.isFinite(c.total) && c.total > 0);
+        candidates = [...complete, ...candidates];
+        url = back.data.search_metadata?.google_flights_url ?? url;
+      } else {
+        (back.skipped ? this.stats.skipped : this.stats.errors).push({ step: "return", destination, error: back.error });
+      }
+    }
+    for (const c of candidates) {
+      if (url) c.links = [{ label: "Google 항공권에서 같은 조건 확인", url }];
+      if (!c.returnAirportVerified) c.notes.push("귀국편 구간과 실제 인천 도착일은 아직 확인하지 못했습니다.");
+    }
     return { ok: true, candidates };
   }
 
@@ -147,19 +202,4 @@ export class SerpApiProvider extends FlightProvider {
     return candidate;
   }
 
-  /**
-   * 상세 조회 예산을 나눕니다.
-   * 늘 많이 나오는 도시가 예산을 독점하지 않도록, 일부는 '자료 없는 지역'에 씁니다.
-   * @param {Array} ranked  좋아 보이는 순서로 정렬된 후보
-   * @param {Set}   thinSet 자료가 부족한 목적지 코드
-   */
-  splitDetailBudget(ranked, thinSet) {
-    const total = this.detailCalls;
-    const forThin = Math.round(total * this.emptyRegionShare);
-    const forTop = total - forThin;
-
-    const top = ranked.filter((x) => !thinSet.has(x.candidate?.destIn ?? x.destIn)).slice(0, forTop);
-    const thin = ranked.filter((x) => thinSet.has(x.candidate?.destIn ?? x.destIn)).slice(0, forThin);
-    return { top, thin, plan: { total, forTop, forThin } };
-  }
 }

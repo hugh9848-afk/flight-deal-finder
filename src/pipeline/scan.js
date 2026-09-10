@@ -13,6 +13,7 @@ import { scoreCandidate } from "../core/valueScorer.js";
 import { dedupe, dealSignature, shouldAlert } from "../core/dedup.js";
 import { estimateGround, findOpenJawPartners } from "../providers/ground/staticGround.js";
 import { PRICE_TYPE } from "../core/model.js";
+import { checkEligibility, canAlert, compareDeals } from "../core/eligibility.js";
 
 export async function runScan({
   provider,
@@ -61,6 +62,7 @@ export async function runScan({
     minTripDays: settings.minTripDays, maxTripDays: settings.maxTripDays,
     tripDaysStep: settings.tripDaysStep,
     destinations,
+    regions: regions.length ? regions : [...new Set(destinations.map((d) => d.region))],
     slack: settings.collectTripDaysSlack ?? 0,
     maxPrice: settings.deal.maxTotalKRW,
   });
@@ -72,7 +74,7 @@ export async function runScan({
       `넓은 탐색이 비어 예비 방식으로 전환했습니다${insp.error ? ` (${insp.error})` : ""}`
     );
     log(`  → 넓은 탐색 결과 없음. 목적지별 조회로 전환 (최대 ${maxFallbackDestinations}곳)`);
-    for (const d of destinations.slice(0, maxFallbackDestinations)) {
+    for (const d of (typeof provider.searchCheapestDates === "function" ? destinations.slice(0, maxFallbackDestinations) : [])) {
       const r = await provider.searchCheapestDates({
         origin: settings.origin, destination: d.iata, departFrom, departTo,
         minTripDays: settings.minTripDays, maxTripDays: settings.maxTripDays,
@@ -82,6 +84,9 @@ export async function runScan({
   }
   // 경유 제한을 참고가 단계에도 적용합니다.
   // (2단계를 건너뛰는 공급자에서도 "유럽 1회 / 아프리카 2회" 약속이 지켜지도록)
+  const beforeEligibilityFilter = indicative.length;
+  const eligibility = { settings, departFrom, departTo };
+  indicative = indicative.filter((c) => checkEligibility(c, eligibility));
   const beforeStopFilter = indicative.length;
   indicative = indicative.filter((c) => {
     const limit = maxStopsFor(c.destIn, settings);
@@ -100,6 +105,7 @@ export async function runScan({
 
   report.stages.indicative = {
     found: indicative.length,
+    droppedByEligibility: beforeEligibilityFilter - beforeStopFilter,
     droppedByStops: droppedIndicativeByStops,
     // 공항이 확인된 후보가 몇 건인지 (알림 자격과 직결됩니다)
     departureVerified: indicative.filter((c) => c.departureAirportVerified === true).length,
@@ -125,7 +131,7 @@ export async function runScan({
   }
   log(`  → 참고가 후보 ${indicative.length}건`);
 
-  if (!indicative.length) {
+  if (!indicative.length && !(provider.capabilities.live && provider.planDetails)) {
     report.finishedAt = new Date().toISOString();
     report.warnings.push("후보를 하나도 찾지 못했습니다. 공급자 설정과 노선 커버리지를 확인하세요.");
     return { report, deals: [], needsReview: [], alerts: [] };
@@ -143,7 +149,7 @@ export async function runScan({
       return { candidate: c, verdict, value: scoreCandidate(c, verdict) };
     })
     .filter((x) => !x.verdict.tooExpensive)
-    .sort((a, b) => rankKey(b) - rankKey(a));
+    .sort(compareDeals);
 
   // 실제 조회는 유료일 수 있으므로, 공급자가 정한 예산을 넘지 않게 합니다.
   // 공급자가 정한 예산을 그대로 존중합니다.
@@ -153,14 +159,24 @@ export async function runScan({
   const liveCap = typeof providerCap === "number"
     ? Math.min(settings.funnel.liveCheckTop, providerCap)
     : settings.funnel.liveCheckTop;
-  const shortlist = ranked.slice(0, liveCap);
+  const plan = provider.planDetails?.(ranked, { cap: liveCap, destinations, departFrom, departTo,
+    today, minTripDays: settings.minTripDays, maxTripDays: settings.maxTripDays });
+  const querySeen = new Set();
+  const shortlist = (plan?.items ?? ranked).filter((x) => {
+    const c = x.candidate;
+    const key = x.query ? JSON.stringify(x.query)
+      : `${c.destIn}|${c.outbound?.departAt?.slice(0, 10)}|${c.inbound?.departAt?.slice(0, 10)}`;
+    if (querySeen.has(key)) return false;
+    querySeen.add(key); return true;
+  }).slice(0, liveCap);
   report.stages.shortlist = {
     count: shortlist.length,
     liveCap,
     dealFlagged: ranked.filter((x) => x.verdict.isDeal).length,
-    method: shortlist[0]?.verdict.method ?? null,
+    method: shortlist[0]?.verdict?.method ?? null,
+    plan: plan?.plan ?? null,
   };
-  log(`[2단계] 상위 ${shortlist.length}개를 실제 조회합니다 (판정 방식: ${shortlist[0]?.verdict.method ?? "-"})`);
+  log(`[2단계] ${shortlist.length}개 일정을 실제 조회합니다 (직접 탐색 ${plan?.plan?.directQueries ?? 0}개)`);
 
   // ───────────────── 2단계: 실제 조회 ─────────────────
   // 공급자가 실제 조회를 못 하면(참고가 전용) 이 단계를 건너뜁니다.
@@ -180,7 +196,8 @@ export async function runScan({
   const coverage = [];      // 목적지별로 결과가 있었는지 기록 (커버리지 확인용)
   let droppedByStops = 0;
   for (const item of shortlist) {
-    const c = item.candidate;
+    const c = item.candidate ?? { destIn: item.query.destination,
+      outbound: { departAt: item.query.departureDate }, inbound: { departAt: item.query.returnDate } };
     const departureDate = c.outbound?.departAt?.slice(0, 10);
     const returnDate = c.inbound?.departAt?.slice(0, 10);
     if (!departureDate || !returnDate) continue;
@@ -193,11 +210,12 @@ export async function runScan({
       adults: settings.adults, cabin: settings.cabin,
       max: 3, maxPrice: settings.deal.maxTotalKRW,
       maxStops: stopLimit,
-    });
+    }).catch((e) => ({ ok: false, candidates: [], error: String(e) }));
     if (r.ok) {
       // 공급자가 제한을 무시했을 수도 있으니 우리 쪽에서 한 번 더 거릅니다.
-      const kept = r.candidates.filter((x) => withinStops(x, stopLimit));
-      droppedByStops += r.candidates.length - kept.length;
+      const stopKept = r.candidates.filter((x) => withinStops(x, stopLimit));
+      droppedByStops += r.candidates.length - stopKept.length;
+      const kept = stopKept.filter((x) => allowed.has(x.destIn) && checkEligibility(x, eligibility));
       live.push(...kept);
       coverage.push({ destination: c.destIn, departureDate, found: kept.length, maxStops: stopLimit });
     } else {
@@ -234,7 +252,7 @@ export async function runScan({
         }).catch((e) => ({ ok: false, error: String(e), candidates: [] }));
         if (r.ok) {
           const limit = Math.max(maxStopsFor(seed.destIn, settings), maxStopsFor(p.iata, settings));
-          for (const c of r.candidates.filter((x) => withinStops(x, limit))) {
+          for (const c of r.candidates.filter((x) => withinStops(x, limit) && checkEligibility(x, eligibility))) {
             // 들어간 도시 -> 나오는 도시 육로 이동비를 붙입니다 (추정치)
             c.ground = estimateGround(seed.destIn, p.iata);
             openJaw.push(c);
@@ -246,14 +264,14 @@ export async function runScan({
   if (openJaw.length) log(`  → 오픈조 후보 ${openJaw.length}건`);
 
   // 상세 조회한 것만 남기면 넓게 훑은 수백 건을 통째로 버리게 됩니다.
-  // 상세 조회로 올라간 자리(도시·출발일·귀국일)만 대체하고 나머지는 그대로 둡니다.
+  // 출처·양쪽 일정·가격·항공편까지 같은 결과만 대체합니다.
   const upgraded = new Set();
   for (const c of [...live, ...openJaw]) {
-    const slot = `${findAirport(c.destIn)?.city_code ?? c.destIn}|${c.outbound?.departAt?.slice(0, 10)}`;
+    const slot = exactSlot(c);
     upgraded.add(slot);
   }
   const keptIndicative = indicative.filter((c) => {
-    const slot = `${findAirport(c.destIn)?.city_code ?? c.destIn}|${c.outbound?.departAt?.slice(0, 10)}`;
+    const slot = exactSlot(c);
     return !upgraded.has(slot);
   });
 
@@ -272,13 +290,13 @@ export async function runScan({
 
   // ───────────────── 실제 운임으로 다시 판정 ─────────────────
   // 실제 운임은 건수가 적으니, 넓게 훑은 결과까지 합쳐 비교군을 만듭니다.
-  const liveCohorts = buildCohorts([...indicative, ...liveAll]);
+  const liveCohorts = buildCohorts(liveAll);
   const liveScored = liveAll.map((c) => {
     const verdict = judgeDeal(c, { history, cohorts: liveCohorts, settings, historyBefore: scanStartedAt });
     return { candidate: c, verdict, value: scoreCandidate(c, verdict) };
   });
 
-  const deduped = dedupe(liveScored).sort((a, b) => rankKey(b) - rankKey(a));
+  const deduped = dedupe(liveScored, { key: exactSlot }).sort(compareDeals);
   report.stages.deduped = { count: deduped.length, from: liveScored.length };
   log(`  → 중복 정리 후 ${deduped.length}건`);
 
@@ -312,8 +330,8 @@ export async function runScan({
     });
   }
   // 확정하지 않은 나머지도 목록에는 남깁니다 (다만 '확정 특가'는 아님)
-  const confirmedIds = new Set(toConfirm.map((x) => x.candidate.id));
-  for (const item of deduped.filter((x) => !confirmedIds.has(x.candidate.id))) {
+  const confirmedCandidates = new Set(toConfirm.map((x) => x.candidate));
+  for (const item of deduped.filter((x) => !confirmedCandidates.has(x.candidate))) {
     finalItems.push({ ...item, signature: dealSignature(item.candidate) });
   }
 
@@ -326,7 +344,7 @@ export async function runScan({
     const hasConflict = c.fareRules?.conflict === true;
     const missing = c.unknown.filter((k) => ["total", "taxes"].includes(k));
 
-    if (item.verdict.isDeal && isConfirmed && !hasConflict && !missing.length) {
+    if (item.verdict.isDeal && isConfirmed && !hasConflict && !missing.length && canAlert(item)) {
       item.status = "confirmed_deal";
       deals.push(item);
     } else if (item.verdict.isDeal) {
@@ -346,7 +364,8 @@ export async function runScan({
   // ───────────────── 알림 대상 고르기 ─────────────────
   const alerts = [];
   if (alertState) {
-    for (const item of deals) {
+    for (const item of [...deals, ...needsReview].sort(compareDeals)) {
+      if (!canAlert(item)) continue;
       const decision = shouldAlert(item, alertState.data, settings);
       item.alertDecision = decision;
       if (decision.alert) {
@@ -394,7 +413,7 @@ function finishIndicativeOnly({ report, ranked, shortlist, settings, log, t0, pr
   const alerts = [];
   if (alertState) {
     for (const item of needsReview) {
-      if (!item.verdict.isDeal) continue;
+      if (!canAlert(item)) continue;
       // 신뢰도가 '낮음'(이력 없이 같은 스캔끼리만 비교)이면 알리지 않습니다.
       // 첫 스캔부터 확신 없는 알림이 쏟아지는 걸 막습니다.
       if (item.verdict.confidence === "low") continue;
@@ -451,7 +470,7 @@ function mergeSameFlight(items) {
     }
     out.push(rep);
   }
-  return out.sort((a, b) => rankKey(b) - rankKey(a));
+  return out.sort(compareDeals);
 }
 
 /** 가는 편·오는 편 모두 정해진 경유 횟수 안에 드는지 확인합니다. */
@@ -463,7 +482,10 @@ function withinStops(c, maxStops) {
   return true;
 }
 
-/** 순위 정하는 기준: 특가로 판정된 것을 먼저, 그다음 여행가치 점수 순 */
-function rankKey(item) {
-  return (item.verdict.isDeal ? 1000 : 0) + item.value.score;
+/** 다른 귀국일·운임·공급자의 할인 근거가 사라지지 않도록 정확한 중복만 묶습니다. */
+function exactSlot(c) {
+  return [c.source, c.currency, c.originOut, c.destIn, c.destOut,
+    c.outbound?.departAt, c.inbound?.departAt, c.inbound?.arriveAt, c.total,
+    ...(c.outbound?.segments ?? []).map((s) => s.number),
+    ...(c.inbound?.segments ?? []).map((s) => s.number)].join("|");
 }
