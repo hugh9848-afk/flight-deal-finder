@@ -344,7 +344,7 @@ export async function runScan({
     const hasConflict = c.fareRules?.conflict === true;
     const missing = c.unknown.filter((k) => ["total", "taxes"].includes(k));
 
-    if (item.verdict.isDeal && isConfirmed && !hasConflict && !missing.length && canAlert(item)) {
+    if (item.verdict.isDeal && isConfirmed && !hasConflict && !missing.length && canAlert(item, settings)) {
       item.status = "confirmed_deal";
       deals.push(item);
     } else if (item.verdict.isDeal) {
@@ -365,7 +365,7 @@ export async function runScan({
   const alerts = [];
   if (alertState) {
     for (const item of [...deals, ...needsReview].sort(compareDeals)) {
-      if (!canAlert(item)) continue;
+      if (!canAlert(item, settings)) continue;
       const decision = shouldAlert(item, alertState.data, settings);
       item.alertDecision = decision;
       if (decision.alert) {
@@ -413,7 +413,7 @@ function finishIndicativeOnly({ report, ranked, shortlist, settings, log, t0, pr
   const alerts = [];
   if (alertState) {
     for (const item of needsReview) {
-      if (!canAlert(item)) continue;
+      if (!canAlert(item, settings)) continue;
       // 신뢰도가 '낮음'(이력 없이 같은 스캔끼리만 비교)이면 알리지 않습니다.
       // 첫 스캔부터 확신 없는 알림이 쏟아지는 걸 막습니다.
       if (item.verdict.confidence === "low") continue;

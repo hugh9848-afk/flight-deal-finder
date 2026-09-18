@@ -1,4 +1,5 @@
 import { tripDaysBetween } from "./dateCombos.js";
+import { SETTINGS } from "../config/settings.js";
 
 /** 검색 조건과 응답에서 확인한 사실을 구분합니다. */
 export function checkEligibility(c, { settings, departFrom, departTo }) {
@@ -19,14 +20,37 @@ export function checkEligibility(c, { settings, departFrom, departTo }) {
   return !wrongAirport && Boolean(inWindow);
 }
 
-export function canAlert(item) {
+/**
+ * 우리가 직접 모은 기록이 '알릴 만큼' 두꺼운지 봅니다.
+ *
+ * 건수만 보면 안 됩니다. 하루에 몰아서 열 번 본 것은 사실상 하루치이기 때문입니다.
+ * 그래서 **몇 건을 봤나** 와 **서로 다른 며칠에 걸쳐 봤나** 를 함께 따집니다.
+ * 둘 중 하나라도 모르면(null) 모자란 것으로 봅니다 — 모르는 것을 괜찮다고 치지 않습니다.
+ */
+export function hasEnoughEvidence(verdict, settings = SETTINGS) {
+  const need = settings.alertEvidence ?? { minSampleSize: 12, minDistinctDays: 3 };
+  const samples = verdict.sampleSize;
+  const days = verdict.distinctDays;
+  if (!Number.isFinite(samples) || !Number.isFinite(days)) return false;
+  return samples >= need.minSampleSize && days >= need.minDistinctDays;
+}
+
+export function canAlert(item, settings = SETTINGS) {
   const c = item.candidate;
-  if (!item.verdict.isDeal || c.outOfRange || c.fareRules?.conflict) return false;
+  const v = item.verdict;
+  if (!v.isDeal || c.outOfRange || c.fareRules?.conflict) return false;
   if (c.departureAirportVerified !== true || c.returnAirportVerified !== true
       || c.tripDaysBasis !== "icn_confirmed" || !Number.isFinite(c.tripDays)) return false;
+
   // 판매 화면까지 확인한 후보는 기존 확정 알림 정책을 유지합니다.
-  return c.priceType === "confirmed" || ["medium", "high"].includes(item.verdict.confidence)
-    || (item.verdict.basis === "app_computed_from_google_history" && item.verdict.sampleSize >= 5);
+  if (c.priceType === "confirmed") return true;
+
+  // 우리 기록만으로 '싸다'고 말하는 경우에는 근거가 얇으면 알리지 않습니다.
+  // (구글이 준 기준가는 우리 기록이 아니므로 여기 걸리지 않습니다)
+  if (v.basis === "self_observed" && !hasEnoughEvidence(v, settings)) return false;
+
+  return ["medium", "high"].includes(v.confidence)
+    || (v.basis === "app_computed_from_google_history" && v.sampleSize >= 5);
 }
 
 /** 유효한 일정과 노선 가격 비교의 할인율을 우선하고 여행가치는 동률에 씁니다. */

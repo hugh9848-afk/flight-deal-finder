@@ -71,7 +71,7 @@ export function renderAlertText(alerts, { siteUrl = null } = {}) {
       self_observed: "자체 관측 대비", same_scan: "같은 스캔의 후보 대비" }[v.basis] ?? "기준 미확인";
     L.push(`   ${won(c.total)}${v.discountPct != null ? ` · ${v.discountPct}% (${basis})` : ""}`);
     L.push(`   ${c.outbound?.departAt?.slice(0, 10) ?? "?"} 출발 · ${tripLabel(item)}`);
-    L.push(`   경유 출국 ${c.outbound?.stops ?? "미확인"}회 / 귀국 ${c.inbound?.stops ?? "미확인"}회 · 판정 신뢰도 ${kor(v.confidence)} · 표본 ${v.sampleSize ?? 0}건`);
+    L.push(`   경유 출국 ${c.outbound?.stops ?? "미확인"}회 / 귀국 ${c.inbound?.stops ?? "미확인"}회 · 판정 신뢰도 ${kor(v.confidence)} · 표본 ${v.sampleSize ?? 0}건${v.distinctDays != null ? ` (서로 다른 ${v.distinctDays}일)` : ""}`);
     L.push(`   인천 도착 ${c.inbound?.arriveAt ?? "미확인"}`);
     if (item.alertDecision?.kind === "cheaper") L.push(`   ${item.alertDecision.reason}`);
     const link = (c.links ?? [])[0]?.url;

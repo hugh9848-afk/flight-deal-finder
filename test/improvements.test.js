@@ -12,7 +12,7 @@ import { FlightProvider } from "../src/providers/base.js";
 import { runScan } from "../src/pipeline/scan.js";
 import { SETTINGS } from "../src/config/settings.js";
 import { makeCandidate, makeLeg } from "../src/core/model.js";
-import { checkEligibility, compareDeals } from "../src/core/eligibility.js";
+import { checkEligibility, compareDeals, canAlert, hasEnoughEvidence } from "../src/core/eligibility.js";
 import { AlertState } from "../src/store/alertState.js";
 import { writeResults } from "../src/pipeline/output.js";
 import { pickDestinations } from "../src/config/destinations.js";
@@ -275,4 +275,54 @@ test("알림이 0건일 때 '확인 수단이 없어서'인지 설명한다", as
   // 확인된 후보가 있는데 알림이 없으면, 그건 진짜 특가가 없는 것이므로 설명하지 않습니다
   const seeing = renderSummary({ report, deals: [], needsReview: [mk(true)], alerts: [] });
   assert.doesNotMatch(seeing, /확인된 후보가 0건/);
+});
+
+// ── 알림 근거 두께 (2026-09-19) ─────────────────────────────
+// 표본 5건짜리 자체 기록으로 "20% 싸다"고 알리던 것을 막습니다.
+
+/** 알림 직전 상태의 후보 하나를 만듭니다 (공항·일수는 모두 확인된 것으로). */
+const alertable = (verdict) => ({
+  candidate: {
+    priceType: "live", outOfRange: false, fareRules: { conflict: false },
+    departureAirportVerified: true, returnAirportVerified: true,
+    tripDaysBasis: "icn_confirmed", tripDays: 9,
+  },
+  verdict: { isDeal: true, confidence: "medium", basis: "self_observed", ...verdict },
+});
+
+test("자체 기록 표본이 얇으면 싸도 알리지 않는다", () => {
+  // 실제로 있었던 알제 건: 표본 5건 · 서로 다른 2일 · 20.6% 할인
+  assert.equal(canAlert(alertable({ sampleSize: 5, distinctDays: 2, discountPct: 20.6 })), false);
+  // 건수만 채우고 하루에 몰아본 것도 막습니다
+  assert.equal(canAlert(alertable({ sampleSize: 40, distinctDays: 1 })), false);
+  // 서로 다른 날은 많아도 건수가 모자라면 막습니다
+  assert.equal(canAlert(alertable({ sampleSize: 6, distinctDays: 9 })), false);
+  // 실제로 알린 이스탄불 건: 표본 63건 · 서로 다른 4일
+  assert.equal(canAlert(alertable({ sampleSize: 63, distinctDays: 4 })), true);
+});
+
+test("표본이나 관측일수를 모르면 알리지 않는다", () => {
+  assert.equal(hasEnoughEvidence({ sampleSize: null, distinctDays: 4 }), false);
+  assert.equal(hasEnoughEvidence({ sampleSize: 40 }), false);
+  assert.equal(hasEnoughEvidence({ sampleSize: 40, distinctDays: 4 }), true);
+});
+
+test("알림 근거 문턱은 자체 기록에만 걸리고 구글 기준가에는 걸리지 않는다", () => {
+  const google = alertable({ basis: "google_deals_reported", sampleSize: 3, distinctDays: 1 });
+  assert.equal(canAlert(google), true, "구글이 준 평소가는 우리 기록이 아니므로 그대로 알린다");
+  const computed = alertable({ basis: "app_computed_from_google_history", sampleSize: 62, distinctDays: null, confidence: "low" });
+  assert.equal(canAlert(computed), true, "구글 가격 이력 62개짜리도 그대로 알린다");
+});
+
+test("판매 화면까지 확인한 후보는 근거 문턱과 무관하게 알린다", () => {
+  const confirmed = alertable({ sampleSize: 5, distinctDays: 1 });
+  confirmed.candidate.priceType = "confirmed";
+  assert.equal(canAlert(confirmed), true);
+});
+
+test("알림 근거 문턱은 설정값으로 조절된다", () => {
+  const item = alertable({ sampleSize: 8, distinctDays: 3 });
+  assert.equal(canAlert(item, SETTINGS), false, "기본값 12건에는 못 미친다");
+  const loose = { ...SETTINGS, alertEvidence: { minSampleSize: 8, minDistinctDays: 3 } };
+  assert.equal(canAlert(item, loose), true, "문턱을 낮추면 통과한다");
 });
