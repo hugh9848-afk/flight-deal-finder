@@ -57,6 +57,10 @@
   .chip{padding:5px 10px;border:1px solid var(--line);background:var(--card);color:var(--muted);
         border-radius:99px;font-size:12px;cursor:pointer;font-weight:600}
   .chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+  /* 나라 줄: 지역 줄보다 한 단 작게 해서 '하위 단계'임을 눈으로 알 수 있게 합니다 */
+  .filters.sub{margin-top:6px;padding-left:8px;border-left:2px solid var(--line);gap:5px}
+  .filters.sub .chip{font-size:11.5px;padding:4px 9px;font-weight:600}
+  .filters.sub:empty{display:none}
   .more{display:block;width:100%;padding:12px;margin-top:4px;border:1px solid var(--line);
         background:var(--card);color:var(--accent);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
   .verify{display:block;margin-top:10px;padding:11px 12px;background:var(--accent);color:#fff;
@@ -74,6 +78,7 @@
     <div class="tab" role="tab" data-tab="review" aria-selected="false">확인 필요 <span id="n2"></span></div>
   </div>
   <div class="filters" id="filters"></div>
+  <div class="filters sub" id="countryFilters"></div>
 </header>
 <main id="list"><div class="empty">불러오는 중…</div></main>
 
@@ -203,6 +208,7 @@ function cardHtml(d){
 }
 
 let DATA = null, TAB = "deals", SHOWN = 30, FILTER = "all";
+let COUNTRY = null;   // 고른 나라 이름. null 이면 그 지역 전부를 봅니다
 const PAGE = 30;   // 한 번에 보여줄 개수 (폰에서 248개를 한꺼번에 그리면 버겁습니다)
 
 /** 지역 이름 (나라 이름으로 대충 묶습니다) */
@@ -220,16 +226,29 @@ function regionOf(d){
   return africa.includes(country) ? "아프리카" : "유럽";
 }
 
-function currentItems(){
+/** 나라 이름을 꺼냅니다 (없으면 "기타") */
+function countryOf(d){ return d.destInName?.country ?? "기타"; }
+
+/** 지역만 걸러낸 목록 (나라 칩을 만들 때 씁니다) */
+function itemsInRegion(){
   const base = TAB === "deals" ? DATA.deals : DATA.needsReview;
   if(FILTER === "all") return base;
   if(FILTER === "deal") return base.filter(x => x.verdict?.isDeal);
   return base.filter(x => regionOf(x) === FILTER);
 }
 
+/** 화면에 보여줄 최종 목록 = 지역으로 거른 뒤, 나라를 골랐으면 한 번 더 거릅니다 */
+function currentItems(){
+  const list = itemsInRegion();
+  if(!COUNTRY) return list;
+  return list.filter(x => countryOf(x) === COUNTRY);
+}
+
 function renderFilters(){
   if(!DATA) return;
   const base = TAB === "deals" ? DATA.deals : DATA.needsReview;
+
+  // --- 첫째 줄: 지역 ---
   const regions = [...new Set(base.map(regionOf))].sort();
   const chips = [
     ["all", `전체 ${base.length}`],
@@ -238,6 +257,30 @@ function renderFilters(){
   ];
   document.getElementById("filters").innerHTML = chips.map(([k,label]) =>
     `<button class="chip" data-f="${esc(k)}" aria-pressed="${FILTER===k}">${esc(label)}</button>`).join("");
+
+  // --- 둘째 줄: 나라 ---
+  // '전체'일 때는 나라가 서른 개 넘게 나와 오히려 더 어수선하므로 지역을 고른 뒤에만 보여줍니다.
+  const box = document.getElementById("countryFilters");
+  const inRegion = itemsInRegion();
+  const counts = new Map();
+  for(const x of inRegion){
+    const c = countryOf(x);
+    counts.set(c, (counts.get(c) ?? 0) + 1);
+  }
+  // 고른 나라가 이번 결과에 없어졌으면 '전부'로 되돌립니다
+  // (나라 줄을 숨길 때도 풀어야 안 보이는 조건이 몰래 걸려 있는 일이 없습니다)
+  if(COUNTRY && !counts.has(COUNTRY)) COUNTRY = null;
+  if(FILTER === "all" || counts.size < 2){ box.innerHTML = ""; COUNTRY = null; return; }
+
+  // 건수가 많은 나라부터 줄 세웁니다 (건수가 같으면 가나다순)
+  const sorted = [...counts.entries()]
+    .sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0], "ko"));
+
+  const label = FILTER === "deal" ? "나라 전부" : `${FILTER} 전부`;
+  box.innerHTML =
+    `<button class="chip" data-c="" aria-pressed="${COUNTRY===null}">${esc(label)} ${inRegion.length}</button>`
+    + sorted.map(([c,n]) =>
+        `<button class="chip" data-c="${esc(c)}" aria-pressed="${COUNTRY===c}">${esc(c)} ${n}</button>`).join("");
 }
 
 function render(){
@@ -275,14 +318,24 @@ fetch("data/deals.json?t=" + Date.now())
 
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
   document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", String(x === t)));
-  TAB = t.dataset.tab; SHOWN = PAGE; FILTER = "all"; render();
+  TAB = t.dataset.tab; SHOWN = PAGE; FILTER = "all"; COUNTRY = null; render();
 }));
 
 // 지역·특가 필터 (누를 때마다 목록을 다시 그립니다)
 document.getElementById("filters").addEventListener("click", (e) => {
   const b = e.target.closest(".chip");
   if(!b) return;
-  FILTER = b.dataset.f; SHOWN = PAGE; render();
+  FILTER = b.dataset.f;
+  COUNTRY = null;          // 지역을 바꾸면 나라 선택은 풀어줍니다
+  SHOWN = PAGE; render();
+});
+
+// 나라 필터
+document.getElementById("countryFilters").addEventListener("click", (e) => {
+  const b = e.target.closest(".chip");
+  if(!b) return;
+  COUNTRY = b.dataset.c || null;   // 빈 값이면 '그 지역 전부'
+  SHOWN = PAGE; render();
 });
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
