@@ -67,7 +67,10 @@ jobs:
           SERPAPI_API_KEY_FRIEND_2: ${{ secrets.SERPAPI_API_KEY_FRIEND_2 }}
           # 키 하나: 19회, 둘: 35회, 셋: 51회. 변수로 별도 상한을 정할 수도 있습니다.
           SERPAPI_RUN_BUDGET: ${{ vars.SERPAPI_RUN_BUDGET }}
-          SERPAPI_MONTHLY_BUDGET: "200"
+          # 계정마다 **각각** 적용되는 자체 상한입니다 (무료 한도는 계정당 250회).
+          # 230 으로 둬도 client.js 의 계정 잔여 검사(SAFETY_MARGIN 5)가 따로 지켜주므로,
+          # 진짜 한도에 부딪히기 전에 멈춥니다.
+          SERPAPI_MONTHLY_BUDGET: "230"
           SITE_URL: https://hugh9848-afk.github.io/flight-deal-finder/
           SCAN_REGIONS: ${{ inputs.regions }}
         timeout-minutes: 10

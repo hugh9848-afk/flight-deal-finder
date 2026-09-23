@@ -26,7 +26,8 @@ test("키 하나는 기존 예산과 장부를 유지하고 친구 키는 다른
   assert.equal(one.client.entries[0].client.ledgerPath, path.join(dataDir, "serpapi-ledger.json"));
   const two = createSerpApiAccounts({ env: { SERPAPI_API_KEY: "main-key", SERPAPI_API_KEY_FRIEND: "friend-key" }, dataDir, clientFactory });
   assert.equal(two.client.runBudget, 35); assert.equal(two.detailCalls, 28);
-  assert.deepEqual(two.client.entries.map((e) => e.client.monthlyBudget), [200, 200]);
+  // 기본 계정당 상한. .github/workflows/scan.yml 의 SERPAPI_MONTHLY_BUDGET 과 같아야 합니다.
+  assert.deepEqual(two.client.entries.map((e) => e.client.monthlyBudget), [230, 230]);
   assert.equal(two.client.entries[1].client.ledgerPath, path.join(dataDir, "serpapi-ledger-friend.json"));
 });
 
@@ -162,7 +163,7 @@ test("세 번째 계정은 별도 장부를 쓰고 중복·빈 키는 예산을 
   const three = createSerpApiAccounts({ env, dataDir, clientFactory });
   assert.equal(three.client.runBudget, 51); assert.equal(three.detailCalls, 44);
   assert.deepEqual(three.client.entries.map((e) => e.name), ["main", "friend", "friend2"]);
-  assert.deepEqual(three.client.entries.map((e) => e.client.monthlyBudget), [200, 200, 200]);
+  assert.deepEqual(three.client.entries.map((e) => e.client.monthlyBudget), [230, 230, 230]);
   assert.equal(three.client.entries[2].client.ledgerPath, path.join(dataDir, "serpapi-ledger-friend2.json"));
   for (const key of [" friend-key ", "  "]) {
     const config = createSerpApiAccounts({ env: { ...env, SERPAPI_API_KEY_FRIEND_2: key }, dataDir, clientFactory });

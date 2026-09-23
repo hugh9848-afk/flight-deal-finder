@@ -90,7 +90,10 @@ export function createSerpApiAccounts({ env = process.env, dataDir, clientFactor
   if (!accounts.length) return null;
   const configured = env.SERPAPI_RUN_BUDGET;
   const runBudget = configured?.trim() ? Number(configured) : 19 + 16 * (accounts.length - 1);
-  const monthlyBudget = Number(env.SERPAPI_MONTHLY_BUDGET || 200); // 계정당 상한
+  // 계정당 상한. 무료 한도는 계정당 250회이고, 이건 우리가 스스로 걸어둔 안전선입니다.
+  // workflow 의 SERPAPI_MONTHLY_BUDGET 과 **같은 값으로 유지**하십시오 —
+  // 두 곳이 다르면 "어느 게 진짜 예산이냐"를 잘못 계산하게 됩니다.
+  const monthlyBudget = Number(env.SERPAPI_MONTHLY_BUDGET || 230);
   const entries = accounts.map((a) => ({ name: a.name, client: clientFactory({
     apiKey: a.key, runBudget, monthlyBudget, ledgerPath: path.join(dataDir, a.ledger),
   }) }));

@@ -16,7 +16,7 @@ const SAFETY_MARGIN = 5;      // 계정 잔여에서 이만큼은 남겨 둡니�
 const DEFAULT_TIMEOUT = 20000;
 
 export class SerpApiClient {
-  constructor({ apiKey, runBudget = 30, monthlyBudget = 200, ledgerPath = null,
+  constructor({ apiKey, runBudget = 30, monthlyBudget = 230, ledgerPath = null,
                 minIntervalMs = 300, timeoutMs = DEFAULT_TIMEOUT } = {}) {
     if (!apiKey) throw new Error("SERPAPI_API_KEY 가 필요합니다");
     for (const [name, n] of Object.entries({ runBudget, monthlyBudget })) {

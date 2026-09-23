@@ -97,9 +97,11 @@ test("두 클라이언트가 장부를 공유해도 월 예산을 넘지 않는�
 
 test("계정이 이미 월 상한까지 썼으면 빈 로컬 장부로도 검색하지 않는다", async (t) => {
   let searches = 0;
+  // 기본 상한값을 바꿔도 이 시험이 깨지지 않도록 예산을 직접 지정합니다.
+  const budget = 100;
   t.mock.method(globalThis, "fetch", async (u) => String(u).includes("/account")
-    ? json({ total_searches_left: 50, this_month_usage: 200 }) : (searches++, json({})));
-  const c = new SerpApiClient({ apiKey: "test", ledgerPath: path.join(tmp(), "ledger.json") });
+    ? json({ total_searches_left: 50, this_month_usage: budget }) : (searches++, json({})));
+  const c = new SerpApiClient({ apiKey: "test", monthlyBudget: budget, ledgerPath: path.join(tmp(), "ledger.json") });
   await c.checkQuota(); assert.equal((await c.search({ engine: "test" })).skipped, true);
   assert.equal(searches, 0);
 });
