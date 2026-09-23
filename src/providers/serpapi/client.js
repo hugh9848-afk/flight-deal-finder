@@ -59,6 +59,7 @@ export class SerpApiClient {
         return { ok: false, error: this.stopped };
       }
       this.accountLeft = left;
+      this.accountId = typeof j.account_id === "string" ? j.account_id : null;
       this.accountUsed = Number.isFinite(j.this_month_usage) ? j.this_month_usage : 0;
       this.quotaReservedAt = this.reserved;
       this.quotaChecked = true;
@@ -203,7 +204,8 @@ export class SerpApiClient {
     const byRun = this.runBudget - this.reserved;
     const byMonth = this.monthlyBudget - (this.accountUsed + this.reserved - (this.quotaReservedAt ?? 0));
     const byAccount = (this.accountLeft - SAFETY_MARGIN) - (this.reserved - (this.quotaReservedAt ?? 0));
-    return Math.max(0, Math.min(byRun, byMonth, byAccount));
+    const byLedger = this.monthlyBudget - this.#ledgerUsed() - (this.reserved - this.completed);
+    return Math.max(0, Math.min(byRun, byMonth, byAccount, byLedger));
   }
 
   get stats() {

@@ -71,9 +71,10 @@ export class SerpApiProvider extends FlightProvider {
    * 귀국 공항을 모르는 반쪽 결과가 남아 알림 자격도 못 얻고 호출만 버립니다.
    * 그래서 **두 번 치가 남아 있을 때만** 시작합니다.
    */
-  canAffordPair() {
+  canAffordPair(client = this.client) {
     if (this.detailCalls - this.detailUsed < 2) return false;
-    const left = this.client.remaining?.();
+    if (client.canAffordPair) return client.canAffordPair();
+    const left = client.remaining?.();
     return left == null || left >= 2;
   }
   planDetails(ranked, opts) {
@@ -168,12 +169,19 @@ export class SerpApiProvider extends FlightProvider {
    * 2단계: 유망 후보를 자세히 조회합니다.
    * 첫 응답은 출국편만 있습니다. 토큰으로 귀국편을 추가 조회합니다.
    */
-  async searchLive({ origin = "ICN", destination, departureDate, returnDate, max = 5, maxStops = 2 }) {
+  async searchLive(params) {
+    if (this.client.withAccount) {
+      return this.client.withAccount(2, (client) => this.searchLiveWithClient(params, client));
+    }
+    return this.searchLiveWithClient(params, this.client);
+  }
+
+  async searchLiveWithClient({ origin = "ICN", destination, departureDate, returnDate, max = 5, maxStops = 2 }, client) {
     // 출국·귀국은 한 쌍입니다. 두 번 치가 없으면 **아예 시작하지 않습니다.**
     // 반쪽만 조회하면 귀국 공항을 몰라 알림 자격도 못 얻고 호출만 버리게 됩니다.
-    if (!this.canAffordPair()) {
+    if (!this.canAffordPair(client)) {
       this.stats.skipped.push({ step: "pair", destination, error: "왕복 한 쌍을 채울 예산이 없어 시작하지 않음" });
-      return { candidates: [], skipped: true, reason: "왕복 예산 부족" };
+      return { ok: false, candidates: [], skipped: true, error: "왕복 예산 부족" };
     }
     const params = {
       engine: "google_flights", departure_id: origin, arrival_id: destination,
@@ -183,12 +191,12 @@ export class SerpApiProvider extends FlightProvider {
       stops: String(maxStops + 1), sort_by: "2",
     };
     const search = async (p) => {
-      const key = JSON.stringify(p);
+      const key = JSON.stringify([client.cacheKey ?? "default", p]);
       if (this.detailCache.has(key)) return this.detailCache.get(key);
       if (this.detailUsed >= this.detailCalls) return { ok: false, skipped: true, error: "상세 조회 예산 소진" };
       this.detailUsed++;
       this.stats.liveCalls++;
-      const promise = this.client.search(p);
+      const promise = client.search(p);
       this.detailCache.set(key, promise);
       return promise;
     };

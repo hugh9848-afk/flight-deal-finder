@@ -14,3 +14,9 @@ web/data/alerts.json
 data/serpapi-ledger.json
 data/serpapi-ledger.json.lock
 data/serpapi-ledger.json.*.tmp
+data/serpapi-ledger-friend.json
+data/serpapi-ledger-friend.json.lock
+data/serpapi-ledger-friend.json.*.tmp
+data/serpapi-ledger-friend2.json
+data/serpapi-ledger-friend2.json.lock
+data/serpapi-ledger-friend2.json.*.tmp

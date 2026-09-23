@@ -12,7 +12,7 @@ import { MockProvider } from "./providers/mock/index.js";
 import { AmadeusProvider } from "./providers/amadeus/index.js";
 import { TravelpayoutsProvider } from "./providers/travelpayouts/index.js";
 import { SerpApiProvider } from "./providers/serpapi/index.js";
-import { SerpApiClient } from "./providers/serpapi/client.js";
+import { createSerpApiAccounts } from "./providers/serpapi/accounts.js";
 import { CompositeProvider } from "./providers/composite.js";
 import { SETTINGS } from "./config/settings.js";
 import { writeSummaryFile, sendWebhook, renderAlertText, writeAlertsFile } from "./notify/index.js";
@@ -97,10 +97,13 @@ function makeTravelpayouts({ required = true } = {}) {
  *   할인검색(Deals)용으로 1회를 따로 남겨두기 때문입니다.
  *   31일인 달은 11회 돌아서 209회가 될 수 있으므로, 월 상한(200)에 걸리면
  *   마지막 회차는 상세를 줄여 스스로 멈춥니다.
+ * 친구 계정까지 연결하면 발굴 7회 + 상세 28회 = 35회, 최대 14개 일정.
+ * 친구 두 명까지 연결하면 발굴 7회 + 상세 44회 = 51회, 최대 22개 일정.
+ * 월 상한 200회와 사용 장부는 각 계정에 각각 적용합니다.
  */
 function makeSerpApi({ required = false } = {}) {
-  const apiKey = process.env.SERPAPI_API_KEY;
-  if (!apiKey) {
+  const config = createSerpApiAccounts({ dataDir: path.join(ROOT, "data") });
+  if (!config) {
     if (required) {
       console.error(
         "\n❌ SERPAPI_API_KEY 가 없습니다.\n" +
@@ -112,13 +115,7 @@ function makeSerpApi({ required = false } = {}) {
     }
     return null;
   }
-  const client = new SerpApiClient({
-    apiKey,
-    runBudget: Number(process.env.SERPAPI_RUN_BUDGET ?? 19),
-    monthlyBudget: Number(process.env.SERPAPI_MONTHLY_BUDGET ?? 200),
-    ledgerPath: path.join(ROOT, "data", "serpapi-ledger.json"),
-  });
-  return new SerpApiProvider({ client, discoveryCalls: 7, detailCalls: 12 });
+  return new SerpApiProvider(config);
 }
 
 async function main() {
@@ -126,8 +123,18 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const cmd = args._[0] ?? "scan";
 
+  // Account API는 무료입니다. 항공 검색·알림·배포 없이 연결만 점검합니다.
+  if (cmd === "quota") {
+    const config = createSerpApiAccounts({ dataDir: path.join(ROOT, "data") });
+    if (!config) throw new Error("SerpApi 키가 없습니다");
+    const quota = await config.client.checkQuota();
+    console.log(JSON.stringify({ ...quota, budget: config.client.stats }, null, 2));
+    if (!quota.ok) process.exitCode = 1;
+    return;
+  }
+
   if (cmd !== "scan") {
-    console.error("사용법: node src/cli.js scan [--provider=all|travelpayouts|serpapi|mock] [--regions=europe,africa,caucasus,mongolia]");
+    console.error("사용법: node src/cli.js quota 또는 scan [--provider=all|travelpayouts|serpapi|mock] [--regions=europe,africa,caucasus,mongolia,oceania]");
     process.exit(1);
   }
 
