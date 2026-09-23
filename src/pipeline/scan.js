@@ -370,7 +370,7 @@ export async function runScan({
       item.alertDecision = decision;
       if (decision.alert) {
         alerts.push(item);
-        alertState.record(item.signature, { price: item.candidate.total, score: item.value.score });
+        alertState.record(item.signature, { price: item.candidate.total, score: item.value.score, source: item.candidate.source });
       }
     }
   }
@@ -427,7 +427,7 @@ function finishIndicativeOnly({ report, ranked, shortlist, settings, log, t0, pr
       item.alertDecision = decision;
       if (decision.alert) {
         alerts.push(item);
-        alertState.record(item.signature, { price: item.candidate.total, score: item.value.score });
+        alertState.record(item.signature, { price: item.candidate.total, score: item.value.score, source: item.candidate.source });
       }
     }
   }

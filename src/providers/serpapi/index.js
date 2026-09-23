@@ -15,13 +15,29 @@ import {
 import { findAirport } from "../../config/destinations.js";
 import { planDetails } from "../../core/detailPlan.js";
 
-// 지역 이름 -> 구글이 쓰는 지역 번호 (위키데이터에서 확인한 값)
+// 지역 이름 -> 구글이 쓰는 지역 번호 (위키데이터 P646 에서 확인한 값)
+//
+// 값이 배열이면 **한 지역을 여러 번 나눠 조회**한다는 뜻입니다.
+// 오세아니아는 전체를 가리키는 번호가 없어서 호주·뉴질랜드를 따로 불러야 합니다.
 export const AREA_ID = {
   europe: "/m/02j9z",
   africa: "/m/0dg3n1",
   caucasus: "/m/0d0kn",   // 조지아
   mongolia: "/m/04w8f",   // 몽골
+  oceania: ["/m/0chghy", "/m/0ctw_b"],   // 호주, 뉴질랜드
 };
+
+/** 지역 목록을 실제 조회 단위(= 호출 한 번짜리 area)로 펼칩니다. */
+export function expandAreas(regions) {
+  const out = [];
+  for (const r of regions) {
+    const id = AREA_ID[r];
+    if (!id) continue;
+    // 번호가 여럿이면 그 수만큼 조회 단위가 늘어납니다
+    for (const one of Array.isArray(id) ? id : [id]) out.push([r, one]);
+  }
+  return out;
+}
 
 export class SerpApiProvider extends FlightProvider {
   constructor(opts = {}) {
@@ -30,7 +46,7 @@ export class SerpApiProvider extends FlightProvider {
     this.currency = opts.currency ?? "KRW";
     // 발굴에 쓸 호출 수와 상세 조회에 쓸 호출 수를 따로 정합니다.
     // 계획서의 70:30 은 **상세 조회 예산**을 나누는 비율입니다.
-    this.discoveryCalls = opts.discoveryCalls ?? 6;
+    this.discoveryCalls = opts.discoveryCalls ?? 7;
     this.detailCalls = opts.detailCalls ?? 12;
     this.emptyRegionShare = opts.emptyRegionShare ?? 0.3;  // 자료 없는 지역 몫
     for (const n of [this.discoveryCalls, this.detailCalls]) {
@@ -47,6 +63,19 @@ export class SerpApiProvider extends FlightProvider {
   get name() { return "serpapi"; }
   // 일정당 출국 목록 1회 + 선택한 출국편의 귀국 목록 1회를 확보합니다.
   get detailBudget() { return Math.floor(this.detailCalls / 2); }
+
+  /**
+   * 일정 하나를 **끝까지** 확인할 수 있을 때만 true.
+   *
+   * 출국 조회와 귀국 조회는 한 쌍입니다. 한 번만 부르고 예산이 떨어지면
+   * 귀국 공항을 모르는 반쪽 결과가 남아 알림 자격도 못 얻고 호출만 버립니다.
+   * 그래서 **두 번 치가 남아 있을 때만** 시작합니다.
+   */
+  canAffordPair() {
+    if (this.detailCalls - this.detailUsed < 2) return false;
+    const left = this.client.remaining?.();
+    return left == null || left >= 2;
+  }
   planDetails(ranked, opts) {
     return planDetails(ranked, { ...opts, emptyRegionShare: this.emptyRegionShare });
   }
@@ -73,8 +102,9 @@ export class SerpApiProvider extends FlightProvider {
     let budget = this.discoveryCalls;
 
     // ── Explore: 지역을 넓게 (기간은 1주·2주 두 가지만 지원) ──
-    const areas = (regions.length ? regions : ["europe", "africa"])
-      .map((r) => [r, AREA_ID[r]]).filter(([, id]) => id);
+    // 지역을 안 주면 우리가 아는 지역 전부를 봅니다.
+    // 오세아니아처럼 번호가 둘인 지역은 여기서 두 칸으로 펼쳐집니다.
+    const areas = expandAreas(regions.length ? regions : Object.keys(AREA_ID));
 
     const reserveDeals = departFrom && departTo ? 1 : 0;
     const cycle = Math.floor(Date.parse(departFrom ?? fetchedAt.slice(0, 10)) / 86400000 / 3);
@@ -124,8 +154,8 @@ export class SerpApiProvider extends FlightProvider {
       }
     }
 
-    // 우리가 쫓는 지역(유럽·아프리카·캅카스·몽골)만 남깁니다
-    const wanted = new Set(regions.length ? regions : ["europe", "africa", "caucasus", "mongolia"]);
+    // 우리가 쫓는 지역만 남깁니다 (지역을 안 주면 AREA_ID 에 있는 전부)
+    const wanted = new Set(regions.length ? regions : Object.keys(AREA_ID));
     const filtered = candidates.filter((c) => {
       const air = findAirport(c.destIn);
       return air ? wanted.has(air.region) : false;
@@ -139,6 +169,12 @@ export class SerpApiProvider extends FlightProvider {
    * 첫 응답은 출국편만 있습니다. 토큰으로 귀국편을 추가 조회합니다.
    */
   async searchLive({ origin = "ICN", destination, departureDate, returnDate, max = 5, maxStops = 2 }) {
+    // 출국·귀국은 한 쌍입니다. 두 번 치가 없으면 **아예 시작하지 않습니다.**
+    // 반쪽만 조회하면 귀국 공항을 몰라 알림 자격도 못 얻고 호출만 버리게 됩니다.
+    if (!this.canAffordPair()) {
+      this.stats.skipped.push({ step: "pair", destination, error: "왕복 한 쌍을 채울 예산이 없어 시작하지 않음" });
+      return { candidates: [], skipped: true, reason: "왕복 예산 부족" };
+    }
     const params = {
       engine: "google_flights", departure_id: origin, arrival_id: destination,
       outbound_date: departureDate, return_date: returnDate,

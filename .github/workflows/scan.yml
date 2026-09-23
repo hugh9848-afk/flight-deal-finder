@@ -19,7 +19,7 @@ on:
   workflow_dispatch:          # 손으로도 돌릴 수 있게
     inputs:
       regions:
-        description: "탐색 지역 (비우면 전체). 예: europe,caucasus"
+        description: "탐색 지역 (비우면 전체). 예: europe,caucasus,oceania"
         required: false
         default: ""
 
@@ -63,7 +63,7 @@ jobs:
           # SerpApi 는 무료 250회/월 입니다. Secret 이 없으면 이 공급자만 빠지고
           # Travelpayouts 로 정상 동작합니다 (한 곳이 없다고 전체가 멈추지 않습니다).
           SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
-          SERPAPI_RUN_BUDGET: "17"
+          SERPAPI_RUN_BUDGET: "19"
           SERPAPI_MONTHLY_BUDGET: "200"
           SITE_URL: https://hugh9848-afk.github.io/flight-deal-finder/
           SCAN_REGIONS: ${{ inputs.regions }}

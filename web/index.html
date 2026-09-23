@@ -214,10 +214,13 @@ const PAGE = 30;   // 한 번에 보여줄 개수 (폰에서 248개를 한꺼번
 /** 지역 이름 (나라 이름으로 대충 묶습니다) */
 const REGION_OF = {
   "튀르키예":"유럽","조지아":"캅카스","아르메니아":"캅카스","아제르바이잔":"캅카스","몽골":"몽골",
+  "호주":"오세아니아","뉴질랜드":"오세아니아",
 };
 function regionOf(d){
-  const region = { europe: "유럽", africa: "아프리카", caucasus: "캅카스", mongolia: "몽골" }[d.region];
+  const region = { europe: "유럽", africa: "아프리카", caucasus: "캅카스",
+                   mongolia: "몽골", oceania: "오세아니아" }[d.region];
   if(region) return region;
+  // 여기부터는 지역 값이 없는 옛 결과를 나라 이름으로 되짚는 자리입니다.
   const country = d.destInName?.country;
   if(!country) return "기타";
   if(REGION_OF[country]) return REGION_OF[country];

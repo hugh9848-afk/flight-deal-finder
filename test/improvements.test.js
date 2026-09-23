@@ -5,7 +5,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { SerpApiClient } from "../src/providers/serpapi/client.js";
-import { SerpApiProvider } from "../src/providers/serpapi/index.js";
+import { SerpApiProvider, AREA_ID, expandAreas } from "../src/providers/serpapi/index.js";
 import { normalizeFlightOffer, normalizeRoundTrip } from "../src/providers/serpapi/normalize.js";
 import { CompositeProvider } from "../src/providers/composite.js";
 import { FlightProvider } from "../src/providers/base.js";
@@ -13,9 +13,10 @@ import { runScan } from "../src/pipeline/scan.js";
 import { SETTINGS } from "../src/config/settings.js";
 import { makeCandidate, makeLeg } from "../src/core/model.js";
 import { checkEligibility, compareDeals, canAlert, hasEnoughEvidence } from "../src/core/eligibility.js";
+import { planDetails } from "../src/core/detailPlan.js";
 import { AlertState } from "../src/store/alertState.js";
 import { writeResults } from "../src/pipeline/output.js";
-import { pickDestinations } from "../src/config/destinations.js";
+import { pickDestinations, DESTINATIONS, allowedCodes } from "../src/config/destinations.js";
 
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), "fdf-audit-"));
 const json = (data, status = 200) => ({ ok: status < 400, status, json: async () => data });
@@ -325,4 +326,108 @@ test("알림 근거 문턱은 설정값으로 조절된다", () => {
   assert.equal(canAlert(item, SETTINGS), false, "기본값 12건에는 못 미친다");
   const loose = { ...SETTINGS, alertEvidence: { minSampleSize: 8, minDistinctDays: 3 } };
   assert.equal(canAlert(item, loose), true, "문턱을 낮추면 통과한다");
+});
+
+// ── 오세아니아 추가와 예산 (2026-09-23) ─────────────────────
+// 호주·뉴질랜드를 넣으면 탐색 칸이 4개에서 6개로 늘어납니다.
+// 예산을 함께 올리지 않으면 뒤쪽 지역이 말없이 빠집니다.
+
+test("오세아니아는 탐색 주소가 둘이라 지역 하나가 두 칸으로 펼쳐진다", () => {
+  assert.deepEqual(expandAreas(["oceania"]).map(([, id]) => id), ["/m/0chghy", "/m/0ctw_b"]);
+  // 지역을 안 주면 아는 지역 전부 = 6칸
+  assert.equal(expandAreas(Object.keys(AREA_ID)).length, 6);
+  assert.deepEqual(expandAreas(["europe"]), [["europe", "/m/02j9z"]]);
+  assert.deepEqual(expandAreas(["없는지역"]), []);
+});
+
+test("발굴 예산 7이면 6개 지역을 모두 훑는다 (5면 호주·뉴질랜드가 빠진다)", async () => {
+  const run = async (discoveryCalls) => {
+    const client = fakeSerp();
+    const sp = new SerpApiProvider({ client, discoveryCalls, detailCalls: 0 });
+    await sp.prepare();
+    await sp.searchInspiration({
+      destinations: pickDestinations([]), regions: [],
+      departFrom: "2026-10-04", departTo: "2027-03-19",
+      minTripDays: 5, maxTripDays: 20,
+    });
+    const areas = client.calls.filter((p) => p.engine === "google_travel_explore")
+      .map((p) => p.arrival_area_id);
+    return new Set(areas);
+  };
+  const withFive = await run(5);
+  assert.ok(!withFive.has("/m/0chghy"), "예산 5면 호주가 조회되지 않는다");
+  assert.ok(!withFive.has("/m/0ctw_b"), "예산 5면 뉴질랜드가 조회되지 않는다");
+
+  const withSeven = await run(7);
+  for (const id of ["/m/02j9z", "/m/0dg3n1", "/m/0d0kn", "/m/04w8f", "/m/0chghy", "/m/0ctw_b"]) {
+    assert.ok(withSeven.has(id), `예산 7이면 ${id} 가 조회된다`);
+  }
+});
+
+test("캐시 공백 직접 조회를 아프리카가 독차지하지 않고 오세아니아와 나눈다", () => {
+  const mk = (dest) => ({ candidate: { destIn: dest,
+    outbound: { departAt: "2026-11-10T00:00:00Z" }, inbound: { departAt: "2026-11-20T00:00:00Z" } } });
+  const ranked = ["CDG", "FCO", "VIE", "MAD", "LHR", "AMS", "BCN", "PRG"].map(mk);
+  const r = planDetails(ranked, { cap: 6, destinations: DESTINATIONS,
+    departFrom: "2026-10-04", departTo: "2027-03-19", today: new Date("2026-09-23"),
+    minTripDays: 5, maxTripDays: 20 });
+  const probes = r.items.filter((x) => x.query);
+  assert.equal(probes.length, 2);
+  const regions = probes.map((x) => DESTINATIONS.find((d) => d.iata === x.query.destination)?.region);
+  assert.deepEqual([...new Set(regions)].sort(), ["africa", "oceania"], "두 지역이 한 칸씩 가져간다");
+  assert.deepEqual(r.plan.thinRegions, ["africa", "oceania"]);
+});
+
+test("값이 다 차 있는 지역은 공백 몫을 순위 후보에 돌려준다", () => {
+  const onlyAfricaAndOceania = DESTINATIONS.filter((d) => ["africa", "oceania"].includes(d.region));
+  const mk = (dest) => ({ candidate: { destIn: dest,
+    outbound: { departAt: "2026-11-10T00:00:00Z" }, inbound: { departAt: "2026-11-20T00:00:00Z" } } });
+  // 두 지역의 모든 공항에 값이 있으면 공백이 없다
+  const ranked = onlyAfricaAndOceania.map((d) => mk(d.iata));
+  const r = planDetails(ranked, { cap: 6, destinations: onlyAfricaAndOceania,
+    departFrom: "2026-10-04", departTo: "2027-03-19", today: new Date("2026-09-23"),
+    minTripDays: 5, maxTripDays: 20 });
+  assert.equal(r.plan.reservedForThin, 0, "공백이 없으면 예약 몫도 0");
+  assert.equal(r.items.filter((x) => x.query).length, 0);
+  assert.equal(r.items.length, 6, "여섯 칸 모두 실제 후보로 채운다");
+});
+
+test("왕복 한 쌍을 채울 예산이 없으면 상세 조회를 시작조차 하지 않는다", async () => {
+  const client = fakeSerp();
+  // 상세 1회치만 남은 상황 — 출국만 부르고 끊기면 안 된다
+  const sp = new SerpApiProvider({ client, discoveryCalls: 0, detailCalls: 1 });
+  await sp.prepare();
+  const before = client.calls.length;
+  const r = await sp.searchLive({ destination: "CDG", departureDate: "2026-11-10", returnDate: "2026-11-20" });
+  assert.equal(client.calls.length, before, "호출을 한 번도 쓰지 않는다");
+  assert.equal(r.candidates.length, 0);
+  assert.ok(sp.stats.skipped.some((x) => x.step === "pair"), "건너뛴 사실을 남긴다");
+
+  // 2회치가 있으면 정상 진행
+  const sp2 = new SerpApiProvider({ client: fakeSerp(), discoveryCalls: 0, detailCalls: 2 });
+  await sp2.prepare();
+  const r2 = await sp2.searchLive({ destination: "CDG", departureDate: "2026-11-10", returnDate: "2026-11-20" });
+  assert.ok(r2.candidates.length > 0, "예산이 두 번치면 왕복을 끝까지 확인한다");
+});
+
+test("오세아니아 목적지가 표와 허용코드에 모두 들어간다", () => {
+  const oc = pickDestinations(["oceania"]);
+  assert.equal(oc.length, 13);
+  assert.deepEqual([...new Set(oc.map((d) => d.country))].sort(), ["뉴질랜드", "호주"]);
+  const codes = allowedCodes();
+  for (const iata of ["SYD", "MEL", "BNE", "PER", "AKL", "CHC", "ZQN"]) {
+    assert.ok(codes.has(iata), `${iata} 가 허용코드에 있어야 한다`);
+  }
+  // 좌표가 남반구인지 (부호를 잘못 넣으면 육로 거리 계산이 통째로 틀어진다)
+  assert.ok(oc.every((d) => d.lat < 0), "오세아니아 공항은 모두 남위다");
+});
+
+test("연습용 가짜 자료는 알림 기록에 남기지 않는다", () => {
+  // 가격 이력이 mock 을 막듯, 알림 기록도 막아야 합니다.
+  // 안 막으면 나중에 진짜 특가가 나와도 "이미 알렸다"며 건너뜁니다.
+  const st = new AlertState(path.join(tmp(), "alert-state.json"));
+  assert.equal(st.record("ICN>SYD>SYD|2026W45|16d|MU|9", { price: 1, score: 1, source: "mock" }), false);
+  assert.deepEqual(Object.keys(st.data), []);
+  assert.equal(st.record("ICN>SYD>SYD|2026W45|16d|MU|9", { price: 1, score: 1, source: "serpapi" }), true);
+  assert.equal(Object.keys(st.data).length, 1);
 });

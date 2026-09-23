@@ -192,6 +192,20 @@ export class SerpApiClient {
     return { ok: true, data: json };
   }
 
+  /**
+   * 지금 더 부를 수 있는 횟수. **자리를 잡지는 않습니다**(물어보기만 합니다).
+   *
+   * 실행 상한·월 자체 상한·계정 잔여 셋 중 가장 빡빡한 것을 돌려줍니다.
+   * 일정 하나에 출국·귀국 두 번이 드니, 시작 전에 2 이상인지 볼 때 씁니다.
+   */
+  remaining() {
+    if (this.stopped || !this.quotaChecked) return 0;
+    const byRun = this.runBudget - this.reserved;
+    const byMonth = this.monthlyBudget - (this.accountUsed + this.reserved - (this.quotaReservedAt ?? 0));
+    const byAccount = (this.accountLeft - SAFETY_MARGIN) - (this.reserved - (this.quotaReservedAt ?? 0));
+    return Math.max(0, Math.min(byRun, byMonth, byAccount));
+  }
+
   get stats() {
     return {
       reserved: this.reserved, completed: this.completed,

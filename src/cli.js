@@ -91,7 +91,12 @@ function makeTravelpayouts({ required = true } = {}) {
 /**
  * SerpApi 공급자를 만듭니다.
  * 무료 250회/월 이므로 실행마다 쓸 양을 미리 정해둡니다.
- *   발굴 5회 + 상세 12회 = 17회/실행 → 3일 주기(월 10회)면 약 170회
+ *   발굴 7회 + 상세 12회 = 19회/실행 → 3일 주기(월 10회)면 약 190회
+ *
+ *   발굴이 7회인 까닭: 탐색할 지역 칸이 6개(유럽·아프리카·캅카스·몽골·호주·뉴질랜드)이고
+ *   할인검색(Deals)용으로 1회를 따로 남겨두기 때문입니다.
+ *   31일인 달은 11회 돌아서 209회가 될 수 있으므로, 월 상한(200)에 걸리면
+ *   마지막 회차는 상세를 줄여 스스로 멈춥니다.
  */
 function makeSerpApi({ required = false } = {}) {
   const apiKey = process.env.SERPAPI_API_KEY;
@@ -109,11 +114,11 @@ function makeSerpApi({ required = false } = {}) {
   }
   const client = new SerpApiClient({
     apiKey,
-    runBudget: Number(process.env.SERPAPI_RUN_BUDGET ?? 20),
+    runBudget: Number(process.env.SERPAPI_RUN_BUDGET ?? 19),
     monthlyBudget: Number(process.env.SERPAPI_MONTHLY_BUDGET ?? 200),
     ledgerPath: path.join(ROOT, "data", "serpapi-ledger.json"),
   });
-  return new SerpApiProvider({ client, discoveryCalls: 5, detailCalls: 12 });
+  return new SerpApiProvider({ client, discoveryCalls: 7, detailCalls: 12 });
 }
 
 async function main() {
