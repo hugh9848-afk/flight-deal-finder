@@ -21,7 +21,9 @@
   body{margin:0;background:var(--bg);color:var(--ink);
        font:15px/1.55 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
        padding:0 0 40px;-webkit-text-size-adjust:100%}
-  header{position:sticky;top:0;z-index:5;background:var(--bg);padding:16px 16px 10px;border-bottom:1px solid var(--line)}
+  /* 머리는 고정하지 않습니다 — 제목부터 필터까지 스크롤과 함께 올라갑니다.
+     고정해 두면 폰에서 화면을 가리고, 높이가 바뀔 때 스크롤 이벤트가 서로를 불러 깜빡입니다. */
+  header{background:var(--bg);padding:16px 16px 10px;border-bottom:1px solid var(--line)}
   h1{margin:0 0 4px;font-size:19px;letter-spacing:-.02em}
   .sub{color:var(--muted);font-size:12.5px}
   .tabs{display:flex;gap:6px;margin-top:12px}
@@ -53,38 +55,22 @@
   code{font-size:11.5px;background:var(--bg);padding:1px 4px;border-radius:4px}
   .code{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.02em}
   .basis{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:1px 6px;margin-left:2px}
-  /* 필터 단추는 **한 줄에서 옆으로 넘겨봅니다.**
-     여러 줄로 쌓게 두면 나라가 29개일 때 6줄이 되어 머리 부분이 화면 절반을 먹습니다.
-     칩은 건수 많은 순으로 놓여 있어서, 자주 쓰는 것이 먼저 보입니다. */
-  .filters{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-top:10px;
-           scrollbar-width:none;-webkit-overflow-scrolling:touch}
-  .filters::-webkit-scrollbar{display:none}
-  /* 오른쪽 끝을 흐리게 해서 "옆에 더 있다"를 알립니다.
-     끝까지 넘기면 흐림이 사라지도록 스크롤 위치에 따라 붙였다 떼었다 합니다. */
-  .filters.more-right{
-    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent 100%);
-            mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent 100%);
-  }
-  .chip{flex:0 0 auto;padding:5px 10px;border:1px solid var(--line);background:var(--card);color:var(--muted);
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  /* 고르기를 마치면 단추 무더기 대신 '지금 어디' 만 한 줄로 남깁니다.
+     그 줄의 각 칸을 누르면 그 단계 단추가 다시 펼쳐집니다. */
+  .crumb{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:10px;font-size:12.5px}
+  .crumb button{border:0;background:none;padding:4px 2px;font:inherit;cursor:pointer;
+                color:var(--muted);font-weight:600}
+  .crumb button.here{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+  .crumb .sep{color:var(--line)}
+  .crumb .cnt{color:var(--muted);font-weight:400}
+  .chip{padding:5px 10px;border:1px solid var(--line);background:var(--card);color:var(--muted);
         border-radius:99px;font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap}
   .chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
   /* 나라 줄: 지역 줄보다 한 단 작게 해서 '하위 단계'임을 눈으로 알 수 있게 합니다 */
   .filters.sub{margin-top:6px;padding-left:8px;border-left:2px solid var(--line);gap:5px}
   .filters.sub .chip{font-size:11.5px;padding:4px 9px;font-weight:600}
   .filters.sub:empty{display:none}
-  /* 결과를 읽으려고 아래로 내리면 필터를 접고, 위로 올리면 다시 폅니다.
-     접힌 동안에는 '고른 것'만 한 줄로 남겨 지금 어디를 보고 있는지 잃지 않게 합니다. */
-  header.collapsed .sub,
-  header.collapsed .filters{display:none}
-  header.collapsed{padding-bottom:8px}
-  #crumb{display:none;align-items:center;gap:6px;margin-top:8px;
-         font-size:12px;color:var(--muted);cursor:pointer;
-         background:var(--card);border:1px solid var(--line);border-radius:99px;
-         padding:5px 11px;width:fit-content;max-width:100%;
-         white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  header.collapsed #crumb{display:flex}
-  #crumb b{color:var(--accent);font-weight:700}
-  #crumb .caret{color:var(--muted);font-size:10px}
   .more{display:block;width:100%;padding:12px;margin-top:4px;border:1px solid var(--line);
         background:var(--card);color:var(--accent);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}
   .verify{display:block;margin-top:10px;padding:11px 12px;background:var(--accent);color:#fff;
@@ -103,7 +89,6 @@
   </div>
   <div class="filters" id="filters"></div>
   <div class="filters sub" id="countryFilters"></div>
-  <div id="crumb" role="button" tabindex="0" aria-label="필터 펴기"></div>
 </header>
 <main id="list"><div class="empty">불러오는 중…</div></main>
 
@@ -234,6 +219,8 @@ function cardHtml(d){
 
 let DATA = null, TAB = "deals", SHOWN = 30, FILTER = "all";
 let COUNTRY = null;   // 고른 나라 이름. null 이면 그 지역 전부를 봅니다
+// 지금 어느 단계 단추를 펼쳐 두었나: "region"(지역) | "country"(나라) | null(경로만)
+let OPEN = "region";
 const PAGE = 30;   // 한 번에 보여줄 개수 (폰에서 248개를 한꺼번에 그리면 버겁습니다)
 
 /** 지역 이름 (나라 이름으로 대충 묶습니다) */
@@ -275,46 +262,54 @@ function currentItems(){
 function renderFilters(){
   if(!DATA) return;
   const base = TAB === "deals" ? DATA.deals : DATA.needsReview;
+  const path = document.getElementById("filters");        // 경로 줄
+  const box  = document.getElementById("countryFilters"); // 단추 무더기
 
-  // --- 첫째 줄: 지역 ---
-  const regions = [...new Set(base.map(regionOf))].sort();
-  const chips = [
-    ["all", `전체 ${base.length}`],
-    ["deal", `특가만 ${base.filter(x=>x.verdict?.isDeal).length}`],
-    ...regions.map(r => [r, `${r} ${base.filter(x=>regionOf(x)===r).length}`]),
-  ];
-  document.getElementById("filters").innerHTML = chips.map(([k,label]) =>
-    `<button class="chip" data-f="${esc(k)}" aria-pressed="${FILTER===k}">${esc(label)}</button>`).join("");
-  updateFade(document.getElementById("filters"));
-
-  // --- 둘째 줄: 나라 ---
-  // '전체'일 때는 나라가 서른 개 넘게 나와 오히려 더 어수선하므로 지역을 고른 뒤에만 보여줍니다.
-  const box = document.getElementById("countryFilters");
+  // 지역별·나라별 건수를 미리 셉니다
+  const regionCount = new Map();
+  for(const x of base){ const r = regionOf(x); regionCount.set(r, (regionCount.get(r) ?? 0) + 1); }
   const inRegion = itemsInRegion();
-  const counts = new Map();
-  for(const x of inRegion){
-    const c = countryOf(x);
-    counts.set(c, (counts.get(c) ?? 0) + 1);
+  const countryCount = new Map();
+  for(const x of inRegion){ const c = countryOf(x); countryCount.set(c, (countryCount.get(c) ?? 0) + 1); }
+  // 고른 나라가 이번 결과에 없어졌으면 풀어줍니다
+  if(COUNTRY && !countryCount.has(COUNTRY)) COUNTRY = null;
+
+  // ── 경로 줄: 전체보기 › 유럽 › 이탈리아 ──
+  // 누르면 그 단계 단추가 다시 펼쳐집니다.
+  const crumbs = [["all", "전체보기", FILTER === "all"]];
+  if(FILTER === "deal") crumbs.push(["deal", "특가만", true]);
+  else if(FILTER !== "all") crumbs.push(["region", FILTER, OPEN === "region"]);
+  if(COUNTRY) crumbs.push(["country", COUNTRY, OPEN === "country"]);
+  path.className = "crumb";
+  path.innerHTML = crumbs.map(([k,label,here], i) =>
+      (i ? '<span class="sep">›</span>' : "")
+      + `<button data-open="${esc(k)}" class="${here ? "here" : ""}">${esc(label)}</button>`).join("")
+    + ` <span class="cnt">${currentItems().length}건</span>`;
+
+  // ── 단추 무더기: 지금 열어 둔 단계만 ──
+  if(OPEN === "region"){
+    const chips = [
+      ["all", `전체 ${base.length}`],
+      ["deal", `특가만 ${base.filter(x=>x.verdict?.isDeal).length}`],
+      ...[...regionCount.keys()].sort().map(r => [r, `${r} ${regionCount.get(r)}`]),
+    ];
+    box.className = "filters";
+    box.innerHTML = chips.map(([k,label]) =>
+      `<button class="chip" data-f="${esc(k)}" aria-pressed="${FILTER===k}">${esc(label)}</button>`).join("");
+  } else if(OPEN === "country" && countryCount.size >= 2){
+    // 건수가 많은 나라부터 (같으면 가나다순)
+    const sorted = [...countryCount.entries()]
+      .sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0], "ko"));
+    const label = FILTER === "deal" ? "나라 전부" : `${FILTER} 전부`;
+    box.className = "filters sub";
+    box.innerHTML =
+      `<button class="chip" data-c="" aria-pressed="${COUNTRY===null}">${esc(label)} ${inRegion.length}</button>`
+      + sorted.map(([c,n]) =>
+          `<button class="chip" data-c="${esc(c)}" aria-pressed="${COUNTRY===c}">${esc(c)} ${n}</button>`).join("");
+  } else {
+    box.className = "filters";
+    box.innerHTML = "";   // 고르기를 마쳤으면 경로 줄만 남습니다
   }
-  // 고른 나라가 이번 결과에 없어졌으면 '전부'로 되돌립니다
-  // (나라 줄을 숨길 때도 풀어야 안 보이는 조건이 몰래 걸려 있는 일이 없습니다)
-  if(COUNTRY && !counts.has(COUNTRY)) COUNTRY = null;
-  if(FILTER === "all" || counts.size < 2){ box.innerHTML = ""; COUNTRY = null; return; }
-
-  // 건수가 많은 나라부터 줄 세웁니다 (건수가 같으면 가나다순)
-  const sorted = [...counts.entries()]
-    .sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0], "ko"));
-
-  const label = FILTER === "deal" ? "나라 전부" : `${FILTER} 전부`;
-  box.innerHTML =
-    `<button class="chip" data-c="" aria-pressed="${COUNTRY===null}">${esc(label)} ${inRegion.length}</button>`
-    + sorted.map(([c,n]) =>
-        `<button class="chip" data-c="${esc(c)}" aria-pressed="${COUNTRY===c}">${esc(c)} ${n}</button>`).join("");
-  updateFade(box);
-  // 고른 나라가 저 멀리 있으면 화면 안으로 끌어옵니다.
-  // 안 그러면 다시 그릴 때마다 맨 앞으로 돌아가 내가 뭘 골랐는지 안 보입니다.
-  const picked = box.querySelector('.chip[aria-pressed="true"]');
-  if (picked && COUNTRY) picked.scrollIntoView({ block: "nearest", inline: "center" });
 }
 
 function render(){
@@ -335,7 +330,6 @@ function render(){
     + `<div class="note">${esc(DATA.disclaimer ?? "")}</div>`;
   const more = document.getElementById("more");
   if(more) more.addEventListener("click", () => { SHOWN += PAGE; render(); });
-  if(HEADER.classList.contains("collapsed")) renderCrumb();
 }
 
 fetch("data/deals.json?t=" + Date.now())
@@ -355,78 +349,41 @@ fetch("data/deals.json?t=" + Date.now())
 
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
   document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", String(x === t)));
-  TAB = t.dataset.tab; SHOWN = PAGE; FILTER = "all"; COUNTRY = null; render();
+  TAB = t.dataset.tab; SHOWN = PAGE; FILTER = "all"; COUNTRY = null; OPEN = "region"; render();
 }));
 
-// ── 필터 접었다 펴기 ────────────────────────────────────
-// 아래로 내리면(결과를 읽는 중) 접고, 위로 올리면 폅니다.
-// 맨 위 근처에서는 늘 펴 둡니다.
-const HEADER = document.querySelector("header");
-const CRUMB = document.getElementById("crumb");
-let lastY = 0;
 
-/** 접혔을 때 보여줄 '지금 고른 것' 한 줄 */
-function renderCrumb(){
-  const tab = TAB === "deals" ? "확정 특가" : "확인 필요";
-  const parts = [tab];
-  if (FILTER === "deal") parts.push("특가만");
-  else if (FILTER !== "all") parts.push(FILTER);
-  if (COUNTRY) parts.push(COUNTRY);
-  const n = DATA ? currentItems().length : 0;
-  CRUMB.innerHTML = parts.map((p, i) =>
-    (i === parts.length - 1 ? `<b>${esc(p)}</b>` : esc(p))).join(' <span class="caret">›</span> ')
-    + ` <span class="caret">· ${n}건 · 눌러서 펴기</span>`;
-}
-
-function setCollapsed(on){
-  if (HEADER.classList.contains("collapsed") === on) return;
-  HEADER.classList.toggle("collapsed", on);
-  if (on) renderCrumb();
-  else for (const id of ["filters", "countryFilters"]) updateFade(document.getElementById(id));
-}
-
-window.addEventListener("scroll", () => {
-  const y = window.scrollY;
-  // 맨 위 근처면 무조건 펴 둡니다 (되돌아왔을 때 필터가 바로 보이게)
-  if (y < 80) setCollapsed(false);
-  // 조금이라도 움직였을 때만 판단합니다 (손가락 떨림으로 깜빡이지 않게)
-  else if (Math.abs(y - lastY) > 6) setCollapsed(y > lastY);
-  lastY = y;
-}, { passive: true });
-
-// 접힌 줄을 누르면 펴집니다 (맨 위까지 올리지 않고도 필터를 바꿀 수 있게)
-const openFilters = () => { setCollapsed(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
-CRUMB.addEventListener("click", openFilters);
-CRUMB.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openFilters(); } });
-
-/** 칩 줄 오른쪽에 아직 볼 게 남았으면 흐림을 켭니다 (다 넘기면 끕니다) */
-function updateFade(box){
-  if(!box) return;
-  const more = box.scrollWidth - box.clientWidth - box.scrollLeft > 4;
-  box.classList.toggle("more-right", more);
-}
-for(const id of ["filters","countryFilters"]){
-  const box = document.getElementById(id);
-  box.addEventListener("scroll", () => updateFade(box), { passive: true });
-}
-window.addEventListener("resize", () => {
-  for(const id of ["filters","countryFilters"]) updateFade(document.getElementById(id));
-});
-
-// 지역·특가 필터 (누를 때마다 목록을 다시 그립니다)
+// 경로 줄 (전체보기 › 유럽 › 이탈리아) — 누른 칸의 단추를 다시 펼칩니다
 document.getElementById("filters").addEventListener("click", (e) => {
-  const b = e.target.closest(".chip");
+  const b = e.target.closest("button[data-open]");
   if(!b) return;
-  FILTER = b.dataset.f;
-  COUNTRY = null;          // 지역을 바꾸면 나라 선택은 풀어줍니다
+  const at = b.dataset.open;
+  if(at === "all" || at === "deal"){
+    // '전체보기' 를 누르면 처음으로 돌아갑니다
+    if(at === "all"){ FILTER = "all"; COUNTRY = null; }
+    OPEN = "region";
+  } else if(at === "region"){
+    OPEN = "region";          // 지역을 다시 고르려는 것
+  } else {
+    OPEN = "country";         // 나라를 다시 고르려는 것
+  }
   SHOWN = PAGE; render();
 });
 
-// 나라 필터
+// 단추 무더기 — 지역이든 나라든 여기서 고릅니다
 document.getElementById("countryFilters").addEventListener("click", (e) => {
   const b = e.target.closest(".chip");
   if(!b) return;
-  COUNTRY = b.dataset.c || null;   // 빈 값이면 '그 지역 전부'
+  if(b.dataset.f !== undefined){
+    // 지역을 골랐다 → 나라 단추로 넘어갑니다
+    FILTER = b.dataset.f;
+    COUNTRY = null;
+    OPEN = (FILTER === "all") ? "region" : "country";
+  } else {
+    // 나라를 골랐다 → 고르기를 마쳤으므로 경로 줄만 남깁니다
+    COUNTRY = b.dataset.c || null;
+    OPEN = COUNTRY ? null : "country";
+  }
   SHOWN = PAGE; render();
 });
 
