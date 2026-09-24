@@ -15,7 +15,7 @@ import { makeCandidate, makeLeg } from "../src/core/model.js";
 import { checkEligibility, compareDeals, canAlert, hasEnoughEvidence } from "../src/core/eligibility.js";
 import { planDetails } from "../src/core/detailPlan.js";
 import { AlertState } from "../src/store/alertState.js";
-import { writeResults } from "../src/pipeline/output.js";
+import { writeResults, renderSummary } from "../src/pipeline/output.js";
 import { pickDestinations, DESTINATIONS, allowedCodes } from "../src/config/destinations.js";
 
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), "fdf-audit-"));
@@ -266,18 +266,57 @@ test("알림이 0건일 때 '확인 수단이 없어서'인지 설명한다", as
       inbound: makeLeg({ from: "CDG", to: "ICN", departAt: "2026-11-24", segments: [] }),
     });
     c.returnAirportVerified = returnVerified;
-    return { candidate: c, verdict: { isDeal: true, confidence: "medium" }, value: { score: 70, warnings: [] } };
+    return { candidate: c, status: "needs_review", verdict: { isDeal: true, confidence: "medium" }, value: { score: 70, warnings: [] } };
   };
   const report = { provider: "travelpayouts", window: { departFrom: "2026-09-25", departTo: "2027-03-10" },
                    destinationCount: 95 };
 
   // 귀국 공항이 하나도 확인 안 됐으면 이유를 알려줘야 합니다
   const blind = renderSummary({ report, deals: [], needsReview: [mk(false)], alerts: [] });
-  assert.match(blind, /귀국편이 인천에 내리는지 확인된 후보가 0건/);
+  assert.match(blind, /특가 후보 중 귀국편이 인천에 내리는지 확인된 후보가 0건/);
 
   // 확인된 후보가 있는데 알림이 없으면, 그건 진짜 특가가 없는 것이므로 설명하지 않습니다
   const seeing = renderSummary({ report, deals: [], needsReview: [mk(true)], alerts: [] });
   assert.doesNotMatch(seeing, /확인된 후보가 0건/);
+});
+
+test("요약의 특가 후보는 same_scan을 마지막에 두고 할인율 순으로 정렬한다", async () => {
+  const { renderSummary } = await import("../src/pipeline/output.js");
+  const report = { provider: "test", window: { departFrom: "2026-10-01", departTo: "2027-03-01" }, destinationCount: 1 };
+  const candidate = (destIn, total) => ({ originOut: "ICN", destIn, total });
+  const item = (destIn, discountPct, basis, total) => ({
+    candidate: candidate(destIn, total), status: "needs_review", statusReason: "확인 필요",
+    verdict: { discountPct, basis },
+  });
+  const summary = renderSummary({ report, deals: [], alerts: [], needsReview: [
+    item("LOW", 10, "self_observed", 900000),
+    item("SAME", 99, "same_scan", 100000),
+    item("NULL", null, "self_observed", 200000),
+    item("EXPENSIVE", 20, "google_deals_reported", 800000),
+    item("CHEAP", 20, "google_deals_reported", 700000),
+  ] });
+
+  const positions = ["CHEAP", "EXPENSIVE", "LOW", "NULL", "SAME"].map((dest) => summary.indexOf(`   ${dest} `));
+  assert.ok(positions.every((position) => position >= 0));
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions);
+  assert.match(summary, /SAME .*기준 동일 스캔 내 비교/);
+});
+
+test("요약은 상위 15건과 전체 특가 후보 수를 함께 표시하고 watch를 분리한다", async () => {
+  const { renderSummary } = await import("../src/pipeline/output.js");
+  const report = { provider: "test", window: { departFrom: "2026-10-01", departTo: "2027-03-01" }, destinationCount: 1 };
+  const review = Array.from({ length: 16 }, (_, index) => ({
+    candidate: { originOut: "ICN", destIn: `D${String(index).padStart(2, "0")}`, total: 900000 - index },
+    status: "needs_review", statusReason: "확인 필요",
+    verdict: { discountPct: 30 - index, basis: "self_observed" },
+  }));
+  const watch = Array.from({ length: 3 }, () => ({ status: "watch", candidate: {} }));
+  const summary = renderSummary({ report, deals: [], needsReview: [...review, ...watch], alerts: [] });
+
+  assert.match(summary, /확인 필요 특가 후보 16건 \/ 관찰 3건/);
+  assert.match(summary, /특가 후보 16건 중 상위 15건/);
+  assert.equal((summary.match(/^   D\d{2} /gm) ?? []).length, 15);
+  assert.doesNotMatch(summary, /^   D15 /m);
 });
 
 // ── 알림 근거 두께 (2026-09-19) ─────────────────────────────
@@ -432,4 +471,50 @@ test("연습용 가짜 자료는 알림 기록에 남기지 않는다", () => {
   assert.deepEqual(Object.keys(st.data), []);
   assert.equal(st.record("ICN>SYD>SYD|2026W45|16d|MU|9", { price: 1, score: 1, source: "serpapi" }), true);
   assert.equal(Object.keys(st.data).length, 1);
+});
+
+// ── 요약문 정직성 (2026-09-24) ──────────────────────────────
+// 무엇과 견준 할인율인지에 따라 말이 달라져야 합니다.
+
+const summaryOf = (items) => renderSummary({
+  report: { provider: "t", window: { departFrom: "2026-10-01", departTo: "2027-03-01" }, destinationCount: 1 },
+  deals: [], needsReview: items, alerts: [],
+});
+const reviewItem = (verdict, priceType = "indicative") => ({
+  candidate: { destIn: "XXX", total: 900000, priceType, unknown: [],
+    outbound: { departAt: "2026-11-10T00:00:00Z" }, inbound: { departAt: "2026-11-20T00:00:00Z" } },
+  verdict: { isDeal: true, confidence: "low", ...verdict },
+  value: { score: 70, warnings: [] }, status: "needs_review", statusReason: "미확정",
+});
+
+test("같은 스캔끼리 비교한 할인율을 '평소보다 싸다'고 쓰지 않는다", () => {
+  // same_scan 은 그 노선의 평소 가격을 모르는 상태입니다. '평소보다'라고 쓰면 거짓말입니다.
+  const same = summaryOf([reviewItem({ basis: "same_scan", discountPct: 99 })]);
+  assert.doesNotMatch(same, /평소보다 99%/);
+  assert.match(same, /같은 스캔의 다른 후보보다 99% 저렴/);
+  assert.match(same, /평소 가격은 아직 모름/);
+
+  // 자체 관측 대비는 '평소보다'가 맞습니다.
+  const self = summaryOf([reviewItem({ basis: "self_observed", discountPct: 30 })]);
+  assert.match(self, /평소보다 30% 저렴/);
+
+  // 할인율을 아예 모르면 숫자를 지어내지 않습니다.
+  assert.match(summaryOf([reviewItem({ basis: "self_observed", discountPct: null })]), /할인율 미확인/);
+});
+
+test("참고가뿐이면 머리에 한 번만 경고하고, 섞여 있으면 줄마다 표시한다", () => {
+  const onlyRough = summaryOf([
+    reviewItem({ basis: "self_observed", discountPct: 40 }),
+    reviewItem({ basis: "self_observed", discountPct: 30 }),
+  ]);
+  // 머리 경고 1회, 줄마다 반복하지 않음
+  assert.match(onlyRough, /모두 참고가입니다/);
+  assert.equal(onlyRough.split("⚠ 참고가\b").length - 1, 0);
+
+  const mixed = summaryOf([
+    reviewItem({ basis: "self_observed", discountPct: 40 }, "live"),
+    reviewItem({ basis: "self_observed", discountPct: 30 }, "indicative"),
+  ]);
+  assert.doesNotMatch(mixed, /모두 참고가입니다/);
+  assert.match(mixed, /⚠ 참고가/);
 });
