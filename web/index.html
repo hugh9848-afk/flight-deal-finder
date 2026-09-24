@@ -53,9 +53,20 @@
   code{font-size:11.5px;background:var(--bg);padding:1px 4px;border-radius:4px}
   .code{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.02em}
   .basis{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:1px 6px;margin-left:2px}
-  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-  .chip{padding:5px 10px;border:1px solid var(--line);background:var(--card);color:var(--muted);
-        border-radius:99px;font-size:12px;cursor:pointer;font-weight:600}
+  /* 필터 단추는 **한 줄에서 옆으로 넘겨봅니다.**
+     여러 줄로 쌓게 두면 나라가 29개일 때 6줄이 되어 머리 부분이 화면 절반을 먹습니다.
+     칩은 건수 많은 순으로 놓여 있어서, 자주 쓰는 것이 먼저 보입니다. */
+  .filters{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-top:10px;
+           scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .filters::-webkit-scrollbar{display:none}
+  /* 오른쪽 끝을 흐리게 해서 "옆에 더 있다"를 알립니다.
+     끝까지 넘기면 흐림이 사라지도록 스크롤 위치에 따라 붙였다 떼었다 합니다. */
+  .filters.more-right{
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent 100%);
+            mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent 100%);
+  }
+  .chip{flex:0 0 auto;padding:5px 10px;border:1px solid var(--line);background:var(--card);color:var(--muted);
+        border-radius:99px;font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap}
   .chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
   /* 나라 줄: 지역 줄보다 한 단 작게 해서 '하위 단계'임을 눈으로 알 수 있게 합니다 */
   .filters.sub{margin-top:6px;padding-left:8px;border-left:2px solid var(--line);gap:5px}
@@ -260,6 +271,7 @@ function renderFilters(){
   ];
   document.getElementById("filters").innerHTML = chips.map(([k,label]) =>
     `<button class="chip" data-f="${esc(k)}" aria-pressed="${FILTER===k}">${esc(label)}</button>`).join("");
+  updateFade(document.getElementById("filters"));
 
   // --- 둘째 줄: 나라 ---
   // '전체'일 때는 나라가 서른 개 넘게 나와 오히려 더 어수선하므로 지역을 고른 뒤에만 보여줍니다.
@@ -284,6 +296,11 @@ function renderFilters(){
     `<button class="chip" data-c="" aria-pressed="${COUNTRY===null}">${esc(label)} ${inRegion.length}</button>`
     + sorted.map(([c,n]) =>
         `<button class="chip" data-c="${esc(c)}" aria-pressed="${COUNTRY===c}">${esc(c)} ${n}</button>`).join("");
+  updateFade(box);
+  // 고른 나라가 저 멀리 있으면 화면 안으로 끌어옵니다.
+  // 안 그러면 다시 그릴 때마다 맨 앞으로 돌아가 내가 뭘 골랐는지 안 보입니다.
+  const picked = box.querySelector('.chip[aria-pressed="true"]');
+  if (picked && COUNTRY) picked.scrollIntoView({ block: "nearest", inline: "center" });
 }
 
 function render(){
@@ -312,7 +329,9 @@ fetch("data/deals.json?t=" + Date.now())
     DATA = d;
     const r = d.report ?? {};
     document.getElementById("sub").textContent =
-      `${(d.generatedAt ?? "").slice(0,16).replace("T"," ")} 기준 · ${r.window?.departFrom ?? "?"}~${r.window?.departTo ?? "?"} 출발 · 목적지 ${r.destinationCount ?? "?"}곳 · 출처 ${r.provider ?? "?"}`;
+      // 출처(serpapi/travelpayouts)는 머리에서 뺐습니다 — 늘 같은 값이라 자리만 먹습니다.
+      // 건별 출처는 각 카드의 '판정 근거 보기' 안에 그대로 있습니다.
+      `${(d.generatedAt ?? "").slice(0,16).replace("T"," ")} 기준 · ${r.window?.departFrom ?? "?"}~${r.window?.departTo ?? "?"} 출발 · 목적지 ${r.destinationCount ?? "?"}곳`;
     document.getElementById("n1").textContent = d.deals.length;
     document.getElementById("n2").textContent = d.needsReview.length;
     render();
@@ -323,6 +342,20 @@ document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () =>
   document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", String(x === t)));
   TAB = t.dataset.tab; SHOWN = PAGE; FILTER = "all"; COUNTRY = null; render();
 }));
+
+/** 칩 줄 오른쪽에 아직 볼 게 남았으면 흐림을 켭니다 (다 넘기면 끕니다) */
+function updateFade(box){
+  if(!box) return;
+  const more = box.scrollWidth - box.clientWidth - box.scrollLeft > 4;
+  box.classList.toggle("more-right", more);
+}
+for(const id of ["filters","countryFilters"]){
+  const box = document.getElementById(id);
+  box.addEventListener("scroll", () => updateFade(box), { passive: true });
+}
+window.addEventListener("resize", () => {
+  for(const id of ["filters","countryFilters"]) updateFade(document.getElementById(id));
+});
 
 // 지역·특가 필터 (누를 때마다 목록을 다시 그립니다)
 document.getElementById("filters").addEventListener("click", (e) => {
