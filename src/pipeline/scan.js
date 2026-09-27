@@ -129,6 +129,10 @@ export async function runScan({
       log(`  → 목적지 ${insp.coverage.length}곳 조회, ${withData.length}곳에서 자료 확보`);
     }
   }
+  // 일부만 훑고 끝난 공급자가 있으면 적어 둡니다 (요약 맨 위에 보여 줍니다)
+  const incomplete = [insp.incomplete,
+    ...(insp.coverage ?? []).map((c) => c.incomplete && `${c.provider}: ${c.incomplete}`)].filter(Boolean);
+  if (incomplete.length) report.incomplete = incomplete;
   log(`  → 참고가 후보 ${indicative.length}건`);
 
   if (!indicative.length && !(provider.capabilities.live && provider.planDetails)) {
@@ -264,16 +268,11 @@ export async function runScan({
   if (openJaw.length) log(`  → 오픈조 후보 ${openJaw.length}건`);
 
   // 상세 조회한 것만 남기면 넓게 훑은 수백 건을 통째로 버리게 됩니다.
-  // 출처·양쪽 일정·가격·항공편까지 같은 결과만 대체합니다.
-  const upgraded = new Set();
-  for (const c of [...live, ...openJaw]) {
-    const slot = exactSlot(c);
-    upgraded.add(slot);
-  }
-  const keptIndicative = indicative.filter((c) => {
-    const slot = exactSlot(c);
-    return !upgraded.has(slot);
-  });
+  // 같은 노선·같은 날짜·같은 총액을 실제로 조회했으면 그 참고가만 대체합니다.
+  // (예전에는 exactSlot 을 써서 출처가 다르면 한 번도 대체되지 않았습니다 —
+  //  참고가는 모두 Explore·Deals·Travelpayouts 출처라 실제 조회와 출처가 늘 다르기 때문입니다)
+  const upgraded = new Set([...live, ...openJaw].map(sameTripSlot));
+  const keptIndicative = indicative.filter((c) => !upgraded.has(sameTripSlot(c)));
 
   const liveAll = [...live, ...openJaw, ...keptIndicative];
   history?.append(liveAll);
@@ -483,6 +482,15 @@ function withinStops(c, maxStops) {
 }
 
 /** 다른 귀국일·운임·공급자의 할인 근거가 사라지지 않도록 정확한 중복만 묶습니다. */
+/**
+ * 참고가를 실제 조회값으로 바꿔 끼울 때 쓰는 열쇠. 출처와 편명은 넣지 않습니다.
+ * 참고가에는 편명이 없으므로, 날짜·총액까지 같으면 실제로 조회한 값이 더 믿을 만합니다.
+ */
+function sameTripSlot(c) {
+  return [c.currency, c.originOut, c.destIn, c.destOut ?? c.destIn,
+    c.outbound?.departAt?.slice(0, 10), c.inbound?.departAt?.slice(0, 10), c.total].join("|");
+}
+
 function exactSlot(c) {
   return [c.source, c.currency, c.originOut, c.destIn, c.destOut,
     c.outbound?.departAt, c.inbound?.departAt, c.inbound?.arriveAt, c.total,

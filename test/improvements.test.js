@@ -134,7 +134,8 @@ test("최초 응답에는 귀국 공항 확인을 붙이지 않고 귀국 조회
   assert.equal(full.tripDaysBasis, "icn_confirmed");
   assert.equal(full.providerBaseline.discountPct, 45.8);
   assert.ok(full.links.length);
-  assert.ok(r.candidates.some((c) => c.returnAirportVerified === false));
+  // 왕복을 완성한 출국편의 '반쪽'은 남기지 않습니다 (같은 항공편 이중 집계 방지, 2026-09-27)
+  assert.ok(!r.candidates.some((c) => c.returnAirportVerified === false), "완성한 출국편의 반쪽이 남으면 안 된다");
   assert.equal(client.calls[0].stops, "3"); assert.ok(client.calls[1].departure_token);
   await p.searchLive(params); assert.equal(client.calls.length, 2, "동일 검색은 실행 중 재사용한다");
   assert.equal((await p.searchLive({ ...params, destination: "NBO" })).skipped, true);
@@ -517,4 +518,50 @@ test("참고가뿐이면 머리에 한 번만 경고하고, 섞여 있으면 줄
   ]);
   assert.doesNotMatch(mixed, /모두 참고가입니다/);
   assert.match(mixed, /⚠ 참고가/);
+});
+
+// ── 2026-09-27 같은 항공편 이중 집계 수정 ──────────────────────────────
+
+test("왕복을 완성하면 그 출국편 반쪽만 버리고 다른 출국편 반쪽은 남긴다", async () => {
+  const calls = [];
+  const client = { calls, checkQuota: async () => ({ ok: true }), search: async (p) => {
+    calls.push(p);
+    const out = offer("ICN", p.arrival_id, p.outbound_date, p.outbound_date);
+    out.departure_token = "selected";
+    const other = offer("ICN", p.arrival_id, p.outbound_date, p.outbound_date, 620000);
+    other.flights[0].flight_number = "OTHER-1";     // 다른 항공편
+    const back = offer(p.arrival_id, "ICN", p.return_date, "2026-11-21", 650000);
+    return { ok: true, data: { best_flights: p.departure_token ? [back] : [out, other], price_insights: historyPoints } };
+  } };
+  const p = new SerpApiProvider({ client, detailCalls: 2 });
+  const r = await p.searchLive({ destination: "CDG", departureDate: "2026-11-10", returnDate: "2026-11-20", maxStops: 2 });
+  const halves = r.candidates.filter((c) => !c.returnAirportVerified);
+  assert.equal(r.candidates.filter((c) => c.returnAirportVerified).length, 1);
+  assert.equal(halves.length, 1, "다른 출국편 반쪽 하나만 남아야 한다");
+  assert.equal(halves[0].outbound.segments[0].number, "OTHER-1");
+});
+
+test("귀국 조회가 실패하면 반쪽을 그대로 남긴다", async () => {
+  const p = new SerpApiProvider({ client: fakeSerp({ failReturn: true }), detailCalls: 2 });
+  const r = await p.searchLive({ destination: "CDG", departureDate: "2026-11-10", returnDate: "2026-11-20" });
+  assert.ok(r.candidates.length > 0 && r.candidates.every((c) => !c.returnAirportVerified));
+});
+
+test("출처가 달라도 같은 날짜·같은 총액을 실제로 조회했으면 참고가를 대체한다", async () => {
+  // fakeSerp 의 왕복 총액은 650,000원입니다. 같은 날짜·같은 값의 참고가를 넣습니다.
+  const provider = new CompositeProvider([{ provider: new SeedProvider([seed("CDG", "2026-11-20", 650000)]) },
+    { provider: new SerpApiProvider({ client: fakeSerp(), discoveryCalls: 0, detailCalls: 2 }) }]);
+  const r = await runScan({ provider, ...opts, regions: ["europe"] });
+  const same = r.needsReview.filter((x) => x.candidate.total === 650000 && x.candidate.destIn === "CDG");
+  assert.ok(same.length > 0, "실제 조회 결과는 남아야 한다");
+  assert.ok(same.every((x) => x.candidate.source !== "seed"), "같은 일정의 참고가는 대체돼야 한다");
+});
+
+test("시간이 모자라 일부만 훑었으면 요약에 표시한다", () => {
+  const report = { provider: "travelpayouts", window: { departFrom: "2026-09-25", departTo: "2027-03-10" },
+                   destinationCount: 108, incomplete: ["travelpayouts: 시간이 다 되어 90/105곳까지만 조회했습니다"] };
+  const text = renderSummary({ report, deals: [], needsReview: [], alerts: [] });
+  assert.match(text, /일부만 조회함 — travelpayouts: 시간이 다 되어 90\/105곳/);
+  const normal = renderSummary({ report: { ...report, incomplete: undefined }, deals: [], needsReview: [], alerts: [] });
+  assert.doesNotMatch(normal, /일부만 조회함/);
 });

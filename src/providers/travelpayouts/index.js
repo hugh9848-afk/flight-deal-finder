@@ -96,17 +96,19 @@ export class TravelpayoutsProvider extends FlightProvider {
 
     this.stats.errors.push(...errors);
     this.lastCoverage = coverage;
-    if (ranOutOfTime) {
-      this.stats.errors.push({ step: "time-budget",
-        error: `시간이 다 되어 ${coverage.length}/${targets.length}곳까지만 조회했습니다` });
-    }
+    // 시간이 모자라 뒤쪽 목적지를 못 훑었으면 요약에도 보이게 따로 돌려줍니다.
+    // (목록 끝이 오세아니아라 조용히 빠지면 "후보가 적다"로 오해하게 됩니다)
+    const incomplete = ranOutOfTime
+      ? `시간이 다 되어 ${coverage.length}/${targets.length}곳까지만 조회했습니다`
+      : null;
+    if (incomplete) this.stats.errors.push({ step: "time-budget", error: incomplete });
 
     const candidates = this.#toCandidates(rows, { fetchedAt, departFrom, departTo, minTripDays, maxTripDays, slack });
     // 목적지마다 2번(v2·v3) 부르므로, '전부 실패' 는 오류가 2배일 때입니다
     if (!candidates.length && errors.length >= targets.length * 2) {
-      return { ok: false, candidates: [], error: errors[0]?.error, status: errors[0]?.status, coverage };
+      return { ok: false, candidates: [], error: errors[0]?.error, status: errors[0]?.status, coverage, incomplete };
     }
-    return { ok: true, candidates, coverage };
+    return { ok: true, candidates, coverage, incomplete };
   }
 
   /** 예비책: 목적지를 콕 집어 물어봅니다. */

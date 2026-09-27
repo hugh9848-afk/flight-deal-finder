@@ -71,7 +71,8 @@ export class CompositeProvider extends FlightProvider {
       const got = res?.candidates ?? [];
       all.push(...got);
       coverage.push({ provider: provider.name, found: got.length, ok: res?.ok !== false,
-                      detail: res?.coverage ?? null, error: res?.error ?? null });
+                      detail: res?.coverage ?? null, error: res?.error ?? null,
+                      incomplete: res?.incomplete ?? null });
       this.stats.byProvider[provider.name] = {
         found: got.length,
         calls: provider.stats?.indicativeCalls ?? null,

@@ -111,6 +111,7 @@ export function renderSummary({ report, deals, needsReview, alerts = [] }) {
   L.push(`✈️ 인천 출발 특가 스캔 결과 (${report.provider})`);
   L.push(`기간: ${report.window.departFrom} ~ ${report.window.departTo} 출발 · 목적지 ${report.destinationCount}곳`);
   L.push(`확정 특가 ${deals.length}건 / 확인 필요 특가 후보 ${reviewCandidates.length}건 / 관찰 ${watch.length}건 / 새 알림 ${alerts.length}건`);
+  for (const m of report.incomplete ?? []) L.push(`⚠ 일부만 조회함 — ${m}`);
 
   // 알림이 0건일 때, '특가가 없어서'인지 '확인할 수단이 없어서'인지 구분해 줍니다.
   // 이걸 안 적으면 조용한 것을 "좋은 표가 없다"로 오해하게 됩니다.

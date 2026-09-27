@@ -227,7 +227,14 @@ export class SerpApiProvider extends FlightProvider {
           .filter((c) => c.returnAirportVerified && c.inbound.stops <= maxStops
             && (c.destOut === destination || findAirport(c.destOut)?.city_code === destination)
             && c.inbound.departAt?.slice(0, 10) === returnDate && Number.isFinite(c.total) && c.total > 0);
-        candidates = [...complete, ...candidates];
+        // 왕복을 완성했으면 그 재료였던 '가는 편 반쪽'은 버립니다.
+        // 남겨 두면 같은 항공편이 반쪽(일수 어림)·완성본(인천 도착 확정)으로 두 번 세어지고,
+        // 일수가 달라 서로 다른 기준가와 견주어져 할인율까지 엇갈립니다(2026-09-25 ALG 76% vs 0.5%).
+        // 다른 출국편 반쪽은 별개 항공편이라 그대로 둡니다.
+        const rest = complete.length
+          ? eligible.slice(0, max).filter((o) => o !== selected).map((o) => normalizeFlightOffer(o, opts))
+          : candidates;
+        candidates = [...complete, ...rest];
         url = back.data.search_metadata?.google_flights_url ?? url;
       } else {
         (back.skipped ? this.stats.skipped : this.stats.errors).push({ step: "return", destination, error: back.error });
