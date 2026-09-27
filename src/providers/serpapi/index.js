@@ -10,7 +10,7 @@ import { FlightProvider } from "../base.js";
 import { SerpApiClient } from "./client.js";
 import {
   normalizeDeal, normalizeExplore, normalizeFlightOffer, normalizeRoundTrip,
-  rowsFromDeals, rowsFromExplore, offersFromFlights,
+  rowsFromDeals, rowsFromExplore, offersFromFlights, hasNonEconomySeat,
 } from "./normalize.js";
 import { findAirport } from "../../config/destinations.js";
 import { planDetails } from "../../core/detailPlan.js";
@@ -57,7 +57,7 @@ export class SerpApiProvider extends FlightProvider {
     }
     this.detailUsed = 0;
     this.detailCache = new Map();
-    this.stats = { indicativeCalls: 0, liveCalls: 0, confirmCalls: 0, errors: [], skipped: [] };
+    this.stats = { indicativeCalls: 0, liveCalls: 0, confirmCalls: 0, errors: [], skipped: [], nonEconomyDropped: 0 };
   }
 
   get name() { return "serpapi"; }
@@ -210,9 +210,16 @@ export class SerpApiProvider extends FlightProvider {
     const offers = offersFromFlights(res.data)
       .filter((o) => Number.isFinite(o.price) && o.price > 0)
       .sort((a, b) => a.price - b.price);
+    // 이코노미가 아닌 좌석이 섞인 여정은 후보로도, 가격 기록으로도 쓰지 않습니다.
+    // (섞이면 '평소 가격'이 비즈니스 값으로 끌려 올라가 가짜 특가가 생깁니다)
+    const economy = (c) => {
+      if (!hasNonEconomySeat(c)) return true;
+      this.stats.nonEconomyDropped++;
+      return false;
+    };
     const eligible = offers.filter((o) => {
       const c = normalizeFlightOffer(o, opts);
-      return c.departureAirportVerified && c.outbound.stops <= maxStops
+      return economy(c) && c.departureAirportVerified && c.outbound.stops <= maxStops
         && (c.destIn === destination || findAirport(c.destIn)?.city_code === destination)
         && c.outbound.departAt?.slice(0, 10) === departureDate;
     });
@@ -224,7 +231,7 @@ export class SerpApiProvider extends FlightProvider {
       if (back.ok) {
         const complete = offersFromFlights(back.data)
           .map((o) => normalizeRoundTrip(selected, o, opts))
-          .filter((c) => c.returnAirportVerified && c.inbound.stops <= maxStops
+          .filter((c) => economy(c) && c.returnAirportVerified && c.inbound.stops <= maxStops
             && (c.destOut === destination || findAirport(c.destOut)?.city_code === destination)
             && c.inbound.departAt?.slice(0, 10) === returnDate && Number.isFinite(c.total) && c.total > 0);
         // 왕복을 완성했으면 그 재료였던 '가는 편 반쪽'은 버립니다.

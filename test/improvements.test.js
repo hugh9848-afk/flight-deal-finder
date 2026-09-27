@@ -565,3 +565,34 @@ test("시간이 모자라 일부만 훑었으면 요약에 표시한다", () => 
   const normal = renderSummary({ report: { ...report, incomplete: undefined }, deals: [], needsReview: [], alerts: [] });
   assert.doesNotMatch(normal, /일부만 조회함/);
 });
+
+// ── 2026-09-27 비즈니스석이 섞여 '평소 가격'을 끌어올리던 문제 ──────────────
+
+test("귀국편 한 구간이라도 비즈니스면 후보에서 빼고 센다", async () => {
+  const calls = [];
+  const client = { calls, checkQuota: async () => ({ ok: true }), search: async (p) => {
+    calls.push(p);
+    const out = offer("ICN", p.arrival_id, p.outbound_date, p.outbound_date);
+    out.departure_token = "selected";
+    out.flights[0].travel_class = "Economy";
+    const cheap = offer(p.arrival_id, "ICN", p.return_date, "2026-11-21", 1700000);
+    cheap.flights[0].travel_class = "Economy";
+    const biz = offer(p.arrival_id, "ICN", p.return_date, "2026-11-21", 7100000);
+    biz.flights[0].flight_number = "BIZ-1"; biz.flights[0].travel_class = "Business";
+    return { ok: true, data: { best_flights: p.departure_token ? [cheap, biz] : [out], price_insights: historyPoints } };
+  } };
+  const p = new SerpApiProvider({ client, detailCalls: 2 });
+  const r = await p.searchLive({ destination: "ALG", departureDate: "2026-11-10", returnDate: "2026-11-20", maxStops: 2 });
+  assert.ok(r.candidates.some((c) => c.total === 1700000));
+  assert.ok(!r.candidates.some((c) => c.total === 7100000), "비즈니스가 섞인 여정은 빠져야 한다");
+  assert.equal(p.stats.nonEconomyDropped, 1);
+});
+
+test("좌석 등급을 모르는 구간은 이코노미가 아니라고 단정하지 않는다", async () => {
+  const { hasNonEconomySeat } = await import("../src/providers/serpapi/normalize.js");
+  const leg = (cabin) => ({ segments: [{ cabin }] });
+  assert.equal(hasNonEconomySeat({ outbound: leg(null), inbound: leg(undefined) }), false);
+  assert.equal(hasNonEconomySeat({ outbound: leg("Economy"), inbound: leg("economy") }), false);
+  assert.equal(hasNonEconomySeat({ outbound: leg("Economy"), inbound: leg("Premium economy") }), true);
+  assert.equal(hasNonEconomySeat({ outbound: leg("Business"), inbound: null }), true);
+});

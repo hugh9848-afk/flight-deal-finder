@@ -139,6 +139,8 @@ export function normalizeFlightOffer(offer, { currency = "KRW", fetchedAt, price
       // 다음 구간이 없으면 판단할 게 없으므로 false 가 아니라 null 입니다.
       airportChange: next ? (arrive !== null && nextDepart !== null ? arrive !== nextDepart : null) : false,
       overnight: layovers[i]?.overnight ?? null,
+      // 좌석 등급. 이코노미를 요청해도 구글이 일부 구간만 비즈니스인 여정을 섞어 줍니다.
+      cabin: s.travel_class ?? null,
     };
   });
 
@@ -247,3 +249,15 @@ export function normalizeRoundTrip(outboundOffer, returnOffer, opts = {}) {
 export const rowsFromDeals = (d) => (Array.isArray(d?.deals) ? d.deals : []);
 export const rowsFromExplore = (d) => (Array.isArray(d?.destinations) ? d.destinations : []);
 export const offersFromFlights = (d) => [...(d?.best_flights ?? []), ...(d?.other_flights ?? [])];
+
+/**
+ * 한 구간이라도 이코노미가 아닌 좌석(비즈니스·프리미엄 이코노미 등)이 섞였는가.
+ * 등급을 모르는 구간은 섞였다고 치지 않습니다(모르는 것을 나쁘다고 단정하지 않음).
+ *
+ * 왜: 2026-09-23~24 알제 11월 5~7일 칸에 이코노미의 4~5배(714만~768만원) 값이 섞여
+ * 평소 가격이 714만원으로 잡혔고, 170만원짜리가 "76% 저렴"으로 나왔습니다.
+ */
+export function hasNonEconomySeat(c) {
+  const segs = [...(c.outbound?.segments ?? []), ...(c.inbound?.segments ?? [])];
+  return segs.some((s) => typeof s.cabin === "string" && s.cabin.trim().toLowerCase() !== "economy");
+}

@@ -109,6 +109,10 @@ export class CompositeProvider extends FlightProvider {
       try {
         const r = await provider.searchLive(params);
         this.stats.liveCalls += 1;
+        // 이코노미가 아닌 좌석이 섞여 뺀 여정 수 (보고서에서 확인용)
+        if (typeof provider.stats?.nonEconomyDropped === "number") {
+          this.stats.nonEconomyDropped = provider.stats.nonEconomyDropped;
+        }
         if (r?.ok) return r;
         // 예산이 다 됐으면 다음 공급자에게 넘기지 않고 그대로 알립니다
         if (r?.skipped) return r;
