@@ -1,513 +1,53 @@
 {
-  "month": "2026-10",
+  "month": "2026-11",
   "calls": [
     {
-      "at": "2026-10-02T00:37:47.699Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:38:03.990Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:38:09.062Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:38:19.907Z",
-      "engine": "google_flights_deals",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:39:32.330Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:39:36.690Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:39:45.029Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:39:51.415Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:40:06.209Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:40:19.163Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:40:28.173Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:40:31.602Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:40:41.400Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:40:51.591Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:40:54.738Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:41:07.174Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:41:11.327Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:41:23.759Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-02T00:41:26.647Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:54:10.548Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:54:31.088Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:54:42.247Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:54:51.272Z",
-      "engine": "google_flights_deals",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:55:58.239Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:56:02.228Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:56:16.128Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:56:23.349Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:56:42.214Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:56:57.535Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:57:25.524Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:57:30.381Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:57:48.541Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:57:53.352Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-04T23:58:09.819Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:53:09.266Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:53:27.263Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:53:43.424Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:53:53.338Z",
-      "engine": "google_flights_deals",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:55:00.626Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:55:09.965Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:55:25.238Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:55:31.536Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:55:40.224Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:56:13.567Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:56:21.279Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:56:47.811Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:56:57.385Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:57:10.138Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:57:19.387Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:57:29.771Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:57:33.352Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-08T00:57:46.424Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-11T00:12:00.295Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-11T00:12:06.793Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-11T00:12:35.067Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-11T00:12:41.506Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-11T00:13:12.887Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-11T00:13:22.774Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-11T00:13:55.122Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-11T00:13:58.360Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-11T00:14:19.020Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-14T00:15:59.284Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-14T00:16:05.196Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-14T00:16:23.593Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-14T00:16:33.078Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-14T00:16:52.250Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-14T00:16:56.654Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-14T00:17:11.754Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-14T00:17:18.727Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-16T23:27:07.904Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-16T23:27:10.509Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-16T23:27:31.767Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-16T23:27:41.329Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-20T00:14:32.395Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-20T00:14:50.056Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-20T00:14:53.076Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-22T23:59:35.260Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-22T23:59:45.620Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:07:29.476Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:07:38.875Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:08:49.989Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:08:53.737Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:09:17.334Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:09:24.807Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:09:52.463Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:10:24.684Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:10:29.292Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:11:02.775Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:11:04.310Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-25T23:11:11.302Z",
-      "engine": "google_flights",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-29T00:43:09.379Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-29T00:43:31.025Z",
-      "engine": "google_travel_explore",
-      "state": "reserved"
-    },
-    {
-      "at": "2026-10-29T00:44:40.174Z",
+      "at": "2026-11-01T00:00:47.761Z",
       "engine": "google_flights",
       "state": "reserved"
     },
     {
-      "at": "2026-10-29T00:44:49.055Z",
+      "at": "2026-11-01T00:00:53.210Z",
       "engine": "google_flights",
       "state": "reserved"
     },
     {
-      "at": "2026-10-29T00:45:15.719Z",
+      "at": "2026-11-01T00:01:12.928Z",
       "engine": "google_flights",
       "state": "reserved"
     },
     {
-      "at": "2026-10-29T00:45:23.776Z",
+      "at": "2026-11-01T00:01:18.969Z",
       "engine": "google_flights",
       "state": "reserved"
     },
     {
-      "at": "2026-10-29T00:45:44.753Z",
+      "at": "2026-11-01T00:01:42.213Z",
       "engine": "google_flights",
       "state": "reserved"
     },
     {
-      "at": "2026-10-29T00:45:50.732Z",
+      "at": "2026-11-01T00:01:47.218Z",
       "engine": "google_flights",
       "state": "reserved"
     },
     {
-      "at": "2026-10-29T00:46:25.081Z",
+      "at": "2026-11-01T00:02:18.356Z",
       "engine": "google_flights",
       "state": "reserved"
     },
     {
-      "at": "2026-10-29T00:46:28.981Z",
+      "at": "2026-11-01T00:02:25.479Z",
       "engine": "google_flights",
       "state": "reserved"
     },
     {
-      "at": "2026-10-29T00:46:49.916Z",
+      "at": "2026-11-01T00:03:02.868Z",
       "engine": "google_flights",
       "state": "reserved"
     },
     {
-      "at": "2026-10-29T00:47:00.523Z",
+      "at": "2026-11-01T00:03:06.304Z",
       "engine": "google_flights",
       "state": "reserved"
     }
